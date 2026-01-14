@@ -1,34 +1,39 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ThemeProvider } from 'styled-components'
+import { BrowserRouter } from 'react-router-dom'
+import { Container, GlobalStyle } from './styles/globalStyles'
+import SideBar from './components/Layout/SideBar'
+import AppRoutes from './routes/routes'
+import { light } from './styles/themes/light'
+import { dark } from './styles/themes/dark'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isDark, setIsDark] = useState(false)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <ThemeProvider theme={isDark ? dark : light}>
+      <BrowserRouter>
+        <GlobalStyle />
+        <Container>
+          <SideBar />
+          <AppRoutes />
+        </Container>
+
+        {/* Botão temporário para testar */}
+        <button
+          onClick={() => setIsDark(!isDark)}
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            padding: '10px 20px',
+            cursor: 'pointer'
+          }}
+        >
+          Trocar Tema
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
