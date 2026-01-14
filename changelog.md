@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.0.3] - 2026-01-14
+
+### Added
+
+- Criação dos temas light e dark.
+- Importação da fonte Roboto no index.html e aplicação via GlobalStyle.
+- Criação da pasta common para componentes reutilizáveis.
+- Implementação do componente Button com múltiplas variações e suporte a estado ativo.
+- Criação dos componentes Avatar, Textarea, PostCard e PostList.
+- Implementação do layout principal da Home (HomeLayout).
+- Criação do componente PostForm com botões "Para você" e "Seguindo".
+- Implementação da SideBar com navegação lateral baseada em rotas.
+- Criação da InfoBar com SearchBar, TrendsWidget, WhoToFollowWidget e Footer.
+- Integração do HomeLayout e InfoBar ao MainContainer da página Home.
+- Atualização do App.tsx para envolver a aplicação com ThemeProvider e layout base.
+
+### Changed
+
+- Evolução da estrutura inicial para suportar múltiplos layouts.
+- Remoção do Header global em favor de um header específico da Home.
+- Padronização do uso do tema nos componentes comuns e de layout.
+- Ajustes no comportamento de botões do tipo tab e links ativos.
+- Reorganização da Home para permitir visualização completa da página inicial.
+
+### Notes
+
+- Esta etapa consolida a **estrutura visual e arquitetural da Home**, permitindo visualizar a página inicial completa antes da implementação do feed dinâmico, regras avançadas de scroll e carregamento incremental.
+
+
+## [0.0.2] - 2026-01-10
+
+### Added
+
+- Criação da branch `feature/project-structure`
+- Estruturação inicial do projeto com separação por responsabilidades (`components`, `pages`, `routes`, `services` e `styles`)
+- Configuração do Styled Components como solução principal de estilização
+- Definição do tema global da aplicação (paleta de cores e breakpoints)
+- Criação e aplicação de estilos globais (`GlobalStyle`)
+- Organização de exports centralizados para estilos
+- Importação da fonte Roboto como tipografia base da aplicação
+- Configuração do React Router para gerenciamento de rotas
+- Definição da rota inicial da aplicação para a página Home
+- Criação da estrutura base de navegação com `BrowserRouter`
+- Implementação da página Home como ponto de entrada da aplicação
+- Criação de um Header simples para estrutura inicial de layout
+- Integração do Header, estilos globais, tema e rotas no `App.tsx`
+
+### Changed
+
+- Remoção de arquivos boilerplate gerados pelo Vite que não fazem parte da arquitetura do projeto
+- Ajuste e padronização de imports após a reorganização da estrutura inicial
+- Atualização do `App.tsx` para refletir a arquitetura base da aplicação
+- Remoção do React.StrictMode do ponto de entrada da aplicação para garantir o funcionamento correto do createGlobalStyle do styled-components em ambiente de desenvolvimento.
+- Decisão técnica tomada após identificar comportamento inconsistente do CSS global causado pelo ciclo de montagem dupla do StrictMode no React 18 com Vite, mantendo a estabilidade da estilização global do projeto.
+
+
 ## [0.0.1] - 2026-01-10
 
 ### Added
