@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { BrowserRouter } from 'react-router-dom'
-import { Container, GlobalStyle } from './styles/globalStyles'
-import SideBar from './components/Layout/SideBar'
+import { GlobalStyle } from './styles/globalStyles'
 import AppRoutes from './routes/routes'
 import { light } from './styles/themes/light'
 import { dark } from './styles/themes/dark'
@@ -14,10 +13,7 @@ function App() {
     <ThemeProvider theme={isDark ? dark : light}>
       <BrowserRouter>
         <GlobalStyle />
-        <Container>
-          <SideBar />
-          <AppRoutes />
-        </Container>
+        <AppRoutes />
 
         {/* Botão temporário para testar */}
         <button
