@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import SearchBar from './components/SearchBar'
+import type { InfoBarProps } from './types'
+import SearchBar from '../../common/SearchBar'
 import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
 import Footer from './components/Footer'
@@ -35,7 +36,7 @@ const mockSuggestions: UserSuggestion[] = [
   }
 ]
 
-const InfoBar = () => {
+const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
   const [suggestions, setSuggestions] = useState(mockSuggestions)
   const sidebarRef = useRef<HTMLElement>(null)
   const [topOffset, setTopOffset] = useState<number>(0)
@@ -86,9 +87,9 @@ const InfoBar = () => {
 
   return (
     <S.InfoBarContainer ref={sidebarRef} $topOffset={topOffset}>
-      <SearchBar />
+      {variant === 'default' ? <SearchBar /> : <S.Separator />}
       <S.ContentWrapper>
-        <TrendsWidget trends={mockTrends} />
+        {variant === 'default' && <TrendsWidget trends={mockTrends} />}
         <WhoToFollowWidget
           suggestions={suggestions}
           onFollowToggle={handleFollowToggle}

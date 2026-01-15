@@ -1,10 +1,6 @@
 import styled from 'styled-components'
-import {
-  colors,
-  fontSizes,
-  transitions
-} from '../../../../../styles/globalStyles'
-import { light } from '../../../../../styles/themes/light'
+import { colors, fontSizes, transitions } from '../../../styles/globalStyles'
+import { light } from '../../../styles/themes/light'
 
 export const SearchBarContainer = styled.div`
   position: sticky;

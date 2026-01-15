@@ -97,7 +97,7 @@ export const MainContainer = styled.main`
 
   display: grid;
   grid-template-columns: 600px 350px;
-  gap: 16px;
+  gap: 32px;
 
   align-items: start;
 

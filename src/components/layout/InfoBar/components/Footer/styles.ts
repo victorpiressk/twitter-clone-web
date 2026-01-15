@@ -13,7 +13,7 @@ export const FooterLinks = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  font-size: ${fontSizes.sm};
+  font-size: ${fontSizes.xs};
 `
 
 export const FooterLink = styled.a`

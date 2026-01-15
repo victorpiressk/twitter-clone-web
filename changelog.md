@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2026-01-15
+
+### Added
+
+- Criação do componente Input reutilizável com suporte a validação e estados de erro.
+- Implementação da página de Login com formulário de autenticação.
+- Implementação da página de Registro com formulário de cadastro e validações completas.
+- Criação do componente MainLayout para gerenciar layout com Sidebar.
+- Configuração de rotas com layouts condicionais (com e sem Sidebar).
+
+### Changed
+
+- Refatoração do App.tsx para remover Sidebar e Container (movidos para MainLayout).
+- Atualização do sistema de rotas para suportar layouts aninhados usando Outlet.
+- Reorganização da estrutura de rotas separando páginas públicas (Login, Registro) de páginas privadas (Home, Perfil, etc).
+
+### Notes
+
+- Esta etapa implementa a **autenticação visual** e **organização de layouts**, permitindo que páginas como Login apareçam sem Sidebar, enquanto páginas principais (Home, Perfil) mantêm o layout completo.
+- O MainLayout usa React Router `<Outlet />` para renderizar rotas filhas, seguindo o padrão de nested routes.
+- Validações incluem: formato de email, username alfanumérico, confirmação de senha e tamanhos mínimos.
+
 
 ## [0.0.3] - 2026-01-14
 

@@ -7,7 +7,7 @@ const Home = () => {
     <>
       <MainContainer>
         <HomeLayout />
-        <InforBar />
+        <InforBar variant="default" />
       </MainContainer>
     </>
   )

@@ -11,7 +11,7 @@ export const InfoBarContainer = styled.aside<ContainerProps>`
 
   display: flex;
   flex-direction: column;
-  padding: 0 16px;
+  padding-bottom: 64px;
 
   height: fit-content;
 
@@ -29,4 +29,10 @@ export const ScrollableContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`
+
+export const Separator = styled.div`
+  height: 1px;
+  background-color: ${(props) => props.theme.colors.border.primary};
+  margin: 16px 0;
 `
