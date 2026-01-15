@@ -3,6 +3,7 @@ import MainLayout from '../components/Layout/MainLayout'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
+import Profile from '../pages/Profile'
 
 const AppRoutes = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
       {/* Rotas COM Sidebar (usa MainLayout) */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
+        <Route path="/:username" element={<Profile />} />
       </Route>
     </Routes>
   )
