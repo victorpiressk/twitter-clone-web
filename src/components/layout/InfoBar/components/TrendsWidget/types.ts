@@ -7,4 +7,5 @@ export type Trend = {
 
 export type TrendsWidgetProps = {
   trends: Trend[]
+  showAll?: boolean
 }

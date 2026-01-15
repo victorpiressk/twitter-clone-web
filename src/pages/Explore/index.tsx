@@ -1,0 +1,186 @@
+import { useState } from 'react'
+import SearchBar from '../../components/common/SearchBar'
+import ExploreTabs from './components/ExploreTabs'
+import PostList from '../../components/common/PostList'
+import TrendsWidget from '../../components/Layout/InfoBar/components/TrendsWidget'
+import type { ExploreTab } from './types'
+import type { Post } from '../../components/common/PostCard/types'
+import type { Trend } from '../../components/Layout/InfoBar/components/TrendsWidget/types'
+import * as S from './styles'
+import { MainContainer } from '../../styles/globalStyles'
+import InfoBar from '../../components/Layout/InfoBar'
+
+// Mock data - Posts sugeridos
+const mockPosts: Post[] = [
+  {
+    id: '1',
+    author: {
+      id: '1',
+      username: 'tech_news',
+      displayName: 'Tech News BR'
+    },
+    content:
+      '🚀 Novidades do React 19: Server Components agora estão estáveis! #React #WebDev',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    stats: { comments: 45, retweets: 128, likes: 567, views: 12340 },
+    isLiked: false,
+    isRetweeted: false
+  },
+  {
+    id: '2',
+    author: {
+      id: '2',
+      username: 'dev_brasil',
+      displayName: 'Devs Brasil'
+    },
+    content:
+      'TypeScript 5.4 traz melhorias incríveis de performance! Confira: https://example.com',
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    stats: { comments: 23, retweets: 89, likes: 345, views: 8900 },
+    isLiked: false,
+    isRetweeted: false
+  },
+  {
+    id: '3',
+    author: {
+      id: '3',
+      username: 'frontend_tips',
+      displayName: 'Frontend Tips'
+    },
+    content:
+      'Dica: Use CSS Container Queries ao invés de Media Queries para componentes mais flexíveis! 💡',
+    createdAt: new Date(Date.now() - 10800000).toISOString(),
+    stats: { comments: 12, retweets: 56, likes: 234, views: 5600 },
+    isLiked: false,
+    isRetweeted: false
+  }
+]
+
+// Mock data - Trends expandidos
+const mockTrends: Trend[] = [
+  { id: '1', category: 'Tecnologia', name: '#React19', tweetCount: 125000 },
+  { id: '2', category: 'Tecnologia', name: '#TypeScript', tweetCount: 89000 },
+  { id: '3', category: 'Programação', name: '#WebDev', tweetCount: 234000 },
+  { id: '4', category: 'Tecnologia', name: '#JavaScript', tweetCount: 456000 },
+  { id: '5', category: 'Design', name: '#UX', tweetCount: 67000 }
+]
+
+const Explore = () => {
+  const [activeTab, setActiveTab] = useState<ExploreTab>('for-you')
+  const [posts, setPosts] = useState(mockPosts)
+
+  const handleLike = (postId: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              stats: {
+                ...post.stats,
+                likes: post.isLiked
+                  ? post.stats.likes - 1
+                  : post.stats.likes + 1
+              }
+            }
+          : post
+      )
+    )
+  }
+
+  const handleRetweet = (postId: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isRetweeted: !post.isRetweeted,
+              stats: {
+                ...post.stats,
+                retweets: post.isRetweeted
+                  ? post.stats.retweets - 1
+                  : post.stats.retweets + 1
+              }
+            }
+          : post
+      )
+    )
+  }
+
+  const handleComment = (postId: string) => {
+    console.log('Comentar no post:', postId)
+  }
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'for-you':
+        return (
+          <PostList
+            posts={posts}
+            onLike={handleLike}
+            onRetweet={handleRetweet}
+            onComment={handleComment}
+          />
+        )
+
+      case 'trending':
+        return (
+          <>
+            <div style={{ padding: '16px' }}>
+              <TrendsWidget trends={mockTrends} showAll />
+            </div>
+            <PostList
+              posts={posts}
+              onLike={handleLike}
+              onRetweet={handleRetweet}
+              onComment={handleComment}
+            />
+          </>
+        )
+
+      case 'news':
+        return (
+          <S.EmptyState>
+            <h3>Notícias em breve...</h3>
+            <p>Estamos trabalhando nisso! 📰</p>
+          </S.EmptyState>
+        )
+
+      case 'sports':
+        return (
+          <S.EmptyState>
+            <h3>Esportes em breve...</h3>
+            <p>Estamos trabalhando nisso! ⚽</p>
+          </S.EmptyState>
+        )
+
+      case 'entertainment':
+        return (
+          <S.EmptyState>
+            <h3>Entretenimento em breve...</h3>
+            <p>Estamos trabalhando nisso! 🎬</p>
+          </S.EmptyState>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <MainContainer>
+      <S.ExploreContainer>
+        <S.SearchBarWrapper>
+          <SearchBar />
+        </S.SearchBarWrapper>
+
+        <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <S.TabContent>{renderTabContent()}</S.TabContent>
+      </S.ExploreContainer>
+      <InfoBar variant="minimal" />
+    </MainContainer>
+  )
+}
+
+export default Explore

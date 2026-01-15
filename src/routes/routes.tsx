@@ -5,6 +5,7 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Profile from '../pages/Profile'
 import PostDetail from '../pages/PostDetail'
+import Explore from '../pages/Explore'
 
 const AppRoutes = () => {
   return (
@@ -17,8 +18,10 @@ const AppRoutes = () => {
       {/* Rotas COM Sidebar (usa MainLayout) */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
-        <Route path="/:username" element={<Profile />} />
+        <Route path="/explore" element={<Explore />} />
+
         <Route path="/:username/status/:postId" element={<PostDetail />} />
+        <Route path="/:username" element={<Profile />} />
       </Route>
     </Routes>
   )

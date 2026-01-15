@@ -2,7 +2,7 @@ import type { TrendsWidgetProps } from './types'
 import * as S from './styles'
 import Button from '../../../../common/Button'
 
-const TrendsWidget = ({ trends }: TrendsWidgetProps) => {
+const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
   const formatCount = (count: number): string => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`
@@ -13,6 +13,8 @@ const TrendsWidget = ({ trends }: TrendsWidgetProps) => {
     return count.toString()
   }
 
+  const displayTrends = showAll ? trends : trends.slice(0, 3)
+
   return (
     <S.Widget>
       <S.WidgetHeader>
@@ -20,7 +22,7 @@ const TrendsWidget = ({ trends }: TrendsWidgetProps) => {
       </S.WidgetHeader>
 
       <S.TrendsList>
-        {trends.map((trend) => (
+        {displayTrends.map((trend) => (
           <S.TrendItem key={trend.id}>
             <S.TrendCategory>{trend.category}</S.TrendCategory>
             <S.TrendName>{trend.name}</S.TrendName>
@@ -29,11 +31,13 @@ const TrendsWidget = ({ trends }: TrendsWidgetProps) => {
         ))}
       </S.TrendsList>
 
-      <S.ShowMore>
-        <Button type="link" to="/explore" variant="ghost">
-          Mostrar mais
-        </Button>
-      </S.ShowMore>
+      {!showAll && (
+        <S.ShowMore>
+          <Button type="link" to="/explore" variant="ghost">
+            Mostrar mais
+          </Button>
+        </S.ShowMore>
+      )}
     </S.Widget>
   )
 }
