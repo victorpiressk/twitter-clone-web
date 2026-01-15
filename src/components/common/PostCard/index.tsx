@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import Avatar from '../Avatar'
 import type { PostCardProps } from './types'
 import * as S from './styles'
 
 const PostCard = ({ post, onLike, onRetweet, onComment }: PostCardProps) => {
+  const navigate = useNavigate()
+
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString)
     const now = new Date()
@@ -25,8 +28,12 @@ const PostCard = ({ post, onLike, onRetweet, onComment }: PostCardProps) => {
     return num.toString()
   }
 
+  const handleClickPost = () => {
+    navigate(`/${post.author.username}/status/${post.id}`)
+  }
+
   return (
-    <S.PostCardContainer>
+    <S.PostCardContainer onClick={handleClickPost}>
       <Avatar
         src={post.author.avatar}
         alt={post.author.displayName}
