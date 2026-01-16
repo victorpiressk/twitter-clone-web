@@ -8,6 +8,7 @@ import PostDetail from '../pages/PostDetail'
 import Explore from '../pages/Explore'
 import Notifications from '../pages/Notifications'
 import Connect from '../pages/Connect'
+import Messages from '../pages/Messages'
 
 const AppRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
         <Route path="/explore" element={<Explore />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/connect" element={<Connect />} />
+        <Route path="/messages" element={<Messages />} />
 
         {/* Rotas dinâmicas */}
         <Route path="/:username/status/:postId" element={<PostDetail />} />
