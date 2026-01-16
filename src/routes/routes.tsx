@@ -7,6 +7,7 @@ import Profile from '../pages/Profile'
 import PostDetail from '../pages/PostDetail'
 import Explore from '../pages/Explore'
 import Notifications from '../pages/Notifications'
+import Connect from '../pages/Connect'
 
 const AppRoutes = () => {
   return (
@@ -16,12 +17,14 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Rotas COM Sidebar (usa MainLayout) */}
+      {/* Rotas COM Sidebar */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/connect" element={<Connect />} />
 
+        {/* Rotas dinâmicas */}
         <Route path="/:username/status/:postId" element={<PostDetail />} />
         <Route path="/:username" element={<Profile />} />
       </Route>

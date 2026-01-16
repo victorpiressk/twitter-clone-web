@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adição de sistema de notificações lidas/não lidas com indicador visual (cor de fundo diferente).
 - Implementação de navegação ao clicar em notificações (redireciona para perfil ou post).
 - Persistência local de estado de notificações usando localStorage (simula comportamento da API).
+- Criação da página Conectar (Seguir) com sugestões de usuários e criadores.
+- Implementação do componente BackButton global reutilizável.
+- Criação do ConnectTabs com filtros "Quem seguir" e "Criadores para você".
+- Implementação do UserSuggestionCard com navegação para perfil.
+- Adição de botões "Seguir/Seguindo" para usuários e "Inscrever-se/Inscrito" para criadores.
 
 ### Changed
 
@@ -47,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adição de Separator na InfoBar quando SearchBar não é exibida.
 - Implementação de rota `/notifications`.
 - Notificações marcam como lidas automaticamente ao serem clicadas.
+- Refatoração do BackButton de componentes locais (Profile, PostDetail) para componente global reutilizável.
+- Atualização do tipo onClick no Button para aceitar evento como argumento opcional.
+- Correção da rota do link "Seguir" na Sidebar para apontar para /connect.
 
 ### Notes
 
@@ -58,6 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validações de formulários incluem: formato de email, username alfanumérico, confirmação de senha e tamanhos mínimos.
 - As notificações usam localStorage para persistir o estado de lidas/não lidas entre navegações, simulando o comportamento que será implementado com a API.
 - Tipos de notificação incluem: curtida (rosa), retweet (verde), seguir (azul), menção e resposta (azul).
+- O BackButton é um componente global usado em múltiplas páginas (Profile, PostDetail, Connect) para manter consistência visual e de comportamento.
+- A tipagem do Button foi atualizada para suportar stopPropagation em casos específicos, mantendo flexibilidade de uso.
+
 
 
 ## [0.0.3] - 2026-01-14

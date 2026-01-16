@@ -1,12 +1,13 @@
 import styled from 'styled-components'
 import { fontSizes, fontWeights } from '../../styles/globalStyles'
 
-export const ProfileContainer = styled.div`
+export const ConnectContainer = styled.div`
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
+  border-left: 1px solid ${(props) => props.theme.colors.border.primary};
   min-height: 100vh;
 `
 
-export const ProfileHeader = styled.div`
+export const ConnectHeader = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
@@ -19,8 +20,6 @@ export const ProfileHeader = styled.div`
   gap: 32px;
 `
 
-export const HeaderInfo = styled.div``
-
 export const HeaderTitle = styled.h2`
   font-size: ${fontSizes.xl};
   font-weight: ${fontWeights.bold};
@@ -28,12 +27,12 @@ export const HeaderTitle = styled.h2`
   margin: 0;
 `
 
-export const PostCount = styled.p`
-  font-size: ${fontSizes.sm};
-  color: ${(props) => props.theme.colors.text.secondary};
-  margin: 2px 0 0 0;
+export const SectionTitle = styled.h3`
+  font-size: ${fontSizes.xl};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.primary};
+  padding: 16px;
+  margin: 0;
 `
 
-export const TabContent = styled.div`
-  /* Conteúdo das tabs */
-`
+export const UsersList = styled.div``

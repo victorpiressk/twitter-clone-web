@@ -19,29 +19,6 @@ export const PostDetailHeader = styled.div`
   gap: 32px;
 `
 
-export const BackButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    fill: ${(props) => props.theme.colors.text.primary};
-  }
-`
-
 export const HeaderTitle = styled.h2`
   font-size: ${fontSizes.xl};
   font-weight: ${fontWeights.bold};

@@ -10,7 +10,7 @@ export type ButtonProps = {
   variant?: ButtonVariant
   title?: string
   to?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   children: React.ReactNode
   disabled?: boolean
   active?: boolean

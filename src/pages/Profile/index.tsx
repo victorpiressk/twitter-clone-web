@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
 import PostList from '../../components/common/PostList'
@@ -8,6 +8,7 @@ import type { Post } from '../../components/common/PostCard/types'
 import * as S from './styles'
 import { MainContainer } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
+import BackButton from '../../components/common/BackButton'
 
 // Mock data (depois vem da API)
 const mockUser: UserProfile = {
@@ -45,7 +46,6 @@ const mockPosts: Post[] = [
 
 const Profile = () => {
   const { username } = useParams()
-  const navigate = useNavigate()
   const [user, setUser] = useState(mockUser)
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
   const [posts, setPosts] = useState(mockPosts)
@@ -112,13 +112,7 @@ const Profile = () => {
     <MainContainer>
       <S.ProfileContainer>
         <S.ProfileHeader>
-          <S.BackButton onClick={() => navigate(-1)}>
-            <svg viewBox="0 0 24 24">
-              <g>
-                <path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path>
-              </g>
-            </svg>
-          </S.BackButton>
+          <BackButton />
 
           <S.HeaderInfo>
             <S.HeaderTitle>{user.displayName}</S.HeaderTitle>

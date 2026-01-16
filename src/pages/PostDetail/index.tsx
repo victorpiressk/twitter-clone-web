@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import PostDetailCard from './components/PostDetailCard'
 import CommentForm from './components/CommentForm'
 import PostList from '../../components/common/PostList'
@@ -8,6 +8,7 @@ import type { PostWithComments } from './types'
 import * as S from './styles'
 import { MainContainer } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
+import BackButton from '../../components/common/BackButton'
 
 // Mock data (depois vem da API)
 const mockPost: PostWithComments = {
@@ -59,7 +60,6 @@ const mockPost: PostWithComments = {
 
 const PostDetail = () => {
   const { username, postId } = useParams()
-  const navigate = useNavigate()
   const [post, setPost] = useState(mockPost)
   const [comments, setComments] = useState(mockPost.comments)
 
@@ -161,13 +161,7 @@ const PostDetail = () => {
     <MainContainer>
       <S.PostDetailContainer>
         <S.PostDetailHeader>
-          <S.BackButton onClick={() => navigate(-1)}>
-            <svg viewBox="0 0 24 24">
-              <g>
-                <path d="M7.414 13l5.043 5.04-1.414 1.42L3.586 12l7.457-7.46 1.414 1.42L7.414 11H21v2H7.414z"></path>
-              </g>
-            </svg>
-          </S.BackButton>
+          <BackButton />
           <S.HeaderTitle>Post</S.HeaderTitle>
         </S.PostDetailHeader>
 

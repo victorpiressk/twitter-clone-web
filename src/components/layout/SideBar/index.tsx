@@ -53,9 +53,9 @@ const SideBar = () => {
           <li>
             <Button
               type="link"
-              to="/following"
+              to="/connect"
               variant="ghost" // ← ghost
-              active={currentPath === '/following'}
+              active={currentPath === '/connect'}
             >
               Seguir
             </Button>
