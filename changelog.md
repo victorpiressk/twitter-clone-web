@@ -14,18 +14,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementação da página de Registro com formulário de cadastro e validações completas.
 - Criação do componente MainLayout para gerenciar layout com Sidebar.
 - Configuração de rotas com layouts condicionais (com e sem Sidebar).
+- Criação da página de Perfil com banner, avatar e informações do usuário.
+- Implementação do ProfileHeader com metadata (localização, website, data de entrada).
+- Criação do ProfileStats exibindo seguindo e seguidores.
+- Implementação do ProfileTabs para navegação entre Posts, Respostas, Mídia e Curtidas.
+- Adição de botão Seguir/Seguindo e Editar perfil no ProfileHeader.
+- Criação da página Post Individual (PostDetail) com post expandido.
+- Implementação do PostDetailCard com estatísticas detalhadas e data completa.
+- Criação do CommentForm para adicionar comentários em posts.
+- Adição de navegação ao clicar em posts (redirecionamento para página individual).
+- Criação da página Explorar com SearchBar central e tabs de navegação.
+- Implementação do componente ExploreTabs com 5 categorias (Para você, Tendências, Notícias, Esportes, Entretenimento).
+- Adição de prop `showAll` no TrendsWidget para exibir todos os trends.
+- Criação da página de Notificações com lista de interações do usuário.
+- Implementação do NotificationItem com ícones coloridos por tipo (like, retweet, follow, mention, reply).
+- Criação do NotificationTabs com filtros "Tudo" e "Menções".
+- Adição de sistema de notificações lidas/não lidas com indicador visual (cor de fundo diferente).
+- Implementação de navegação ao clicar em notificações (redireciona para perfil ou post).
+- Persistência local de estado de notificações usando localStorage (simula comportamento da API).
 
 ### Changed
 
 - Refatoração do App.tsx para remover Sidebar e Container (movidos para MainLayout).
 - Atualização do sistema de rotas para suportar layouts aninhados usando Outlet.
 - Reorganização da estrutura de rotas separando páginas públicas (Login, Registro) de páginas privadas (Home, Perfil, etc).
+- Implementação de rota dinâmica `/:username` para perfis de usuários.
+- Implementação de rota dinâmica `/:username/status/:postId` para posts individuais (padrão Twitter).
+- Atualização do PostCard para navegar ao ser clicado.
+- Refatoração do SearchBar movendo de InfoBar/components para common (componente reutilizável global).
+- Atualização da InfoBar para aceitar types de variante, tornando-a configurável por rota.
+- Implementação de lógica no MainLayout para configurar InfoBar baseado na rota atual.
+- Adição de Separator na InfoBar quando SearchBar não é exibida.
+- Implementação de rota `/notifications`.
+- Notificações marcam como lidas automaticamente ao serem clicadas.
 
 ### Notes
 
-- Esta etapa implementa a **autenticação visual** e **organização de layouts**, permitindo que páginas como Login apareçam sem Sidebar, enquanto páginas principais (Home, Perfil) mantêm o layout completo.
+- Esta etapa implementa a **autenticação visual**, **organização de layouts** e **páginas principais de conteúdo**, permitindo que páginas como Login e Registro apareçam sem Sidebar, enquanto páginas principais (Home, Perfil, Explorar, Post Individual) mantêm o layout completo.
 - O MainLayout usa React Router `<Outlet />` para renderizar rotas filhas, seguindo o padrão de nested routes.
-- Validações incluem: formato de email, username alfanumérico, confirmação de senha e tamanhos mínimos.
+- As rotas seguem o padrão do Twitter: `/:username` para perfis e `/:username/status/:postId` para posts individuais.
+- O SearchBar agora é um componente global reutilizável.
+- A InfoBar se adapta automaticamente à rota: exibe todos os componentes na Home, esconde SearchBar e Trends na página Explorar, e esconde apenas Trends em páginas de posts.
+- Validações de formulários incluem: formato de email, username alfanumérico, confirmação de senha e tamanhos mínimos.
+- As notificações usam localStorage para persistir o estado de lidas/não lidas entre navegações, simulando o comportamento que será implementado com a API.
+- Tipos de notificação incluem: curtida (rosa), retweet (verde), seguir (azul), menção e resposta (azul).
 
 
 ## [0.0.3] - 2026-01-14

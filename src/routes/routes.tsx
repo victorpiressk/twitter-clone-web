@@ -6,6 +6,7 @@ import Register from '../pages/Register'
 import Profile from '../pages/Profile'
 import PostDetail from '../pages/PostDetail'
 import Explore from '../pages/Explore'
+import Notifications from '../pages/Notifications'
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/notifications" element={<Notifications />} />
 
         <Route path="/:username/status/:postId" element={<PostDetail />} />
         <Route path="/:username" element={<Profile />} />
