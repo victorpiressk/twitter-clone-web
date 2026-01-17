@@ -3,6 +3,7 @@ import styled from 'styled-components'
 type PopoverContainerProps = {
   $top: number
   $left: number
+  $width: number
   $variant?: string
 }
 
@@ -10,6 +11,7 @@ export const PopoverContainer = styled.div<PopoverContainerProps>`
   position: fixed;
   top: ${(props) => props.$top}px;
   left: ${(props) => props.$left}px;
+  width: ${(props) => (props.$width > 0 ? `${props.$width}px` : 'auto')};
   z-index: 1000;
 
   background-color: ${(props) => props.theme.colors.background.primary};

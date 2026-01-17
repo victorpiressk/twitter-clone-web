@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Criação do menu Popover do botão de perfil com opções "Adicionar conta existente" e "Sair".
 - Adição de variantes de estilização para Popover (botão Mais vs botão Perfil).
 - Implementação de shadows diferenciadas para temas light e dark nos Popovers.
+- Criação do SearchPopover com Estado 1 (vazio) exibindo mensagem informativa.
+- Adição da prop `matchTriggerWidth` no Popover para controlar largura baseada no trigger.
+- Implementação da posição `bottom-left` no Popover.
 
 ### Changed
 
@@ -66,12 +69,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correção da rota do link "Seguir" na Sidebar para apontar para /connect.
 - Refatoração da Sidebar para usar array de navegação com map() (código mais limpo).
 - Atualização do Modal para usar useLayoutEffect no cálculo de posições (evita warnings React).
+- Atualização do Popover para calcular e aplicar largura do trigger quando `matchTriggerWidth=true`.
+- SearchBar agora abre Popover ao focar no input.
 
 ### Technical
 
 - Popover agora suporta variantes de estilo via props (diferentes comportamentos visuais).
 - PopoverItem agora aceita variante para adequar estilização conforme contexto.
 - Shadows temáticas aplicadas dinamicamente nos Popovers.
+- Popover agora aceita `matchTriggerWidth` (boolean) para adaptar largura ao trigger.
+- SearchPopover gerencia 3 estados futuros: empty, history, searching (apenas empty implementado).
 
 ### Notes
 

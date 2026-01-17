@@ -10,10 +10,11 @@ const Popover = ({
   triggerRef,
   position = 'top-right',
   offset = 8,
-  variant
+  variant,
+  matchTriggerWidth = false
 }: PopoverProps) => {
   const popoverRef = useRef<HTMLDivElement>(null)
-  const [coords, setCoords] = useState({ top: 0, left: 0 })
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 })
 
   useLayoutEffect(() => {
     if (isOpen && triggerRef.current) {
@@ -22,6 +23,7 @@ const Popover = ({
 
       let top = 0
       let left = 0
+      const width = matchTriggerWidth ? triggerRect.width : 0
 
       // Dentro do seu useLayoutEffect...
       if (popoverRect) {
@@ -66,12 +68,12 @@ const Popover = ({
         }
 
         setCoords((prev) => {
-          if (prev.top === top && prev.left === left) return prev
-          return { top, left }
+          if (prev.top === top && prev.left === left && prev.width) return prev
+          return { top, left, width }
         })
       }
     }
-  }, [isOpen, triggerRef, position, offset])
+  }, [isOpen, triggerRef, position, offset, matchTriggerWidth])
 
   // Fecha ao clicar fora (Mantido seu original)
   useEffect(() => {
@@ -111,6 +113,7 @@ const Popover = ({
       ref={popoverRef}
       $top={coords.top}
       $left={coords.left}
+      $width={coords.width}
     >
       <S.PopoverContent>{children}</S.PopoverContent>
     </S.PopoverContainer>,

@@ -16,4 +16,5 @@ export type PopoverProps = {
   position?: PopoverPosition
   offset?: number // Distância do trigger
   variant?: string
+  matchTriggerWidth?: boolean
 }
