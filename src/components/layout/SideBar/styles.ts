@@ -7,8 +7,26 @@ import {
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
 
+// Definimos as variações de estilo
+const ITEM_VARIANTS = {
+  default: css`
+    width: 100%;
+    padding: 16px;
+    font-size: ${fontSizes.xl};
+  `,
+  profile: css`
+    width: 300px;
+    padding: 12px;
+    font-size: ${fontSizes.md};
+  `
+}
+
 type SideButtonProps = {
   variant: ButtonVariant
+}
+
+interface PopoverItemProps {
+  $variant?: keyof typeof ITEM_VARIANTS
 }
 
 export const Aside = styled.aside`
@@ -69,7 +87,6 @@ export const NavList = styled.ul`
   }
 `
 
-// ← ADICIONAR Logo
 export const Logo = styled.button`
   padding: 12px;
   font-size: 28px;
@@ -120,20 +137,19 @@ export const Username = styled.p`
   text-align: start;
 `
 
-// ← ADICIONAR PopoverItem
-export const PopoverItem = styled.button`
+export const PopoverItem = styled.button<PopoverItemProps>`
   display: flex;
   align-items: center;
-  width: 100%;
-  padding: 16px;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: ${fontSizes.xl};
   font-weight: ${fontWeights.bold};
   color: ${(props) => props.theme.colors.text.primary};
   text-align: left;
   transition: background-color 0.2s;
+
+  /* Aplica a variante (se não passar nada, usa 'default') */
+  ${({ $variant }) => ITEM_VARIANTS[$variant || 'default']}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.hover.background};

@@ -43,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementação do menu "Mais" na Sidebar com 4 opções (Configurações, Sobre, GitHub, API Docs).
 - Adição de compensação de scrollbar em modals para evitar distorção de layout.
 - Configuração de scrollbar sempre visível globalmente para evitar "pulo" entre páginas.
+- Criação do menu Popover do botão de perfil com opções "Adicionar conta existente" e "Sair".
+- Adição de variantes de estilização para Popover (botão Mais vs botão Perfil).
+- Implementação de shadows diferenciadas para temas light e dark nos Popovers.
 
 ### Changed
 
@@ -63,6 +66,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correção da rota do link "Seguir" na Sidebar para apontar para /connect.
 - Refatoração da Sidebar para usar array de navegação com map() (código mais limpo).
 - Atualização do Modal para usar useLayoutEffect no cálculo de posições (evita warnings React).
+
+### Technical
+
+- Popover agora suporta variantes de estilo via props (diferentes comportamentos visuais).
+- PopoverItem agora aceita variante para adequar estilização conforme contexto.
+- Shadows temáticas aplicadas dinamicamente nos Popovers.
 
 ### Notes
 

@@ -15,4 +15,5 @@ export type PopoverProps = {
   triggerRef: React.RefObject<HTMLElement | null> // Referência ao botão que abre
   position?: PopoverPosition
   offset?: number // Distância do trigger
+  variant?: string
 }

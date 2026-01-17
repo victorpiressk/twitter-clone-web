@@ -9,7 +9,16 @@ const SideBar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [isMoreOpen, setIsMoreOpen] = useState(false)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
+  const profileButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Mock user data (depois vem do contexto/API)
+  const currentUser = {
+    displayName: 'Victor Pires',
+    username: 'victor',
+    avatar: undefined
+  }
 
   const navItems = [
     { path: '/home', label: 'Página Inicial' },
@@ -40,6 +49,24 @@ const SideBar = () => {
       label: 'Documentação da API',
       icon: '📝',
       action: () => console.log('Docs')
+    }
+  ]
+
+  const profileMenuItems = [
+    {
+      label: 'Adicionar conta existente',
+      action: () => {
+        console.log('Adicionar conta')
+        setIsProfileMenuOpen(false)
+      }
+    },
+    {
+      label: `Sair de @${currentUser.username}`,
+      action: () => {
+        console.log('Logout')
+        setIsProfileMenuOpen(false)
+        navigate('/login')
+      }
     }
   ]
 
@@ -93,28 +120,30 @@ const SideBar = () => {
           </S.NavList>
 
           <S.SideButton
+            ref={profileButtonRef}
             type="button"
             variant="ghost"
-            onClick={() => console.log('Abrir modal de perfil')}
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
           >
             <Avatar
-              src={'user.avatar'}
-              alt={'user.displayName'}
+              src={currentUser.avatar}
+              alt={currentUser.displayName}
               size="medium"
             />
             <S.UserNames>
-              <S.DisplayName>user.displayName</S.DisplayName>
-              <S.Username>@user.username</S.Username>
+              <S.DisplayName>{currentUser.displayName}</S.DisplayName>
+              <S.Username>@{currentUser.username}</S.Username>
             </S.UserNames>
           </S.SideButton>
         </S.Nav>
       </S.Aside>
 
+      {/* Popover do botão Mais */}
       <Popover
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         triggerRef={moreButtonRef}
-        position="top-right"
+        position="top-left"
       >
         {moreItems.map((item, index) => (
           <S.PopoverItem
@@ -124,6 +153,21 @@ const SideBar = () => {
             <span style={{ marginRight: '12px', fontSize: '18px' }}>
               {item.icon}
             </span>
+            {item.label}
+          </S.PopoverItem>
+        ))}
+      </Popover>
+
+      {/* Popover do menu Perfil */}
+      <Popover
+        isOpen={isProfileMenuOpen}
+        onClose={() => setIsProfileMenuOpen(false)}
+        triggerRef={profileButtonRef}
+        position="top"
+        variant="profile"
+      >
+        {profileMenuItems.map((item, index) => (
+          <S.PopoverItem key={index} onClick={item.action} $variant="profile">
             {item.label}
           </S.PopoverItem>
         ))}

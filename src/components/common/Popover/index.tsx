@@ -9,7 +9,8 @@ const Popover = ({
   children,
   triggerRef,
   position = 'top-right',
-  offset = 8
+  offset = 8,
+  variant
 }: PopoverProps) => {
   const popoverRef = useRef<HTMLDivElement>(null)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
@@ -22,29 +23,48 @@ const Popover = ({
       let top = 0
       let left = 0
 
+      // Dentro do seu useLayoutEffect...
       if (popoverRect) {
         switch (position) {
           case 'top-right':
+            // 1. Abre para cima escondendo o botão (alinhado à esquerda do trigger)
             top = triggerRect.bottom - popoverRect.height
             left = triggerRect.left
             break
+
+          case 'top':
+            // 2. Abre para cima, centralizado, sem esconder o botão
+            top = triggerRect.top - popoverRect.height - offset
+            left =
+              triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2
+            break
+
+          case 'bottom':
+            // 3. Abre para baixo, centralizado com o botão
+            top = triggerRect.bottom + offset
+            left =
+              triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2
+            break
+
           case 'bottom-left':
+            // Mantendo o seu cálculo original para este se desejar
             top = triggerRect.bottom + offset
             left = triggerRect.left - popoverRect.width + triggerRect.width
             break
+
           default:
+            // Fallback para o comportamento que você mais usa
             top = triggerRect.bottom - popoverRect.height
             left = triggerRect.left
         }
 
+        // Seus ajustes de colisão (Mantidos exatamente iguais)
         if (top < 0) top = triggerRect.bottom + offset
         if (left < 0) left = 0
         if (left + popoverRect.width > window.innerWidth) {
           left = window.innerWidth - popoverRect.width - offset
         }
 
-        // SOLUÇÃO: Só atualiza o estado se os valores realmente mudarem.
-        // Isso interrompe a renderização em cascata (cascading renders).
         setCoords((prev) => {
           if (prev.top === top && prev.left === left) return prev
           return { top, left }
@@ -86,7 +106,12 @@ const Popover = ({
   if (!isOpen) return null
 
   return createPortal(
-    <S.PopoverContainer ref={popoverRef} $top={coords.top} $left={coords.left}>
+    <S.PopoverContainer
+      $variant={variant}
+      ref={popoverRef}
+      $top={coords.top}
+      $left={coords.left}
+    >
       <S.PopoverContent>{children}</S.PopoverContent>
     </S.PopoverContainer>,
     document.body

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 type PopoverContainerProps = {
   $top: number
   $left: number
+  $variant?: string
 }
 
 export const PopoverContainer = styled.div<PopoverContainerProps>`
@@ -13,9 +14,10 @@ export const PopoverContainer = styled.div<PopoverContainerProps>`
 
   background-color: ${(props) => props.theme.colors.background.primary};
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 8px 1px ${(props) => props.theme.colors.shadow.primary};
 
   min-width: 200px;
+  padding: ${(props) => (props.$variant === 'profile' ? '12px 0' : '0')};
   overflow: hidden;
 `
 
