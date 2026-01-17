@@ -1,4 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components'
+import { light } from './themes/light'
 
 // 🎨 Cores compartilhadas (usadas em ambos os temas)
 export const colors = {
@@ -12,7 +13,13 @@ export const colors = {
   // Feedback
   success: '#00BA7C',
   error: '#F4212E',
-  warning: '#FFD400'
+  warning: '#FFD400',
+
+  // Hover
+  hover: {
+    primary: 'rgba(29, 155, 240, 0.1)',
+    error: '#c9182b'
+  }
 }
 
 // 📱 Breakpoints de responsividade
@@ -32,9 +39,9 @@ export const transitions = {
 
 // 🔤 Tamanhos de fonte
 export const fontSizes = {
-  xs: '12px',
-  sm: '14px',
-  md: '16px',
+  xs: '11px',
+  sm: '13px',
+  md: '15px',
   lg: '18px',
   xl: '20px',
   xxl: '24px',
@@ -61,7 +68,9 @@ export const GlobalStyle = createGlobalStyle`
 
   /* ← FORÇAR SCROLLBAR SEMPRE VISÍVEL */
   html {
-    overflow-y: scroll;
+    overflow: auto scroll;
+    overscroll-behavior-y: none;
+    color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
   }
 
   /* Body */
@@ -72,6 +81,7 @@ export const GlobalStyle = createGlobalStyle`
     line-height: 1.5;
     color: ${(props) => props.theme.colors.text.primary};
     background-color: ${(props) => props.theme.colors.background.primary};
+
   }
 
   /* Listas */

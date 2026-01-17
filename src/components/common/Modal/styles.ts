@@ -30,7 +30,7 @@ export const Overlay = styled.div<OverlayProps>`
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 2000;
 
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@ type ModalContainerProps = {
 const getModalWidth = (size: string) => {
   switch (size) {
     case 'small':
-      return '400px'
+      return '320px'
     case 'medium':
       return '600px'
     case 'large':
@@ -57,7 +57,7 @@ const getModalWidth = (size: string) => {
     case 'fullscreen':
       return '100vw'
     default:
-      return '600px'
+      return 'auto'
   }
 }
 
@@ -91,7 +91,6 @@ export const ModalContainer = styled.div<ModalContainerProps>`
 export const ModalContent = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
 
   /* Scrollbar customizada */
   &::-webkit-scrollbar {

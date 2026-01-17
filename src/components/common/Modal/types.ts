@@ -8,6 +8,7 @@ export type ModalProps = {
   showOverlay?: boolean // Fundo escurecido
   showCloseButton?: boolean
   title?: string
+  header?: React.ReactNode
   footer?: React.ReactNode
   className?: string
 }

@@ -1,9 +1,19 @@
 export type SearchPopoverState = 'empty' | 'history' | 'searching'
 
+export type SearchHistoryItem = {
+  id: string
+  type: 'search' | 'user' // 🔍 busca ou 👤 usuário
+  text: string
+  username?: string // Se type='user'
+}
+
 export type SearchPopoverProps = {
   isOpen: boolean
   onClose: () => void
   triggerRef: React.RefObject<HTMLElement | null>
   state: SearchPopoverState
-  searchValue: string
+  searchHistory: SearchHistoryItem[]
+  onRemoveHistoryItem: (id: string) => void
+  onClearHistory: () => void
+  onOpenClearModal: () => void
 }

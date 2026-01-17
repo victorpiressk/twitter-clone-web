@@ -13,6 +13,7 @@ const Modal = ({
   showOverlay = true,
   showCloseButton = true,
   title,
+  header,
   footer,
   className
 }: ModalProps) => {
@@ -36,15 +37,18 @@ const Modal = ({
         window.innerWidth - document.documentElement.clientWidth
 
       // ← ADICIONAR padding para compensar
+      document.documentElement.style.overflow = 'hidden'
       document.body.style.overflow = 'hidden'
       document.body.style.paddingRight = `${scrollbarWidth}px`
     } else {
       // ← REMOVER overflow e padding
+      document.documentElement.style.overflow = ''
       document.body.style.overflow = 'unset'
       document.body.style.paddingRight = '0px'
     }
 
     return () => {
+      document.documentElement.style.overflow = ''
       document.body.style.overflow = 'unset'
       document.body.style.paddingRight = '0px'
     }
@@ -61,7 +65,7 @@ const Modal = ({
   return createPortal(
     <S.Overlay $showOverlay={showOverlay} onClick={handleOverlayClick}>
       <S.ModalContainer $size={size} className={className}>
-        {(title || showCloseButton) && (
+        {header && (
           <ModalHeader
             title={title}
             onClose={onClose}

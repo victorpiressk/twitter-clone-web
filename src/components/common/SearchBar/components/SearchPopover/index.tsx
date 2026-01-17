@@ -6,8 +6,10 @@ const SearchPopover = ({
   isOpen,
   onClose,
   triggerRef,
-  state
-  //searchValue
+  state,
+  searchHistory,
+  onRemoveHistoryItem,
+  onOpenClearModal
 }: SearchPopoverProps) => {
   const renderContent = () => {
     switch (state) {
@@ -21,8 +23,52 @@ const SearchPopover = ({
         )
 
       case 'history':
-        // TODO: Implementar Estado 2
-        return <div>Histórico (em breve)</div>
+        return (
+          <>
+            <S.PopoverContainer>
+              <S.HistoryHeader>
+                <S.HistoryTitle>Recente</S.HistoryTitle>
+                <S.ClearAllButton onClick={onOpenClearModal}>
+                  Limpar tudo
+                </S.ClearAllButton>
+              </S.HistoryHeader>
+
+              <S.HistoryList>
+                {searchHistory.map((item) => (
+                  <S.HistoryItem
+                    key={item.id}
+                    onClick={() => console.log('Click item:', item)}
+                  >
+                    <S.HistoryIcon>
+                      {item.type === 'search' ? '🔍' : '👤'}
+                    </S.HistoryIcon>
+
+                    <S.HistoryText>
+                      <S.HistoryMainText>{item.text}</S.HistoryMainText>
+                      {item.username && (
+                        <S.HistorySubText>@{item.username}</S.HistorySubText>
+                      )}
+                    </S.HistoryText>
+
+                    <S.RemoveButton
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onRemoveHistoryItem(item.id)
+                      }}
+                      aria-label="Remover"
+                    >
+                      <svg viewBox="0 0 24 24">
+                        <g>
+                          <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path>
+                        </g>
+                      </svg>
+                    </S.RemoveButton>
+                  </S.HistoryItem>
+                ))}
+              </S.HistoryList>
+            </S.PopoverContainer>
+          </>
+        )
 
       case 'searching':
         // TODO: Implementar Estado 3
@@ -38,7 +84,7 @@ const SearchPopover = ({
       isOpen={isOpen}
       onClose={onClose}
       triggerRef={triggerRef}
-      position="bottom"
+      position="bottom-left"
       matchTriggerWidth={true}
     >
       {renderContent()}

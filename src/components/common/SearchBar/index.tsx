@@ -1,32 +1,59 @@
 import { useState, useRef } from 'react'
 import SearchPopover from './components/SearchPopover'
-import type { SearchPopoverState } from './components/SearchPopover/types'
+import ClearSearchModal from './components/ClearSearchModal'
+import type {
+  SearchPopoverState,
+  SearchHistoryItem
+} from './components/SearchPopover/types'
 import * as S from './styles'
 
 const SearchBar = () => {
   const [searchValue, setSearchValue] = useState('')
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false)
   const searchFormRef = useRef<HTMLFormElement>(null)
+
+  // Mock histórico (depois vem do localStorage/API)
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([
+    { id: '1', type: 'search', text: 'react hooks' },
+    { id: '2', type: 'search', text: 'typescript' },
+    { id: '3', type: 'user', text: 'Victor Pires', username: 'victor' }
+  ])
 
   // Determina o estado do Popover
   const getPopoverState = (): SearchPopoverState => {
     if (searchValue.trim()) {
       return 'searching' // Estado 3 (futuro)
     }
-    // TODO: Verificar se tem histórico
-    // if (hasHistory) return 'history'  // Estado 2 (futuro)
+    if (searchHistory.length > 0) {
+      return 'history' // Estado 2
+    }
     return 'empty' // Estado 1
   }
 
   const handleSearch = (e: React.FormEvent) => {
-    // ← USADO aqui
     e.preventDefault()
     console.log('Buscar:', searchValue)
-    // TODO: Implementar busca
+    // TODO: Implementar busca + adicionar ao histórico
   }
 
   const handleFocus = () => {
-    setIsPopoverOpen(true)
+    if (!isClearModalOpen) {
+      setIsPopoverOpen(true)
+    }
+  }
+
+  const handleRemoveHistoryItem = (id: string) => {
+    setSearchHistory((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  const handleClearHistory = () => {
+    setSearchHistory([])
+  }
+
+  const handleOpenClearModal = () => {
+    setIsPopoverOpen(false) // Fecha o Popover
+    setIsClearModalOpen(true) // Abre a Modal
   }
 
   return (
@@ -71,7 +98,19 @@ const SearchBar = () => {
         onClose={() => setIsPopoverOpen(false)}
         triggerRef={searchFormRef}
         state={getPopoverState()}
-        searchValue={searchValue}
+        searchHistory={searchHistory}
+        onRemoveHistoryItem={handleRemoveHistoryItem}
+        onClearHistory={handleClearHistory}
+        onOpenClearModal={handleOpenClearModal}
+      />
+      {/* Modal de Limpar tudo */}
+      <ClearSearchModal
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        onConfirm={() => {
+          handleClearHistory()
+          setIsClearModalOpen(false) // Garante que fecha após confirmar
+        }}
       />
     </>
   )

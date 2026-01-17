@@ -56,9 +56,10 @@ const variants = {
 
   outline: css<StyledButtonProps>`
     background-color: transparent;
-    color: ${(props) => props.theme.colors.text.secondary};
+    color: ${(props) => props.theme.colors.text.primary};
+    border: 1px solid ${(props) => props.theme.colors.border.secondary};
     border-radius: 9999px;
-    font-weight: ${fontWeights.regular};
+    font-weight: ${fontWeights.bold};
 
     &:hover:not(:disabled) {
       background-color: ${(props) => props.theme.colors.hover.background};
@@ -123,6 +124,17 @@ const variants = {
           border-radius: 9999px;
         }
       `}
+  `,
+
+  danger: css`
+    background-color: ${colors.error};
+    color: ${colors.white};
+    font-weight: ${fontWeights.bold};
+    border-radius: 9999px;
+
+    &:hover:not(:disabled) {
+      background-color: ${colors.hover.error};
+    }
   `
 }
 

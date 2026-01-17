@@ -4,6 +4,7 @@ export type ButtonVariant =
   | 'outline'
   | 'ghost'
   | 'tab'
+  | 'danger'
 
 export type ButtonProps = {
   type: 'button' | 'submit' | 'link'

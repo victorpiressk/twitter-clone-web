@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.4] - 2026-01-15
+## [0.0.4] - 2026-01-17
 
 ### Added
 
@@ -49,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Criação do SearchPopover com Estado 1 (vazio) exibindo mensagem informativa.
 - Adição da prop `matchTriggerWidth` no Popover para controlar largura baseada no trigger.
 - Implementação da posição `bottom-left` no Popover.
+- Criação do SearchBar Popover Estado 2 (histórico de buscas).
+- Implementação da ClearSearchModal para confirmação de limpeza de histórico.
+- Adição de botão "Limpar tudo" no histórico de buscas.
+- Criação de botões X individuais para remover itens do histórico.
+- Adição da variante "danger" (vermelha) no componente Button.
+- Implementação de tipos diferenciados no histórico (🔍 busca, 👤 usuário).
 
 ### Changed
 
@@ -71,6 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Atualização do Modal para usar useLayoutEffect no cálculo de posições (evita warnings React).
 - Atualização do Popover para calcular e aplicar largura do trigger quando `matchTriggerWidth=true`.
 - SearchBar agora abre Popover ao focar no input.
+- Modal agora esconde scrollbar do html e body ao abrir (não apenas body).
+- ClearSearchModal posicionada fora do Popover para evitar problemas de renderização.
+- SearchBar gerencia estados do Popover e Modal de forma independente.
 
 ### Technical
 
@@ -79,6 +88,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shadows temáticas aplicadas dinamicamente nos Popovers.
 - Popover agora aceita `matchTriggerWidth` (boolean) para adaptar largura ao trigger.
 - SearchPopover gerencia 3 estados futuros: empty, history, searching (apenas empty implementado).
+- SearchHistory armazenado em estado local (futuro: localStorage ou API).
+- Modal renderizada no nível da SearchBar, não dentro do Popover.
+- Histórico vazio automaticamente retorna ao Estado 1.
 
 ### Notes
 
