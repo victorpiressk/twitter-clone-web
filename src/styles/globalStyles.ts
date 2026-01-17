@@ -59,6 +59,11 @@ export const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  /* ← FORÇAR SCROLLBAR SEMPRE VISÍVEL */
+  html {
+    overflow-y: scroll;
+  }
+
   /* Body */
   body {
     font-family: "Roboto", sans-serif;

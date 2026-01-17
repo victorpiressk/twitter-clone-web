@@ -37,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Criação do ConnectTabs com filtros "Quem seguir" e "Criadores para você".
 - Implementação do UserSuggestionCard com navegação para perfil.
 - Adição de botões "Seguir/Seguindo" para usuários e "Inscrever-se/Inscrito" para criadores.
+- Criação da página Mensagens como placeholder para funcionalidade futura.
+- Criação do componente Modal Base reutilizável para modals centralizadas.
+- Criação do componente Popover para menus dropdown posicionados.
+- Implementação do menu "Mais" na Sidebar com 4 opções (Configurações, Sobre, GitHub, API Docs).
+- Adição de compensação de scrollbar em modals para evitar distorção de layout.
+- Configuração de scrollbar sempre visível globalmente para evitar "pulo" entre páginas.
 
 ### Changed
 
@@ -55,6 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refatoração do BackButton de componentes locais (Profile, PostDetail) para componente global reutilizável.
 - Atualização do tipo onClick no Button para aceitar evento como argumento opcional.
 - Correção da rota do link "Seguir" na Sidebar para apontar para /connect.
+- Refatoração da Sidebar para usar array de navegação com map() (código mais limpo).
+- Atualização do Modal para usar useLayoutEffect no cálculo de posições (evita warnings React).
 
 ### Notes
 
@@ -68,7 +76,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tipos de notificação incluem: curtida (rosa), retweet (verde), seguir (azul), menção e resposta (azul).
 - O BackButton é um componente global usado em múltiplas páginas (Profile, PostDetail, Connect) para manter consistência visual e de comportamento.
 - A tipagem do Button foi atualizada para suportar stopPropagation em casos específicos, mantendo flexibilidade de uso.
-
+- A página Mensagens foi implementada como placeholder, sinalizando que a funcionalidade será desenvolvida em versões futuras. A API de mensagens não foi implementada no backend, pois não faz parte dos requisitos obrigatórios do projeto.
+- Modal Base usa Portal (renderiza no body), overlay escuro opcional, header/footer customizáveis.
+- Popover usa useLayoutEffect para cálculos de posição DOM antes do paint.
+- Ambos componentes fecham com ESC e click fora, seguindo padrões de acessibilidade.
 
 
 ## [0.0.3] - 2026-01-14
