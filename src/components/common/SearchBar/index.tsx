@@ -3,7 +3,9 @@ import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
 import type {
   SearchPopoverState,
-  SearchHistoryItem
+  SearchHistoryItem,
+  SearchSuggestion,
+  SearchUserResult
 } from './components/SearchPopover/types'
 import * as S from './styles'
 
@@ -20,10 +22,66 @@ const SearchBar = () => {
     { id: '3', type: 'user', text: 'Victor Pires', username: 'victor' }
   ])
 
+  // Mock dados para busca (depois vem da API)
+  const allSuggestions: SearchSuggestion[] = [
+    { id: '1', text: 'react' },
+    { id: '2', text: 'react hooks' },
+    { id: '3', text: 'react native' },
+    { id: '4', text: 'typescript' },
+    { id: '5', text: 'javascript' }
+  ]
+
+  const allUsers: SearchUserResult[] = [
+    {
+      id: '1',
+      displayName: 'React Brasil',
+      username: 'reactbrasil',
+      bio: 'Comunidade brasileira de React'
+    },
+    {
+      id: '2',
+      displayName: 'React Community',
+      username: 'reactjs',
+      bio: 'Official React community'
+    },
+    {
+      id: '3',
+      displayName: 'TypeScript',
+      username: 'typescript',
+      bio: 'TypeScript is a superset of JavaScript'
+    },
+    {
+      id: '4',
+      displayName: 'Victor Pires',
+      username: 'victor',
+      bio: 'Desenvolvedor Full Stack'
+    }
+  ]
+
+  // Filtra sugestões baseado no searchValue
+  const getFilteredSuggestions = (): SearchSuggestion[] => {
+    if (!searchValue.trim()) return []
+    return allSuggestions
+      .filter((s) => s.text.toLowerCase().includes(searchValue.toLowerCase()))
+      .slice(0, 3) // Máximo 3 sugestões
+  }
+
+  // Filtra usuários baseado no searchValue
+  const getFilteredUsers = (): SearchUserResult[] => {
+    if (!searchValue.trim()) return []
+    return allUsers
+      .filter(
+        (u) =>
+          u.displayName.toLowerCase().includes(searchValue.toLowerCase()) ||
+          u.username.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .slice(0, 3) // Máximo 3 usuários
+  }
+
   // Determina o estado do Popover
   const getPopoverState = (): SearchPopoverState => {
     if (searchValue.trim()) {
-      return 'searching' // Estado 3 (futuro)
+      return 'searching' // Estado 3
     }
     if (searchHistory.length > 0) {
       return 'history' // Estado 2
@@ -102,6 +160,8 @@ const SearchBar = () => {
         onRemoveHistoryItem={handleRemoveHistoryItem}
         onClearHistory={handleClearHistory}
         onOpenClearModal={handleOpenClearModal}
+        searchSuggestions={getFilteredSuggestions()}
+        searchResults={getFilteredUsers()}
       />
       {/* Modal de Limpar tudo */}
       <ClearSearchModal

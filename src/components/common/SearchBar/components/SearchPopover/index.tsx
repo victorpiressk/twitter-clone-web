@@ -1,6 +1,7 @@
 import Popover from '../../../Popover'
 import type { SearchPopoverProps } from './types'
 import * as S from './styles'
+import Avatar from '../../../Avatar'
 
 const SearchPopover = ({
   isOpen,
@@ -9,7 +10,9 @@ const SearchPopover = ({
   state,
   searchHistory,
   onRemoveHistoryItem,
-  onOpenClearModal
+  onOpenClearModal,
+  searchSuggestions = [],
+  searchResults = []
 }: SearchPopoverProps) => {
   const renderContent = () => {
     switch (state) {
@@ -71,8 +74,57 @@ const SearchPopover = ({
         )
 
       case 'searching':
-        // TODO: Implementar Estado 3
-        return <div>Pesquisando (em breve)</div>
+        return (
+          <S.PopoverContainer>
+            <S.SearchingSection>
+              {/* Sugestões de busca */}
+              {searchSuggestions.length > 0 && (
+                <>
+                  {searchSuggestions.map((suggestion) => (
+                    <S.SuggestionItem
+                      key={suggestion.id}
+                      onClick={() => console.log('Buscar:', suggestion.text)}
+                    >
+                      <S.SuggestionIcon>🔍</S.SuggestionIcon>
+                      <S.SuggestionText>{suggestion.text}</S.SuggestionText>
+                    </S.SuggestionItem>
+                  ))}
+
+                  {searchResults.length > 0 && <S.Divider />}
+                </>
+              )}
+
+              {/* Resultados de usuários */}
+              {searchResults.map((user) => (
+                <S.UserResultItem
+                  key={user.id}
+                  onClick={() => console.log('Ir para perfil:', user.username)}
+                >
+                  <Avatar
+                    src={user.avatar}
+                    alt={user.displayName}
+                    size="medium"
+                  />
+
+                  <S.UserResultInfo>
+                    <S.UserResultName>{user.displayName}</S.UserResultName>
+                    <S.UserResultUsername>
+                      @{user.username}
+                    </S.UserResultUsername>
+                    {user.bio && <S.UserResultBio>{user.bio}</S.UserResultBio>}
+                  </S.UserResultInfo>
+                </S.UserResultItem>
+              ))}
+
+              {/* Se não houver resultados */}
+              {searchSuggestions.length === 0 && searchResults.length === 0 && (
+                <S.EmptyMessage>
+                  Tente buscar por pessoas, listas ou palavras-chave
+                </S.EmptyMessage>
+              )}
+            </S.SearchingSection>
+          </S.PopoverContainer>
+        )
 
       default:
         return null

@@ -53,8 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementação da ClearSearchModal para confirmação de limpeza de histórico.
 - Adição de botão "Limpar tudo" no histórico de buscas.
 - Criação de botões X individuais para remover itens do histórico.
-- Adição da variante "danger" (vermelha) no componente Button.
+- Adição da variante "danger" (vermelha) no globalStyles e chamado no componente Button.
 - Implementação de tipos diferenciados no histórico (🔍 busca, 👤 usuário).
+- Criação do SearchBar Popover Estado 3 (pesquisando).
+- Implementação de sugestões de busca filtradas em tempo real.
+- Adição de resultados de usuários com avatar, nome, username e bio.
+- Scroll customizado no SearchPopover com altura máxima de 480px.
+- Divisor visual entre sugestões e resultados de usuários.
+- Filtragem por nome de usuário e @username.
+- Limite de 3 sugestões e 3 usuários nos resultados.
+- Mensagem vazia quando não há resultados de busca.
 
 ### Changed
 
@@ -80,6 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modal agora esconde scrollbar do html e body ao abrir (não apenas body).
 - ClearSearchModal posicionada fora do Popover para evitar problemas de renderização.
 - SearchBar gerencia estados do Popover e Modal de forma independente.
+- SearchPopover agora suporta scroll vertical quando conteúdo excede 480px.
+- Padding ajustado para permitir scroll sem cortar conteúdo.
 
 ### Technical
 
@@ -91,6 +101,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SearchHistory armazenado em estado local (futuro: localStorage ou API).
 - Modal renderizada no nível da SearchBar, não dentro do Popover.
 - Histórico vazio automaticamente retorna ao Estado 1.
+- Filtragem de sugestões e usuários acontece na SearchBar (não no Popover).
+- SearchPopover recebe apenas resultados já filtrados via props.
+- Scrollbar customizada seguindo padrão visual da aplicação.
+- Mock de dados de sugestões e usuários (futuro: API).
 
 ### Notes
 
