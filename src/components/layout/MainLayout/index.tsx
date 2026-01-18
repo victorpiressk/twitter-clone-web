@@ -1,13 +1,22 @@
+import {
+  HeaderSection,
+  LayoutWrapper,
+  MainSection
+} from '../../../styles/globalStyles'
 import { Outlet } from 'react-router-dom'
 import SideBar from '../SideBar'
-import { Container } from '../../../styles/globalStyles'
 
 const MainLayout = () => {
   return (
-    <Container>
-      <SideBar />
-      <Outlet /> {/* ← Renderiza as rotas filhas */}
-    </Container>
+    <LayoutWrapper>
+      <HeaderSection>
+        <SideBar /> {/* Sua Sidebar vai aqui dentro */}
+      </HeaderSection>
+
+      <MainSection>
+        <Outlet /> {/* ← Renderiza as rotas filhas */}
+      </MainSection>
+    </LayoutWrapper>
   )
 }
 

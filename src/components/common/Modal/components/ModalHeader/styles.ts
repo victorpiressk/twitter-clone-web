@@ -30,7 +30,7 @@ export const CloseButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.secondary};
   }
 
   svg {

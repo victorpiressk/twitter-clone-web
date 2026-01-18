@@ -7,7 +7,7 @@ import type { ExploreTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
 import type { Trend } from '../../components/Layout/InfoBar/components/TrendsWidget/types'
 import * as S from './styles'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 
 // Mock data - Posts sugeridos
@@ -168,7 +168,7 @@ const Explore = () => {
   }
 
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.ExploreContainer>
         <S.SearchBarWrapper>
           <SearchBar />
@@ -179,7 +179,7 @@ const Explore = () => {
         <S.TabContent>{renderTabContent()}</S.TabContent>
       </S.ExploreContainer>
       <InfoBar variant="minimal" />
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

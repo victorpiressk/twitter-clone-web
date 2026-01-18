@@ -15,7 +15,7 @@ export const BackButtonContainer = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.secondary};
   }
 
   svg {

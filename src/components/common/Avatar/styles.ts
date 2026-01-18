@@ -7,7 +7,7 @@ type AvatarContainerProps = {
 const sizes = {
   small: '32px',
   medium: '40px',
-  large: '64px'
+  large: '133px'
 }
 
 const fontSizes = {

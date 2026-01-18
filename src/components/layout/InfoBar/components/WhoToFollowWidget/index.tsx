@@ -35,7 +35,7 @@ const WhoToFollowWidget = ({
       </S.SuggestionsList>
 
       <S.ShowMore>
-        <Button type="link" to="/explore" variant="ghost">
+        <Button type="link" to="/connect" variant="ghost">
           Mostrar mais
         </Button>
       </S.ShowMore>

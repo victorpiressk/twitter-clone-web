@@ -10,16 +10,24 @@ export const InfoBarContainer = styled.aside<ContainerProps>`
   top: ${(props) => props.$topOffset}px;
 
   display: flex;
+  justify-content: flex-start;
   flex-direction: column;
+  flex-shrink: 0;
+  width: 420px;
   padding-bottom: 64px;
 
   height: fit-content;
 
   transition: ${transitions.fast};
+
+  @media (max-width: 1024px) {
+    display: none; /* Some igual no original */
+  }
 `
 export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  width: 350px;
   gap: 16px;
 `
 

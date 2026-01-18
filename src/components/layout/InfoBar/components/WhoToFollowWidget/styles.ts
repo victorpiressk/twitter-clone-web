@@ -4,6 +4,7 @@ import {
   fontSizes,
   fontWeights
 } from '../../../../../styles/globalStyles'
+import { ButtonLink } from '../../../../common/Button/styles'
 
 export const Widget = styled.div`
   background-color: ${(props) => props.theme.colors.background.primary};
@@ -12,13 +13,12 @@ export const Widget = styled.div`
 `
 
 export const WidgetHeader = styled.div`
-  padding: 16px;
-  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+  padding: 12px 16px;
 `
 
 export const WidgetTitle = styled.h2`
   font-size: ${fontSizes.xl};
-  font-weight: ${fontWeights.bold};
+  font-weight: ${fontWeights.heavy};
   color: ${(props) => props.theme.colors.text.primary};
 `
 
@@ -36,7 +36,7 @@ export const SuggestionItem = styled.li`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 
@@ -73,6 +73,12 @@ export const ShowMore = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+
+  ${ButtonLink} {
+    &:hover {
+      background-color: transparent;
+    }
   }
 `

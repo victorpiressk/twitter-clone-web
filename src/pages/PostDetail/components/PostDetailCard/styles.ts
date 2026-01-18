@@ -126,7 +126,7 @@ export const ActionButton = styled.button<{
         return 'rgba(29, 155, 240, 0.1)'
       if (props.$color === '#00ba7c') return 'rgba(0, 186, 124, 0.1)'
       if (props.$color === '#f91880') return 'rgba(249, 24, 128, 0.1)'
-      return props.theme.colors.hover.background
+      return props.theme.colors.hover.primary
     }};
 
     color: ${(props) => props.$color || props.theme.colors.text.primary};

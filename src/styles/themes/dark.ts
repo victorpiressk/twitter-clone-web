@@ -23,7 +23,8 @@ export const dark = {
 
     // Estados
     hover: {
-      background: '#181818'
+      primary: '#181818',
+      secondary: 'rgba(255, 255, 255, 0.2)'
     },
 
     // Sombras

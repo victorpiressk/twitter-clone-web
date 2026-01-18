@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { colors, fontSizes, transitions } from '../../../styles/globalStyles'
+import { colors, transitions } from '../../../styles/globalStyles'
 import { light } from '../../../styles/themes/light'
 
 export const SearchBarContainer = styled.div`
@@ -7,7 +7,7 @@ export const SearchBarContainer = styled.div`
   top: 0;
   z-index: 10;
   background-color: ${(props) => props.theme.colors.background.primary};
-  padding: 6px 0 16px 0;
+  padding-top: 4px;
 `
 
 export const SearchForm = styled.form`
@@ -17,7 +17,7 @@ export const SearchForm = styled.form`
   background-color: ${(props) => props.theme.colors.background.primary};
   border: 1px solid ${(props) => props.theme.colors.border.secondary};
   border-radius: 9999px;
-  padding: 12px 16px;
+  padding: 11px 10px;
   transition: ${transitions.fast};
 
   &:focus-within {
@@ -29,16 +29,16 @@ export const SearchForm = styled.form`
 export const SearchIcon = styled.div`
   width: 20px;
   height: 20px;
-  margin-right: 4px;
+  margin-right: 3px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
-    width: 100%;
-    height: 100%;
-    fill: ${(props) => props.theme.colors.text.secondary};
+    width: 16px;
+    height: 16px;
+    fill: ${(props) => props.theme.colors.text.tertiary};
   }
 `
 
@@ -47,8 +47,8 @@ export const SearchInput = styled.input`
   background: transparent;
   border: none;
   outline: none;
-  font-size: ${fontSizes.sm};
-  color: ${(props) => props.theme.colors.text.primary};
+  font-size: 14px;
+  color: ${(props) => props.theme.colors.text.tertiary};
 
   &::placeholder {
     color: ${(props) => props.theme.colors.text.secondary};
@@ -74,10 +74,6 @@ export const ClearButton = styled.button`
   svg {
     width: 12px;
     height: 12px;
-    fill: ${(props) => props.theme.colors.background.primary};
-  }
-
-  &:hover {
-    background: ${(props) => props.theme.colors.hover.background};
+    fill: ${(props) => props.theme.colors.text.secondary};
   }
 `

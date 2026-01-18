@@ -4,6 +4,8 @@ import { fontSizes, fontWeights } from '../../styles/globalStyles'
 export const ProfileContainer = styled.div`
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
   min-height: 100vh;
+  width: 600px;
+  flex-shrink: 0;
 `
 
 export const ProfileHeader = styled.div`

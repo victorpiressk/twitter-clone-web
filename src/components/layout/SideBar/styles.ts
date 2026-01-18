@@ -1,11 +1,8 @@
 import styled, { css } from 'styled-components'
-import {
-  breakpoints,
-  fontSizes,
-  fontWeights
-} from '../../../styles/globalStyles'
+import { fontSizes, fontWeights } from '../../../styles/globalStyles'
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
+import { light } from '../../../styles/themes/light'
 
 // Definimos as variações de estilo
 const ITEM_VARIANTS = {
@@ -34,32 +31,15 @@ export const Aside = styled.aside`
   top: 0;
   width: 275px;
   height: 100vh;
-  overflow-y: auto;
 
-  padding: 0 16px 0 8px;
+  padding: 0 8px 0 8px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${(props) => props.theme.colors.border.primary};
-    border-radius: 3px;
-
-    &:hover {
-      background: ${(props) => props.theme.colors.border.secondary};
-    }
-  }
-
-  @media (max-width: ${breakpoints.tablet}) {
-    width: 50px;
-  }
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
 `
 
 export const Nav = styled.nav`
@@ -67,7 +47,7 @@ export const Nav = styled.nav`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-bottom: 16px;
+  padding-bottom: 12px;
 `
 
 export const NavList = styled.ul`
@@ -75,20 +55,26 @@ export const NavList = styled.ul`
   flex-direction: column;
 
   li:last-child {
-    margin-top: 16px;
+    margin-top: 4px;
   }
 
   ${ButtonLink} {
+    height: 50.25px;
     padding: 12px;
     font-size: ${fontSizes.xl};
     justify-content: flex-start;
-    gap: 20px;
     text-decoration: none;
+
+    span {
+      margin: 0 16px 0 20px;
+    }
   }
 `
 
 export const Logo = styled.button`
   padding: 12px;
+  margin-top: 2px;
+  margin-bottom: 7px;
   font-size: 28px;
   font-weight: ${fontWeights.bold};
   background: none;
@@ -104,37 +90,55 @@ export const Logo = styled.button`
   justify-content: center;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.secondary};
   }
 `
 
 export const SideButton = styled(ButtonContainer)<SideButtonProps>`
   ${({ variant }) => css`
+    margin: ${variant === 'secondary' ? '4px 0' : '0'};
     width: ${variant === 'secondary' ? '220px' : 'auto'};
     padding: ${variant === 'secondary' ? '16px' : '12px'};
     font-size: ${variant === 'secondary' ? fontSizes.lg : fontSizes.xl};
-    justify-content: ${variant === 'secondary' ? 'center' : 'flex-start'};
+    justify-content: ${variant === 'secondary' ? 'center' : 'space-between'};
+
+    span {
+      margin: 0 16px 0 20px;
+    }
   `}
+`
+
+export const FooterButton = styled(ButtonContainer)`
+  justify-content: space-between;
+  margin-top: 12px;
 `
 
 export const UserNames = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+
+  padding: 0 11px;
 `
 
-export const DisplayName = styled.h1`
-  font-size: ${fontSizes.sm};
+export const DisplayName = styled.span`
+  font-size: ${fontSizes.md};
   font-weight: ${fontWeights.bold};
   color: ${(props) => props.theme.colors.text.primary};
-  margin: 0;
+  text-align: start;
+  width: 105.38px;
 `
 
 export const Username = styled.p`
-  font-size: ${fontSizes.sm};
+  font-size: ${fontSizes.md};
   color: ${(props) => props.theme.colors.text.secondary};
-  margin: 4px 0 0 0;
   text-align: start;
+  margin-top: 4px;
+`
+export const MoreIcon = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 `
 
 export const PopoverItem = styled.button<PopoverItemProps>`
@@ -152,6 +156,6 @@ export const PopoverItem = styled.button<PopoverItemProps>`
   ${({ $variant }) => ITEM_VARIANTS[$variant || 'default']}
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `

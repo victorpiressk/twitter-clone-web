@@ -6,7 +6,7 @@ import PostList from '../../components/common/PostList'
 import type { UserProfile, ProfileTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
 import * as S from './styles'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 
@@ -109,7 +109,7 @@ const Profile = () => {
   }
 
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.ProfileContainer>
         <S.ProfileHeader>
           <BackButton />
@@ -160,7 +160,7 @@ const Profile = () => {
         </S.TabContent>
       </S.ProfileContainer>
       <InfoBar />
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

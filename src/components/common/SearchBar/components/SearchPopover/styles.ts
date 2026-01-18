@@ -17,7 +17,7 @@ export const PopoverContainer = styled.div`
 export const EmptyMessage = styled.p`
   padding: 12px;
   font-size: ${fontSizes.md};
-  font-weight: ${fontWeights.light};
+  font-weight: ${fontWeights.regular};
   color: ${(props) => props.theme.colors.text.secondary};
   text-align: center;
   margin: 0;
@@ -70,7 +70,7 @@ export const HistoryItem = styled.div`
   border-radius: 4px;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 
@@ -140,12 +140,12 @@ export const SuggestionItem = styled.div`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 
 export const SuggestionIcon = styled.div`
-  font-size: 18px;
+  font-size: ${fontSizes.lg};
   color: ${(props) => props.theme.colors.text.secondary};
   flex-shrink: 0;
 `
@@ -175,7 +175,7 @@ export const UserResultItem = styled.div`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 

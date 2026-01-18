@@ -5,10 +5,10 @@ import CommentForm from './components/CommentForm'
 import PostList from '../../components/common/PostList'
 import type { Post } from '../../components/common/PostCard/types'
 import type { PostWithComments } from './types'
-import * as S from './styles'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import * as S from './styles'
 
 // Mock data (depois vem da API)
 const mockPost: PostWithComments = {
@@ -158,7 +158,7 @@ const PostDetail = () => {
   }
 
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.PostDetailContainer>
         <S.PostDetailHeader>
           <BackButton />
@@ -183,7 +183,7 @@ const PostDetail = () => {
         </S.CommentsSection>
       </S.PostDetailContainer>
       <InfoBar />
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

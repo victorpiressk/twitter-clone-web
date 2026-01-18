@@ -1,6 +1,11 @@
 import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
-import { colors, fontWeights, transitions } from '../../../styles/globalStyles'
+import {
+  colors,
+  fontSizes,
+  fontWeights,
+  transitions
+} from '../../../styles/globalStyles'
 import type { ButtonVariant } from './types'
 
 type StyledButtonProps = {
@@ -13,14 +18,13 @@ const baseStyles = css<StyledButtonProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
 
-  padding: 12px 24px;
+  padding: 8px 16px;
   border: none;
   cursor: pointer;
 
-  font-size: 15px;
-  font-weight: 700;
+  font-size: ${fontSizes.md};
+  font-weight: ${fontWeights.medium};
 
   transition: ${transitions.fast};
 
@@ -62,14 +66,14 @@ const variants = {
     font-weight: ${fontWeights.bold};
 
     &:hover:not(:disabled) {
-      background-color: ${(props) => props.theme.colors.hover.background};
+      background-color: ${(props) => props.theme.colors.hover.secondary};
     }
 
     ${(props) =>
       props.$active &&
       css`
         color: ${props.theme.colors.text.primary};
-        font-weight: ${fontWeights.semibold};
+        font-weight: ${fontWeights.bold};
         }
       `}
   `,
@@ -78,18 +82,18 @@ const variants = {
     background-color: transparent;
     color: ${(props) => props.theme.colors.text.primary};
     border-radius: 9999px;
-    padding: 12px 16px;
+    padding: 12px;
     font-weight: ${fontWeights.regular};
 
     &:hover:not(:disabled) {
-      background-color: ${(props) => props.theme.colors.hover.background};
+      background-color: ${(props) => props.theme.colors.hover.secondary};
     }
 
     ${(props) =>
       props.$active &&
       css`
         color: ${props.theme.colors.text.primary};
-        font-weight: ${fontWeights.semibold};
+        font-weight: ${fontWeights.bold};
         }
       `}
   `,
@@ -103,7 +107,7 @@ const variants = {
     font-weight: ${fontWeights.medium};
 
     &:hover:not(:disabled) {
-      background-color: ${(props) => props.theme.colors.hover.background};
+      background-color: ${(props) => props.theme.colors.hover.secondary};
     }
 
     ${(props) =>
@@ -118,7 +122,7 @@ const variants = {
           bottom: 0;
           left: 50%;
           transform: translateX(-50%);
-          width: 56px;
+          width: 64px;
           height: 4px;
           background-color: ${colors.primary};
           border-radius: 9999px;

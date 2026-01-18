@@ -1,5 +1,19 @@
 import { useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  Twitter,
+  Home,
+  Search,
+  Bell,
+  Mail,
+  UserPlus,
+  User,
+  MoreHorizontal,
+  Settings,
+  Info,
+  Github,
+  Dock
+} from 'lucide-react'
 import Button from '../../common/Button'
 import Avatar from '../../common/Avatar'
 import Popover from '../../common/Popover'
@@ -21,33 +35,45 @@ const SideBar = () => {
   }
 
   const navItems = [
-    { path: '/home', label: 'Página Inicial' },
-    { path: '/explore', label: 'Explorar' },
-    { path: '/notifications', label: 'Notificações' },
-    { path: '/connect', label: 'Seguir' },
-    { path: '/messages', label: 'Bate-papo' },
-    { path: '/profile', label: 'Perfil' }
+    {
+      path: '/home',
+      label: 'Página Inicial',
+      icon: <Home size={26.25} />
+    },
+    {
+      path: '/explore',
+      label: 'Explorar',
+      icon: <Search size={26.25} />
+    },
+    {
+      path: '/notifications',
+      label: 'Notificações',
+      icon: <Bell size={26.25} />
+    },
+    { path: '/connect', label: 'Seguir', icon: <UserPlus size={26.25} /> },
+    { path: '/messages', label: 'Bate-papo', icon: <Mail size={26.25} /> },
+    { path: '/profile', label: 'Perfil', icon: <User size={26.25} /> }
   ]
 
   const moreItems = [
     {
       label: 'Configurações e privacidade',
-      icon: '⚙️',
+      icon: <Settings size={24} />,
       action: () => navigate('/settings')
     },
     {
       label: 'Sobre o projeto',
-      icon: 'ℹ️',
+      icon: <Info size={24} />,
       action: () => console.log('Sobre')
     },
     {
       label: 'GitHub',
-      icon: '👤',
+      icon: <Github size={24} />,
       action: () => window.open('https://github.com/seu-usuario', '_blank')
     },
     {
       label: 'Documentação da API',
-      icon: '📝',
+      icon: <Dock size={24} />,
       action: () => console.log('Docs')
     }
   ]
@@ -81,7 +107,9 @@ const SideBar = () => {
         <S.Nav>
           <S.NavList>
             <li>
-              <S.Logo onClick={() => navigate('/home')}>𝕏</S.Logo>
+              <S.Logo onClick={() => navigate('/home')}>
+                <Twitter size={50.4} strokeWidth={2} />
+              </S.Logo>
             </li>
 
             {navItems.map((item) => (
@@ -92,7 +120,8 @@ const SideBar = () => {
                   variant="ghost"
                   active={location.pathname === item.path}
                 >
-                  {item.label}
+                  {item.icon}
+                  <span>{item.label}</span>
                 </Button>
               </li>
             ))}
@@ -104,7 +133,8 @@ const SideBar = () => {
                 variant="ghost"
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
               >
-                Mais
+                <MoreHorizontal size={24} strokeWidth={2} />
+                <span>Mais</span>
               </S.SideButton>
             </li>
 
@@ -119,7 +149,7 @@ const SideBar = () => {
             </li>
           </S.NavList>
 
-          <S.SideButton
+          <S.FooterButton
             ref={profileButtonRef}
             type="button"
             variant="ghost"
@@ -134,7 +164,10 @@ const SideBar = () => {
               <S.DisplayName>{currentUser.displayName}</S.DisplayName>
               <S.Username>@{currentUser.username}</S.Username>
             </S.UserNames>
-          </S.SideButton>
+            <S.MoreIcon>
+              <MoreHorizontal size={18} strokeWidth={2} />
+            </S.MoreIcon>
+          </S.FooterButton>
         </S.Nav>
       </S.Aside>
 

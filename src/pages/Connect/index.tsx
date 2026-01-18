@@ -2,7 +2,7 @@ import { useState } from 'react'
 import ConnectTabs from './components/ConnectTabs'
 import UserSuggestionCard from './components/UserSuggestionCard'
 import type { ConnectTab, UserSuggestion } from './types'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import * as S from './styles'
@@ -105,7 +105,7 @@ const Connect = () => {
   }
 
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.ConnectContainer>
         <S.ConnectHeader>
           <BackButton />
@@ -144,7 +144,7 @@ const Connect = () => {
         )}
       </S.ConnectContainer>
       <InfoBar />
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

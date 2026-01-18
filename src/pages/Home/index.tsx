@@ -1,14 +1,14 @@
 import HomeLayout from '../../components/Layout/HomeLayout'
 import InforBar from '../../components/Layout/InfoBar'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 
 const Home = () => {
   return (
     <>
-      <MainContainer>
+      <ContentWrapper>
         <HomeLayout />
         <InforBar variant="default" />
-      </MainContainer>
+      </ContentWrapper>
     </>
   )
 }

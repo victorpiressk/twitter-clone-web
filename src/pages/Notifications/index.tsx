@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import NotificationTabs from './components/NotificationTabs'
 import NotificationItem from './components/NotificationItem'
 import type { NotificationTab, Notification } from './types'
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import * as S from './styles'
 
@@ -129,7 +129,7 @@ const Notifications = () => {
   const filteredNotifications = getFilteredNotifications()
 
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.NotificationsContainer>
         <S.NotificationsHeader>
           <S.HeaderTitle>Notificações</S.HeaderTitle>
@@ -155,7 +155,7 @@ const Notifications = () => {
         </S.NotificationsList>
       </S.NotificationsContainer>
       <InfoBar />
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

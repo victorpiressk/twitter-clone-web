@@ -87,8 +87,8 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
 
   return (
     <S.InfoBarContainer ref={sidebarRef} $topOffset={topOffset}>
-      {variant === 'default' ? <SearchBar /> : <S.Separator />}
       <S.ContentWrapper>
+        {variant === 'default' ? <SearchBar /> : <S.Separator />}
         {variant === 'default' && <TrendsWidget trends={mockTrends} />}
         <WhoToFollowWidget
           suggestions={suggestions}

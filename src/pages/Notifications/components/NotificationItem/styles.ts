@@ -18,7 +18,7 @@ export const NotificationContainer = styled.div<{ $isRead: boolean }>`
   transition: ${transitions.fast};
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 

@@ -4,12 +4,12 @@ import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
 export const CardContainer = styled.div`
   display: flex;
   gap: 12px;
-  padding: 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.hover.background};
+    background-color: ${(props) => props.theme.colors.hover.primary};
   }
 `
 
@@ -26,7 +26,7 @@ export const UserInfo = styled.div`
 
 export const DisplayName = styled.h3`
   font-size: ${fontSizes.md};
-  font-weight: ${fontWeights.bold};
+  font-weight: ${fontWeights.heavy};
   color: ${(props) => props.theme.colors.text.primary};
   margin: 0;
 
@@ -36,13 +36,12 @@ export const DisplayName = styled.h3`
 `
 
 export const Username = styled.p`
-  font-size: ${fontSizes.sm};
+  font-size: ${fontSizes.md};
   color: ${(props) => props.theme.colors.text.secondary};
-  margin: 2px 0 8px 0;
 `
 
 export const Bio = styled.p`
-  font-size: ${fontSizes.sm};
+  font-size: ${fontSizes.md};
   color: ${(props) => props.theme.colors.text.primary};
   line-height: 1.4;
   margin: 0;

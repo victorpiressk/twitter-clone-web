@@ -1,5 +1,9 @@
 import styled, { createGlobalStyle } from 'styled-components'
 import { light } from './themes/light'
+import ChirpRegular from '../assets/fonts/chirp-regular-web.woff'
+import ChirpMedium from '../assets/fonts/chirp-medium-web.woff'
+import ChirpBold from '../assets/fonts/chirp-bold-web.woff'
+import ChirpHeavy from '../assets/fonts/chirp-heavy-web.woff'
 
 // 🎨 Cores compartilhadas (usadas em ambos os temas)
 export const colors = {
@@ -42,7 +46,7 @@ export const fontSizes = {
   xs: '11px',
   sm: '13px',
   md: '15px',
-  lg: '18px',
+  lg: '17px',
   xl: '20px',
   xxl: '24px',
   xxxl: '32px'
@@ -50,20 +54,49 @@ export const fontSizes = {
 
 // 📏 Pesos de fonte
 export const fontWeights = {
-  light: 300,
   regular: 400,
   medium: 500,
-  semibold: 600,
-  bold: 700
+  bold: 700,
+  heavy: 900
 }
 
 // 🌍 Estilos globais
 export const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: 'Chirp';
+    src: url(${ChirpRegular}) format('woff');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Chirp';
+    src: url(${ChirpMedium}) format('woff');
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Chirp';
+    src: url(${ChirpBold}) format('woff');
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Chirp';
+    src: url(${ChirpHeavy}) format('woff');
+    font-weight: 900;
+    font-style: normal;
+  }
+
   /* Reset CSS */
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Chirp', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    letter-spacing: 0.015em;
   }
 
   /* ← FORÇAR SCROLLBAR SEMPRE VISÍVEL */
@@ -75,13 +108,12 @@ export const GlobalStyle = createGlobalStyle`
 
   /* Body */
   body {
-    font-family: "Roboto", sans-serif;
     font-size: ${fontSizes.xxl};
     font-weight: ${fontWeights.regular};
     line-height: 1.5;
     color: ${(props) => props.theme.colors.text.primary};
     background-color: ${(props) => props.theme.colors.background.primary};
-
+    -webkit-font-smoothing: antialiased;
   }
 
   /* Listas */
@@ -90,33 +122,28 @@ export const GlobalStyle = createGlobalStyle`
   }
 `
 
-// 📦 Container principal
-export const Container = styled.div`
-  display: grid;
-  grid-template-columns: 275px auto;
+// Layout Principal
 
-  max-width: ${breakpoints.wide};
+export const LayoutWrapper = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
-  margin: 0 auto;
-
-  @media (max-width: ${breakpoints.tablet}) {
-    grid-template-columns: 50px auto;
-    padding: 0 8px;
-  }
+  min-height: 100vh;
 `
 
-// 📄 Container do conteúdo principal
-export const MainContainer = styled.main`
-  position: relative;
-  left: 275px;
+export const HeaderSection = styled.header`
+  display: flex;
+  flex: 1 1 0;
+  justify-content: flex-end;
+`
 
-  display: grid;
-  grid-template-columns: 600px 350px;
-  gap: 32px;
+export const MainSection = styled.main`
+  display: flex;
+  width: 1117px;
+`
 
-  align-items: start;
-
-  @media (max-width: ${breakpoints.tablet}) {
-    left: 50px;
-  }
+export const ContentWrapper = styled.div`
+  width: 1050px;
+  display: flex;
+  justify-content: space-between;
 `

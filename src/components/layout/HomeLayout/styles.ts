@@ -2,8 +2,10 @@ import styled from 'styled-components'
 import { ButtonContainer } from '../../common/Button/styles'
 
 export const HomeContainer = styled.div`
-  border-left: 1px solid ${(props) => props.theme.colors.border.primary};
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
+  min-height: 100vh;
+  width: 600px;
+  flex-shrink: 0;
 `
 
 export const HeaderContainer = styled.div`
@@ -13,12 +15,16 @@ export const HeaderContainer = styled.div`
 
   position: sticky;
   top: 0;
-  background-color: ${(props) => props.theme.colors.background.primary};
   z-index: 10;
 
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
   ${ButtonContainer} {
-    padding-top: 18px;
+    padding-top: 16px;
     width: 100%;
+    height: 53px;
     max-width: 300px;
   }
 `

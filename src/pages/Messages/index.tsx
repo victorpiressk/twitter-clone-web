@@ -1,9 +1,9 @@
-import { MainContainer } from '../../styles/globalStyles'
+import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
 const Messages = () => {
   return (
-    <MainContainer>
+    <ContentWrapper>
       <S.MessagesContainer>
         <S.MessagesHeader>
           <S.HeaderTitle>Mensagens</S.HeaderTitle>
@@ -17,7 +17,7 @@ const Messages = () => {
           </S.PlaceholderText>
         </S.PlaceholderContent>
       </S.MessagesContainer>
-    </MainContainer>
+    </ContentWrapper>
   )
 }
 

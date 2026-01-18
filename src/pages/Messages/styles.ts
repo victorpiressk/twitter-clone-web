@@ -2,9 +2,10 @@ import styled from 'styled-components'
 import { fontSizes, fontWeights } from '../../styles/globalStyles'
 
 export const MessagesContainer = styled.div`
-  border-left: 1px solid ${(props) => props.theme.colors.border.primary};
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
   min-height: 100vh;
+  width: 414px;
+  flex-shrink: 0;
 `
 
 export const MessagesHeader = styled.div`
@@ -13,7 +14,6 @@ export const MessagesHeader = styled.div`
   z-index: 10;
   background-color: ${(props) => props.theme.colors.background.primary};
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
   padding: 12px 16px;
 `
 

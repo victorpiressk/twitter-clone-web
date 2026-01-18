@@ -5,7 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.4] - 2026-01-17
+## [0.0.5] - 2026-01-18
+
+### Added
+
+- Integração da biblioteca lucide-react para ícones consistentes.
+- Fonte Chirp (regular, medium, bold, heavy) para maior fidelidade ao design original.
+- Sistema de sombras (primary, secondary) nos temas light e dark.
+- Efeito de blur no scroll do feed (igual ao site original).
+- Novo sistema de layouts principais para comportamento responsivo.
+
+### Changed
+
+- Refatoração visual completa: todos os componentes ajustados para maior fidelidade ao Twitter/X.
+- Substituição de SVGs inline por ícones do lucide-react em todos os componentes.
+- Ajustes de dimensionamento, espaçamento e padding globais.
+- Atualização de hovers com sistema de sombras primary/secondary.
+- Tamanhos de fontes ajustados para aproximar do original.
+- Tamanhos de avatares atualizados para padrão do site original.
+- Padding dos botões ajustado para visual mais próximo do original.
+- SearchBar: padding, fonte e ícone atualizados.
+- Tabs do HomeLayout com estilo atualizado e blur effect.
+- InfoBar: hovers atualizados com novo sistema de sombras.
+- Sidebar: ícones lucide-react e dimensionamentos ajustados.
+- MainLayout agora usa propriedades dos novos layouts globais.
+- Todas as páginas adaptadas ao novo sistema de layouts.
+- Componentes globais (BackButton, CloseButton, ModalHeader, PostCard) atualizados com novos hovers.
+
+### Technical
+
+- Sistema de @font-face para fonte Chirp com múltiplos pesos (400, 500, 700, 800).
+- Mapa de pesos de fontes atualizado no globalStyles.
+- Sistema de sombras nos temas para uso consistente (shadow.primary, shadow.secondary).
+- Novo sistema de layouts globais (Container, MainContainer) no globalStyles.
+- Blur effect implementado com backdrop-filter no scroll do feed.
+- Padronização de nomenclatura: background → background.primary/secondary.
+- Todos os ícones SVG substituídos por componentes lucide-react (tree-shakeable).
+
+## [0.0.4] - 2026-01-18
 
 ### Added
 
@@ -93,21 +130,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical
 
-- Popover agora suporta variantes de estilo via props (diferentes comportamentos visuais).
-- PopoverItem agora aceita variante para adequar estilização conforme contexto.
-- Shadows temáticas aplicadas dinamicamente nos Popovers.
-- Popover agora aceita `matchTriggerWidth` (boolean) para adaptar largura ao trigger.
-- SearchPopover gerencia 3 estados futuros: empty, history, searching (apenas empty implementado).
-- SearchHistory armazenado em estado local (futuro: localStorage ou API).
-- Modal renderizada no nível da SearchBar, não dentro do Popover.
-- Histórico vazio automaticamente retorna ao Estado 1.
-- Filtragem de sugestões e usuários acontece na SearchBar (não no Popover).
-- SearchPopover recebe apenas resultados já filtrados via props.
-- Scrollbar customizada seguindo padrão visual da aplicação.
-- Mock de dados de sugestões e usuários (futuro: API).
-
-### Notes
-
 - Esta etapa implementa a **autenticação visual**, **organização de layouts** e **páginas principais de conteúdo**, permitindo que páginas como Login e Registro apareçam sem Sidebar, enquanto páginas principais (Home, Perfil, Explorar, Post Individual) mantêm o layout completo.
 - O MainLayout usa React Router `<Outlet />` para renderizar rotas filhas, seguindo o padrão de nested routes.
 - As rotas seguem o padrão do Twitter: `/:username` para perfis e `/:username/status/:postId` para posts individuais.
@@ -122,6 +144,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modal Base usa Portal (renderiza no body), overlay escuro opcional, header/footer customizáveis.
 - Popover usa useLayoutEffect para cálculos de posição DOM antes do paint.
 - Ambos componentes fecham com ESC e click fora, seguindo padrões de acessibilidade.
+- Popover agora suporta variantes de estilo via props (diferentes comportamentos visuais).
+- PopoverItem agora aceita variante para adequar estilização conforme contexto.
+- Shadows temáticas aplicadas dinamicamente nos Popovers.
+- Popover agora aceita `matchTriggerWidth` (boolean) para adaptar largura ao trigger.
+- SearchPopover gerencia 3 estados futuros: empty, history, searching (apenas empty implementado).
+- SearchHistory armazenado em estado local (futuro: localStorage ou API).
+- Modal renderizada no nível da SearchBar, não dentro do Popover.
+- Histórico vazio automaticamente retorna ao Estado 1.
+- Filtragem de sugestões e usuários acontece na SearchBar (não no Popover).
+- SearchPopover recebe apenas resultados já filtrados via props.
+- Scrollbar customizada seguindo padrão visual da aplicação.
+- Mock de dados de sugestões e usuários (futuro: API).
 
 
 ## [0.0.3] - 2026-01-14
@@ -148,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ajustes no comportamento de botões do tipo tab e links ativos.
 - Reorganização da Home para permitir visualização completa da página inicial.
 
-### Notes
+### Technical
 
 - Esta etapa consolida a **estrutura visual e arquitetural da Home**, permitindo visualizar a página inicial completa antes da implementação do feed dinâmico, regras avançadas de scroll e carregamento incremental.
 
