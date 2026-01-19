@@ -35,10 +35,9 @@ export const SearchIcon = styled.div`
   align-items: center;
   justify-content: center;
 
+  /* ← ATUALIZAR: lucide usa stroke */
   svg {
-    width: 16px;
-    height: 16px;
-    fill: ${(props) => props.theme.colors.text.tertiary};
+    stroke: ${(props) => props.theme.colors.text.tertiary};
   }
 `
 
@@ -71,9 +70,8 @@ export const ClearButton = styled.button`
   justify-content: center;
   transition: ${transitions.fast};
 
+  /* ← ATUALIZAR: lucide usa stroke */
   svg {
-    width: 12px;
-    height: 12px;
-    fill: ${(props) => props.theme.colors.text.secondary};
+    stroke: ${(props) => props.theme.colors.background.primary};
   }
 `

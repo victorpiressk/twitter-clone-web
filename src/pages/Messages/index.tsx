@@ -1,3 +1,4 @@
+import { Mail } from 'lucide-react'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
@@ -10,7 +11,9 @@ const Messages = () => {
         </S.MessagesHeader>
 
         <S.PlaceholderContent>
-          <S.PlaceholderIcon>💬</S.PlaceholderIcon>
+          <S.PlaceholderIcon>
+            <Mail size={80} strokeWidth={1.5} />
+          </S.PlaceholderIcon>
           <S.PlaceholderTitle>Mensagens em breve!</S.PlaceholderTitle>
           <S.PlaceholderText>
             Esta funcionalidade será implementada em versões futuras do projeto.

@@ -34,8 +34,10 @@ export const PlaceholderContent = styled.div`
 `
 
 export const PlaceholderIcon = styled.div`
-  font-size: 80px;
   margin-bottom: 24px;
+  color: ${(props) => props.theme.colors.text.secondary}; /* ← Cor do ícone */
+
+  /* Ícone lucide já vem com size via prop */
 `
 
 export const PlaceholderTitle = styled.h3`

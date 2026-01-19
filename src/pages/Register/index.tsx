@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Twitter } from 'lucide-react'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
 import type { RegisterFormData, RegisterFormErrors } from './types'
@@ -89,7 +90,9 @@ const Register = () => {
   return (
     <S.RegisterContainer>
       <S.RegisterCard>
-        <S.Logo>𝕏</S.Logo>
+        <S.Logo>
+          <Twitter size={40} strokeWidth={2} />
+        </S.Logo>
 
         <S.Title>Criar sua conta</S.Title>
 

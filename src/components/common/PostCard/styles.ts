@@ -93,8 +93,7 @@ export const ActionButton = styled.button<{
 
   &:hover {
     background-color: ${(props) => {
-      if (props.$color === props.theme.colors.background.primary)
-        return 'rgba(29, 155, 240, 0.1)'
+      if (props.$color === '#1d9bf0') return 'rgba(29, 155, 240, 0.1)'
       if (props.$color === '#00ba7c') return 'rgba(0, 186, 124, 0.1)'
       if (props.$color === '#f91880') return 'rgba(249, 24, 128, 0.1)'
       return props.theme.colors.hover.primary
@@ -103,10 +102,10 @@ export const ActionButton = styled.button<{
     color: ${(props) => props.$color || props.theme.colors.text.primary};
   }
 
+  /* ← ATUALIZAR: lucide-react usa stroke, não fill */
   svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
+    stroke: currentColor;
+    /* Remover fill (lucide controla isso) */
   }
 
   span {

@@ -41,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tab "Para você" exibe todos os posts; tab "Seguindo" filtra apenas posts de usuários seguidos.
 - HeaderContainer dos tabs agora usa background.blur do tema ao invés de cor fixa.
 - Blur effect nos tabs se adapta automaticamente ao tema ativo (light: 85% opacidade, dark: 65% opacidade).
+- Substituição de todos os ícones SVG restantes por lucide-react.
+- PostCard: ícones de ações atualizados (MessageCircle, Repeat2, Heart, BarChart2).
+- SearchBar: ícones de busca (Search) e limpar (X) atualizados.
+- NotificationItem: ícones de notificação atualizados (Heart, Repeat2, UserPlus, AtSign, MessageCircle).
+- Messages (placeholder): ícone atualizado (Mail).
+- Login/Register: ícone do Twitter (X) adicionado.
 
 ### Technical
 
@@ -56,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Home importa ActiveTab do HomeTabs, mantendo encapsulamento correto.
 - PostList continua global em components/common (reutilizável em múltiplas páginas).
 - Sistema de blur usa props do theme (background.blur) para adaptação automática.
+- Todos os ícones agora usam lucide-react com controle via props (size, strokeWidth).
+- Ícones usam stroke ao invés de fill (exceto Heart preenchido quando curtido).
+- Tamanho padrão de ícones: 18px (ações), 24px (notificações), 16px (busca).
+- strokeWidth padrão: 2 (ícones menores), 1.5 (ícones grandes).
 
 ### Removed
 

@@ -29,11 +29,12 @@ export const IconWrapper = styled.div<{ $color: string }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: ${(props) =>
+    props.$color}; /* ← Usar color ao invés de fill direto no svg */
 
   svg {
-    width: 24px;
-    height: 24px;
-    fill: ${(props) => props.$color};
+    /* Lucide controla tamanho via prop size */
+    /* Cor vem do parent via currentColor */
   }
 `
 
@@ -56,7 +57,6 @@ export const AvatarWrapper = styled.div`
 export const NotificationText = styled.div`
   flex: 1;
   min-width: 0;
-
   font-size: ${fontSizes.lg};
 `
 
