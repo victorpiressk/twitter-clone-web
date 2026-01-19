@@ -1,12 +1,5 @@
 import styled from 'styled-components'
-import { ButtonContainer } from '../../common/Button/styles'
-
-export const HomeContainer = styled.div`
-  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
-  min-height: 100vh;
-  width: 600px;
-  flex-shrink: 0;
-`
+import { ButtonContainer } from '../../../../components/common/Button/styles'
 
 export const HeaderContainer = styled.div`
   display: flex;
@@ -17,7 +10,7 @@ export const HeaderContainer = styled.div`
   top: 0;
   z-index: 10;
 
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: ${(props) => props.theme.colors.background.blur};
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 

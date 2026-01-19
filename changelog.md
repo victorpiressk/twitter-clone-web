@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.5] - 2026-01-18
+## [0.0.5] - 2026-01-19
 
 ### Added
 
@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sistema de sombras (primary, secondary) nos temas light e dark.
 - Efeito de blur no scroll do feed (igual ao site original).
 - Novo sistema de layouts principais para comportamento responsivo.
+- Implementação de filtragem de posts por tabs na Home (Para você / Seguindo).
+- Adição de propriedade `isFollowing` no tipo Author para controle de seguimento.
+- Criação do componente HomeTabs separado com tipagem própria.
+- Sistema de blur adaptativo nos themes (background.blur para light e dark).
 
 ### Changed
 
@@ -31,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MainLayout agora usa propriedades dos novos layouts globais.
 - Todas as páginas adaptadas ao novo sistema de layouts.
 - Componentes globais (BackButton, CloseButton, ModalHeader, PostCard) atualizados com novos hovers.
+- Refatoração completa da estrutura da Home: código do HomeLayout movido para pages/Home/index.tsx.
+- PostForm movido de components/layout para pages/Home/components (componente específico da Home).
+- HomeTabs extraído para componente separado com encapsulamento correto de tipagem.
+- Tab "Para você" exibe todos os posts; tab "Seguindo" filtra apenas posts de usuários seguidos.
+- HeaderContainer dos tabs agora usa background.blur do tema ao invés de cor fixa.
+- Blur effect nos tabs se adapta automaticamente ao tema ativo (light: 85% opacidade, dark: 65% opacidade).
 
 ### Technical
 
@@ -41,6 +51,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Blur effect implementado com backdrop-filter no scroll do feed.
 - Padronização de nomenclatura: background → background.primary/secondary.
 - Todos os ícones SVG substituídos por componentes lucide-react (tree-shakeable).
+- Filtro de posts implementado com useMemo para otimização de performance.
+- Tipagem ActiveTab encapsulada em HomeTabs/types.ts (fonte de verdade).
+- Home importa ActiveTab do HomeTabs, mantendo encapsulamento correto.
+- PostList continua global em components/common (reutilizável em múltiplas páginas).
+- Sistema de blur usa props do theme (background.blur) para adaptação automática.
+
+### Removed
+
+- Remoção completa de components/layout/HomeLayout (código transferido para pages/Home).
 
 ## [0.0.4] - 2026-01-18
 

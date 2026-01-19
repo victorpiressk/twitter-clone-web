@@ -4,7 +4,8 @@ export const light = {
     background: {
       primary: '#FFFFFF',
       secondary: '#F7F9F9',
-      tertiary: '#EFF3F4'
+      tertiary: '#EFF3F4',
+      blur: 'rgba(255, 255, 255, 0.65)'
     },
 
     // Textos

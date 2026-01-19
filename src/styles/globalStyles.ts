@@ -133,13 +133,17 @@ export const LayoutWrapper = styled.div`
 
 export const HeaderSection = styled.header`
   display: flex;
-  flex: 1 1 0;
+  flex: 1 1 403px;
   justify-content: flex-end;
+  z-index: 1;
 `
 
 export const MainSection = styled.main`
   display: flex;
-  width: 1117px;
+  flex: 1 1 1118px;
+  justify-content: flex-start;
+
+  flex-direction: column;
 `
 
 export const ContentWrapper = styled.div`

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import Avatar from '../../../../common/Avatar'
-import Textarea from '../../../../common/Textarea'
-import Button from '../../../../common/Button'
+import { Image, ImagePlay, Laugh } from 'lucide-react'
+import Avatar from '../../../../components/common/Avatar'
+import Textarea from '../../../../components/common/Textarea'
+import Button from '../../../../components/common/Button'
 import type { PostFormProps } from './types'
 import * as S from './styles'
+import { colors } from '../../../../styles/globalStyles'
 
 const PostForm = ({
   userName = 'Usuário',
@@ -34,6 +36,11 @@ const PostForm = ({
         />
 
         <S.PostFormActions>
+          <div>
+            <Image size={18} strokeWidth={2} color={colors.primary} />
+            <ImagePlay size={18} strokeWidth={2} color={colors.primary} />
+            <Laugh size={18} strokeWidth={2} color={colors.primary} />
+          </div>
           <Button
             type="button"
             variant="secondary"
