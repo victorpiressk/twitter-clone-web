@@ -71,6 +71,7 @@ export const ShowMore = styled.button`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.hover.primary};
+    border-radius: 0 0 16px 16px;
   }
 
   ${ButtonLink} {

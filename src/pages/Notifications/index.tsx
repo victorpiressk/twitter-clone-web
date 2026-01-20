@@ -133,9 +133,8 @@ const Notifications = () => {
       <S.NotificationsContainer>
         <S.NotificationsHeader>
           <S.HeaderTitle>Notificações</S.HeaderTitle>
+          <NotificationTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </S.NotificationsHeader>
-
-        <NotificationTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
         <S.NotificationsList>
           {filteredNotifications.length > 0 ? (

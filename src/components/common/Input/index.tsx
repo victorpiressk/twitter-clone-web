@@ -12,9 +12,14 @@ const Input = ({
   error,
   disabled = false,
   required = false,
-  autoFocus = false
+  autoFocus = false,
+  maxLength,
+  multiline = false,
+  rows = 3
 }: InputProps) => {
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     onChange(e.target.value)
   }
 
@@ -28,18 +33,35 @@ const Input = ({
       )}
 
       <S.InputWrapper>
-        <S.StyledInput
-          id={name}
-          name={name}
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled}
-          required={required}
-          autoFocus={autoFocus}
-          $hasError={!!error}
-        />
+        {multiline ? (
+          <S.StyledTextarea
+            id={name}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            required={required}
+            autoFocus={autoFocus}
+            maxLength={maxLength}
+            rows={rows}
+            $hasError={!!error}
+          />
+        ) : (
+          <S.StyledInput
+            id={name}
+            name={name}
+            type={type}
+            placeholder={placeholder}
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            required={required}
+            autoFocus={autoFocus}
+            maxLength={maxLength}
+            $hasError={!!error}
+          />
+        )}
       </S.InputWrapper>
 
       {error && <S.ErrorMessage>{error}</S.ErrorMessage>}

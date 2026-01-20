@@ -59,3 +59,34 @@ export const ErrorMessage = styled.span`
   font-size: ${fontSizes.sm};
   color: ${colors.error};
 `
+
+export const StyledTextarea = styled.textarea<{ $hasError: boolean }>`
+  width: 100%;
+  padding: 12px;
+  font-size: ${fontSizes.md};
+  font-family: inherit;
+  color: ${(props) => props.theme.colors.text.primary};
+  background-color: ${(props) => props.theme.colors.background.primary};
+  border: 1px solid
+    ${(props) =>
+      props.$hasError ? colors.error : props.theme.colors.border.primary};
+  border-radius: 4px;
+  transition: ${transitions.fast};
+  resize: vertical;
+  min-height: 80px;
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) =>
+      props.$hasError ? colors.error : colors.primary};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: ${(props) => props.theme.colors.text.tertiary};
+  }
+`

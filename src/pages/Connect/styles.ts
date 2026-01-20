@@ -16,7 +16,7 @@ export const ConnectHeader = styled.div`
   display: flex;
   gap: 28px;
 
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: ${(props) => props.theme.colors.background.blur};
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 

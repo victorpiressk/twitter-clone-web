@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useModalScrollLock } from '../../../hooks/useModalScrollLock'
 import ModalHeader from './components/ModalHeader'
 import ModalFooter from './components/ModalFooter'
 import type { ModalProps } from './types'
@@ -17,6 +18,9 @@ const Modal = ({
   footer,
   className
 }: ModalProps) => {
+  // Previne scroll do body quando modal está aberto + Compensa scrollbar
+  useModalScrollLock(isOpen)
+
   // Fecha modal ao pressionar ESC
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -28,31 +32,6 @@ const Modal = ({
     document.addEventListener('keydown', handleEscape)
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen, onClose])
-
-  // Previne scroll do body quando modal está aberto + Compensa scrollbar
-  useEffect(() => {
-    if (isOpen) {
-      // ← CALCULAR largura da scrollbar
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth
-
-      // ← ADICIONAR padding para compensar
-      document.documentElement.style.overflow = 'hidden'
-      document.body.style.overflow = 'hidden'
-      document.body.style.paddingRight = `${scrollbarWidth}px`
-    } else {
-      // ← REMOVER overflow e padding
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = 'unset'
-      document.body.style.paddingRight = '0px'
-    }
-
-    return () => {
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = 'unset'
-      document.body.style.paddingRight = '0px'
-    }
-  }, [isOpen])
 
   if (!isOpen) return null
 

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.5] - 2026-01-19
+## [0.0.5] - 2026-01-20
 
 ### Added
 
@@ -18,6 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adição de propriedade `isFollowing` no tipo Author para controle de seguimento.
 - Criação do componente HomeTabs separado com tipagem própria.
 - Sistema de blur adaptativo nos themes (background.blur para light e dark).
+- Modal de edição de perfil completa com upload de banner e avatar.
+- Campos de edição: nome, bio, localização, website e data de nascimento.
+- Modal secundária para edição de data de nascimento com limite de 3 alterações.
+- Hook `useModalScrollLock` para gerenciar scroll em modais aninhadas.
+- Campo de visualização da data de nascimento no perfil do usuário.
+- Componente `HomeTabs` separado com tipagem encapsulada.
+- Sistema de filtragem de posts: "Para você" (todos) e "Seguindo" (filtrados por isFollowing).
+- Textarea com expansão automática baseada em `scrollHeight`.
+- Separador visual entre textarea e contador de caracteres no PostForm.
+- Botão de voltar (BackButton) que aparece ao focar na SearchBar.
+- Sistema de scroll horizontal nos tabs com setas de navegação (esquerda/direita).
+- Setas aparecem apenas no hover e quando há overflow.
+- Sistema de variants (small/large) para SearchBar e SearchPopover.
+- Cor de background `reverseBlur` para botões de navegação dos tabs.
+- Sistema de blur adaptativo em headers de páginas (Explore, Notificações, Seguir, Perfil).
 
 ### Changed
 
@@ -47,6 +62,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NotificationItem: ícones de notificação atualizados (Heart, Repeat2, UserPlus, AtSign, MessageCircle).
 - Messages (placeholder): ícone atualizado (Mail).
 - Login/Register: ícone do Twitter (X) adicionado.
+- Fonte Chirp integrada (regular, medium, bold, heavy) em todo o projeto.
+- Todos os ícones SVG substituídos por lucide-react (exceto setas de navegação).
+- Sistema de sombras (primary, secondary) padronizado nos temas light e dark.
+- Blur effect adaptativo nos tabs e headers (background.blur).
+- Layouts globais atualizados para comportamento responsivo.
+- Home: código do HomeLayout movido para `pages/Home/index.tsx`.
+- PostForm movido de `components/layout` para `pages/Home/components`.
+- HomeTabs extraído para componente separado com encapsulamento de tipagem.
+- Input: suporte a `multiline`, `rows`, `maxLength`, `type="date"` e `type="url"`.
+- Modal: suporte a modais aninhadas sem conflito de scroll lock.
+- SearchBar: prop `onFocus` para integração com BackButton.
+- Textarea (PostForm): expansão automática e separador visual.
+- InfoBar: hover do botão "Show more" com border-radius correto (0 0 16px 16px).
+- InfoBar: removida margin do Separator na variant minimal.
+- PostForm: altura ajustada para aproximar do layout original.
+- Connect (Seguir): tabs redimensionados para 53px, margin-bottom de 8px.
+- Profile: avatar realinhado, botão "Editar" reposicionado fora do banner.
+- Explore: tab "Tendências" renomeada para "Assuntos do Momento".
+- Páginas Explore, Notificações, Seguir e Perfil agora com blur effect.
+- Comportamento consistente com Home (já implementado anteriormente).
+
+### Fixed
+
+- SearchBar Popover: bug de posicionamento na primeira abertura (resolvido com variants fixas).
+- Modais aninhadas: scroll não era bloqueado corretamente (resolvido com useModalScrollLock).
+- Data de nascimento: salvava com um dia a menos devido a timezone (resolvido com construtor local de datas).
+- Data de ingresso (joinedAt): quebrava com formato ISO completo (resolvido com split('T')[0]).
+- Explore Tabs: setas de navegação apareciam/sumiam incorretamente (tolerância de 5px no scroll).
 
 ### Technical
 
@@ -66,6 +109,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ícones usam stroke ao invés de fill (exceto Heart preenchido quando curtido).
 - Tamanho padrão de ícones: 18px (ações), 24px (notificações), 16px (busca).
 - strokeWidth padrão: 2 (ícones menores), 1.5 (ícones grandes).
+- Hook `useModalScrollLock` com contador global para modais aninhadas.
+- Tipagem `ActiveTab` encapsulada em `HomeTabs/types.ts` (fonte de verdade).
+- Sistema de variants para SearchBar e SearchPopover (small/large).
+- Função `formatBirthDate` com split de string para evitar conversão de timezone.
+- Função `formatDate` com suporte a formato ISO completo e data simples.
+- Todos os ícones migrados para lucide-react (tree-shakeable).
+- Tamanhos padronizados: 16px (busca), 18px (ações), 20px (navegação), 24px (notificações).
+- strokeWidth padrão: 2 (ícones menores), 1.5 (ícones grandes).
+- Exceções mantidas em SVG nativo: setas de navegação (BackButton, ScrollButtons).
+- Background blur nos temas: light (85% opacidade), dark (65% opacidade).
+- ReverseBlur para botões sobre backgrounds claros/escuros.
 
 ### Removed
 

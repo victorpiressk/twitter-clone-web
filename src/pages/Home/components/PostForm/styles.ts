@@ -5,7 +5,7 @@ import { colors, fontWeights } from '../../../../styles/globalStyles'
 
 export const PostFormContainer = styled.div`
   display: flex;
-  height: 120px;
+  min-height: 120px;
   gap: 10px;
   padding: 16px 16px 8px;
   border-bottom: 2px solid ${(props) => props.theme.colors.border.primary};
@@ -24,6 +24,7 @@ export const PostFormContent = styled.div`
 export const PostFormActions = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-top: 12px;
 
   div {
     padding-left: 2px;

@@ -12,10 +12,14 @@ export const NotificationsHeader = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: ${(props) => props.theme.colors.background.primary};
+
+  background-color: ${(props) => props.theme.colors.background.blur};
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
   backdrop-filter: blur(12px);
   border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-  padding: 12px 16px;
+  padding: 12px 16px 0;
 `
 
 export const HeaderTitle = styled.h2`

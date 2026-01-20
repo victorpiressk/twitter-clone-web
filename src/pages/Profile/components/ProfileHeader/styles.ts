@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
+import { ButtonContainer } from '../../../../components/common/Button/styles'
 
 export const HeaderContainer = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
@@ -22,9 +23,13 @@ export const ProfileInfo = styled.div`
 export const AvatarSection = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-top: -64px;
-  margin-bottom: 16px;
+  align-items: flex-end;
+  margin-top: -88px;
+  margin-bottom: 8px;
+
+  ${ButtonContainer} {
+    margin-bottom: 22px;
+  }
 `
 
 export const AvatarWrapper = styled.div`
@@ -36,9 +41,9 @@ export const UserNames = styled.div`
   margin-bottom: 12px;
 `
 
-export const DisplayName = styled.h1`
+export const DisplayName = styled.span`
   font-size: ${fontSizes.xl};
-  font-weight: ${fontWeights.bold};
+  font-weight: ${fontWeights.heavy};
   color: ${(props) => props.theme.colors.text.primary};
   margin: 0;
 `
@@ -46,7 +51,6 @@ export const DisplayName = styled.h1`
 export const Username = styled.p`
   font-size: ${fontSizes.md};
   color: ${(props) => props.theme.colors.text.secondary};
-  margin: 4px 0 0 0;
 `
 
 export const Bio = styled.p`
@@ -72,8 +76,8 @@ export const MetadataItem = styled.span`
   color: ${(props) => props.theme.colors.text.secondary};
 
   svg {
-    width: 16px;
-    height: 16px;
+    flex-shrink: 0;
+    stroke: currentColor;
   }
 
   a {

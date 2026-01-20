@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
 import PostList from '../../components/common/PostList'
+import EditProfileModal from './components/EditProfileModal'
 import type { UserProfile, ProfileTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
-import * as S from './styles'
+import type { EditProfileFormData } from './components/EditProfileModal/types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import * as S from './styles'
 
 // Mock data (depois vem da API)
 const mockUser: UserProfile = {
@@ -18,6 +20,7 @@ const mockUser: UserProfile = {
   bio: 'Desenvolvedor Full Stack | React + TypeScript + Django\n🚀 Construindo coisas incríveis',
   location: 'Senhor do Bonfim, BA',
   website: 'https://github.com/victorpiressk',
+  birthDate: '1995-01-06',
   joinedAt: '2020-01-15T00:00:00Z',
   stats: {
     posts: 123,
@@ -49,21 +52,37 @@ const Profile = () => {
   const [user, setUser] = useState(mockUser)
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
   const [posts, setPosts] = useState(mockPosts)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   // TODO: Integrar com API
   console.log('Viewing profile of:', username)
 
-  // Quando integrar com API:
-  // useEffect(() => {
-  //   async function fetchProfile() {
-  //     const data = await api.getUserProfile(username)
-  //     setUser(data)
-  //   }
-  //   fetchProfile()
-  // }, [username])
-
   const handleFollowToggle = () => {
     setUser((prev) => ({ ...prev, isFollowing: !prev.isFollowing }))
+  }
+
+  const handleEditProfile = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleSaveProfile = (data: EditProfileFormData) => {
+    console.log('Salvar perfil:', data)
+
+    // Atualiza dados do usuário (mock)
+    setUser((prev) => ({
+      ...prev,
+      displayName: data.displayName,
+      bio: data.bio,
+      location: data.location,
+      website: data.website,
+      birthDate: data.birthDate
+      // TODO: Integrar com API para salvar imagens também
+      // avatar: data.profileImage ? URL.createObjectURL(data.profileImage) : prev.avatar,
+      // banner: data.bannerImage ? URL.createObjectURL(data.bannerImage) : prev.banner
+    }))
+
+    // TODO: Integrar com API
+    // await api.updateProfile(user.id, data)
   }
 
   const handleLike = (postId: string) => {
@@ -109,58 +128,93 @@ const Profile = () => {
   }
 
   return (
-    <ContentWrapper>
-      <S.ProfileContainer>
-        <S.ProfileHeader>
-          <BackButton />
+    <>
+      <ContentWrapper>
+        <S.ProfileContainer>
+          <S.ProfileHeader>
+            <BackButton />
 
-          <S.HeaderInfo>
-            <S.HeaderTitle>{user.displayName}</S.HeaderTitle>
-            <S.PostCount>{user.stats.posts} posts</S.PostCount>
-          </S.HeaderInfo>
-        </S.ProfileHeader>
+            <S.HeaderInfo>
+              <S.HeaderTitle>{user.displayName}</S.HeaderTitle>
+              <S.PostCount>{user.stats.posts} posts</S.PostCount>
+            </S.HeaderInfo>
+          </S.ProfileHeader>
 
-        <ProfileHeader user={user} onFollowToggle={handleFollowToggle} />
+          <ProfileHeader
+            user={user}
+            onFollowToggle={handleFollowToggle}
+            onEditProfile={handleEditProfile}
+          />
 
-        <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <S.TabContent>
-          {activeTab === 'posts' && (
-            <PostList
-              posts={posts}
-              onLike={handleLike}
-              onRetweet={handleRetweet}
-              onComment={handleComment}
-            />
-          )}
+          <S.TabContent>
+            {activeTab === 'posts' && (
+              <PostList
+                posts={posts}
+                onLike={handleLike}
+                onRetweet={handleRetweet}
+                onComment={handleComment}
+              />
+            )}
 
-          {activeTab === 'replies' && (
-            <div
-              style={{ padding: '20px', textAlign: 'center', color: '#71767B' }}
-            >
-              Respostas em breve...
-            </div>
-          )}
+            {activeTab === 'replies' && (
+              <div
+                style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#71767B'
+                }}
+              >
+                Respostas em breve...
+              </div>
+            )}
 
-          {activeTab === 'media' && (
-            <div
-              style={{ padding: '20px', textAlign: 'center', color: '#71767B' }}
-            >
-              Mídia em breve...
-            </div>
-          )}
+            {activeTab === 'media' && (
+              <div
+                style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#71767B'
+                }}
+              >
+                Mídia em breve...
+              </div>
+            )}
 
-          {activeTab === 'likes' && (
-            <div
-              style={{ padding: '20px', textAlign: 'center', color: '#71767B' }}
-            >
-              Curtidas em breve...
-            </div>
-          )}
-        </S.TabContent>
-      </S.ProfileContainer>
-      <InfoBar />
-    </ContentWrapper>
+            {activeTab === 'likes' && (
+              <div
+                style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#71767B'
+                }}
+              >
+                Curtidas em breve...
+              </div>
+            )}
+          </S.TabContent>
+        </S.ProfileContainer>
+        <InfoBar />
+      </ContentWrapper>
+
+      {/* Modal Editar Perfil */}
+      <EditProfileModal
+        key={isEditModalOpen ? 'open' : 'closed'}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveProfile}
+        currentData={{
+          displayName: user.displayName,
+          bio: user.bio || '',
+          location: user.location || '',
+          website: user.website || '',
+          birthDate: user.birthDate,
+          avatar: user.avatar,
+          banner: user.banner
+        }}
+      />
+    </>
   )
 }
 

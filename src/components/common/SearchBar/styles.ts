@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { colors, transitions } from '../../../styles/globalStyles'
 import { light } from '../../../styles/themes/light'
+import type { SearchBarProps } from './types'
 
 export const SearchBarContainer = styled.div`
   position: sticky;
@@ -8,9 +9,12 @@ export const SearchBarContainer = styled.div`
   z-index: 10;
   background-color: ${(props) => props.theme.colors.background.primary};
   padding-top: 4px;
+
+  flex: 1;
+  width: 100%;
 `
 
-export const SearchForm = styled.form`
+export const SearchForm = styled.form<SearchBarProps>`
   position: relative;
   display: flex;
   align-items: center;
@@ -19,6 +23,8 @@ export const SearchForm = styled.form`
   border-radius: 9999px;
   padding: 11px 10px;
   transition: ${transitions.fast};
+
+  width: ${(props) => (props.variant === 'large' ? '100%' : '350px')};
 
   &:focus-within {
     background-color: transparent;
@@ -35,7 +41,6 @@ export const SearchIcon = styled.div`
   align-items: center;
   justify-content: center;
 
-  /* ← ATUALIZAR: lucide usa stroke */
   svg {
     stroke: ${(props) => props.theme.colors.text.tertiary};
   }
@@ -70,7 +75,6 @@ export const ClearButton = styled.button`
   justify-content: center;
   transition: ${transitions.fast};
 
-  /* ← ATUALIZAR: lucide usa stroke */
   svg {
     stroke: ${(props) => props.theme.colors.background.primary};
   }

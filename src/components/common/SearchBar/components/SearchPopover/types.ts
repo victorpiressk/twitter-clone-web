@@ -31,4 +31,5 @@ export type SearchPopoverProps = {
   onOpenClearModal: () => void
   searchSuggestions?: SearchSuggestion[]
   searchResults?: SearchUserResult[]
+  variant?: string
 }

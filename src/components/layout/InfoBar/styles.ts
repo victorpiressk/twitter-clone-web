@@ -40,7 +40,7 @@ export const ScrollableContent = styled.div`
 `
 
 export const Separator = styled.div`
-  height: 1px;
+  height: 1.5px;
   background-color: ${(props) => props.theme.colors.border.primary};
-  margin: 16px 0;
+  margin-top: 12px;
 `

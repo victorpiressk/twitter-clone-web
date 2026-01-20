@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import InfoBar from '../../components/Layout/InfoBar'
 import SearchBar from '../../components/common/SearchBar'
-import ExploreTabs from './components/ExploreTabs'
+import BackButton from '../../components/common/BackButton'
 import PostList from '../../components/common/PostList'
+import ExploreTabs from './components/ExploreTabs'
 import TrendsWidget from '../../components/Layout/InfoBar/components/TrendsWidget'
 import type { ExploreTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
 import type { Trend } from '../../components/Layout/InfoBar/components/TrendsWidget/types'
-import * as S from './styles'
 import { ContentWrapper } from '../../styles/globalStyles'
-import InfoBar from '../../components/Layout/InfoBar'
+import * as S from './styles'
 
 // Mock data - Posts sugeridos
 const mockPosts: Post[] = [
@@ -68,6 +69,7 @@ const mockTrends: Trend[] = [
 const Explore = () => {
   const [activeTab, setActiveTab] = useState<ExploreTab>('for-you')
   const [posts, setPosts] = useState(mockPosts)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
 
   const handleLike = (postId: string) => {
     setPosts((prev) =>
@@ -171,10 +173,18 @@ const Explore = () => {
     <ContentWrapper>
       <S.ExploreContainer>
         <S.SearchBarWrapper>
-          <SearchBar />
-        </S.SearchBarWrapper>
+          <S.SearchBarContent $showBackButton={isSearchFocused}>
+            {isSearchFocused && (
+              <BackButton onClick={() => setIsSearchFocused(false)} />
+            )}
+            <SearchBar
+              variant="large"
+              onFocus={() => setIsSearchFocused(true)}
+            />
+          </S.SearchBarContent>
 
-        <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        </S.SearchBarWrapper>
 
         <S.TabContent>{renderTabContent()}</S.TabContent>
       </S.ExploreContainer>

@@ -8,9 +8,10 @@ import type {
   SearchSuggestion,
   SearchUserResult
 } from './components/SearchPopover/types'
+import type { SearchBarProps } from './types'
 import * as S from './styles'
 
-const SearchBar = () => {
+const SearchBar = ({ variant = 'large', onFocus }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState('')
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isClearModalOpen, setIsClearModalOpen] = useState(false)
@@ -99,6 +100,7 @@ const SearchBar = () => {
   const handleFocus = () => {
     if (!isClearModalOpen) {
       setIsPopoverOpen(true)
+      onFocus?.()
     }
   }
 
@@ -118,7 +120,11 @@ const SearchBar = () => {
   return (
     <>
       <S.SearchBarContainer>
-        <S.SearchForm ref={searchFormRef} onSubmit={handleSearch}>
+        <S.SearchForm
+          ref={searchFormRef}
+          onSubmit={handleSearch}
+          variant={variant}
+        >
           <S.SearchIcon>
             <Search size={16} strokeWidth={2} />
           </S.SearchIcon>
@@ -155,6 +161,7 @@ const SearchBar = () => {
         onOpenClearModal={handleOpenClearModal}
         searchSuggestions={getFilteredSuggestions()}
         searchResults={getFilteredUsers()}
+        variant={variant}
       />
 
       {/* Modal de Limpar tudo */}

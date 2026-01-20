@@ -5,7 +5,8 @@ export const dark = {
       primary: '#000000',
       secondary: '#16181C',
       tertiary: '#1C1F23',
-      blur: 'rgba(0, 0, 0, 0.65)'
+      blur: 'rgba(0, 0, 0, 0.65)',
+      reverseBlur: 'rgba(255, 255, 255, 0.65)'
     },
 
     // Textos

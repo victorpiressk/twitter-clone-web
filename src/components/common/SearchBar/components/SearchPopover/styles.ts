@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import {
   colors,
   fontSizes,
@@ -6,12 +6,27 @@ import {
 } from '../../../../../styles/globalStyles'
 import { light } from '../../../../../styles/themes/light'
 
-export const PopoverContainer = styled.div`
+const POPOVER_VARIANTS = {
+  large: css`
+    width: 445px;
+  `,
+  small: css`
+    width: 350px;
+  `
+}
+
+interface PopoverContainerProps {
+  $variant?: keyof typeof POPOVER_VARIANTS
+}
+
+export const PopoverContainer = styled.div<PopoverContainerProps>`
   min-height: 100px;
   max-height: 480px;
   overflow-y: auto;
   overscroll-behavior-y: none;
   color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
+
+  ${({ $variant }) => POPOVER_VARIANTS[$variant || 'small']}
 `
 
 export const EmptyMessage = styled.p`
@@ -75,8 +90,11 @@ export const HistoryItem = styled.div`
 `
 
 export const HistoryIcon = styled.div`
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  color: ${(props) => props.theme.colors.text.secondary};
 `
 
 export const HistoryText = styled.div`
@@ -118,12 +136,6 @@ export const RemoveButton = styled.button`
   &:hover {
     background-color: ${colors.hover.primary};
   }
-
-  svg {
-    width: 18px;
-    height: 18px;
-    fill: ${colors.primary};
-  }
 `
 
 // Estilos do Estado 3
@@ -145,9 +157,11 @@ export const SuggestionItem = styled.div`
 `
 
 export const SuggestionIcon = styled.div`
-  font-size: ${fontSizes.lg};
-  color: ${(props) => props.theme.colors.text.secondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  color: ${(props) => props.theme.colors.text.secondary};
 `
 
 export const SuggestionText = styled.p`

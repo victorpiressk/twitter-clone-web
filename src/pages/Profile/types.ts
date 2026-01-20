@@ -5,6 +5,7 @@ export type UserProfile = {
   bio?: string
   location?: string
   website?: string
+  birthDate: string
   joinedAt: string
   avatar?: string
   banner?: string

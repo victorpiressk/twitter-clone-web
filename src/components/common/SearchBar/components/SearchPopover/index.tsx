@@ -2,6 +2,7 @@ import Popover from '../../../Popover'
 import type { SearchPopoverProps } from './types'
 import * as S from './styles'
 import Avatar from '../../../Avatar'
+import { Search, User, X } from 'lucide-react'
 
 const SearchPopover = ({
   isOpen,
@@ -12,13 +13,16 @@ const SearchPopover = ({
   onRemoveHistoryItem,
   onOpenClearModal,
   searchSuggestions = [],
-  searchResults = []
+  searchResults = [],
+  variant
 }: SearchPopoverProps) => {
   const renderContent = () => {
     switch (state) {
       case 'empty':
         return (
-          <S.PopoverContainer>
+          <S.PopoverContainer
+            $variant={variant === 'large' ? 'large' : 'small'}
+          >
             <S.EmptyMessage>
               Tente buscar por pessoas, listas ou palavras-chave
             </S.EmptyMessage>
@@ -28,7 +32,9 @@ const SearchPopover = ({
       case 'history':
         return (
           <>
-            <S.PopoverContainer>
+            <S.PopoverContainer
+              $variant={variant === 'large' ? 'large' : 'small'}
+            >
               <S.HistoryHeader>
                 <S.HistoryTitle>Recente</S.HistoryTitle>
                 <S.ClearAllButton onClick={onOpenClearModal}>
@@ -43,7 +49,11 @@ const SearchPopover = ({
                     onClick={() => console.log('Click item:', item)}
                   >
                     <S.HistoryIcon>
-                      {item.type === 'search' ? '🔍' : '👤'}
+                      {item.type === 'search' ? (
+                        <Search size={18} strokeWidth={2} />
+                      ) : (
+                        <User size={18} strokeWidth={2} />
+                      )}
                     </S.HistoryIcon>
 
                     <S.HistoryText>
@@ -60,11 +70,7 @@ const SearchPopover = ({
                       }}
                       aria-label="Remover"
                     >
-                      <svg viewBox="0 0 24 24">
-                        <g>
-                          <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z"></path>
-                        </g>
-                      </svg>
+                      <X size={16} strokeWidth={2} />
                     </S.RemoveButton>
                   </S.HistoryItem>
                 ))}
@@ -75,7 +81,9 @@ const SearchPopover = ({
 
       case 'searching':
         return (
-          <S.PopoverContainer>
+          <S.PopoverContainer
+            $variant={variant === 'large' ? 'large' : 'small'}
+          >
             <S.SearchingSection>
               {/* Sugestões de busca */}
               {searchSuggestions.length > 0 && (
@@ -85,7 +93,9 @@ const SearchPopover = ({
                       key={suggestion.id}
                       onClick={() => console.log('Buscar:', suggestion.text)}
                     >
-                      <S.SuggestionIcon>🔍</S.SuggestionIcon>
+                      <S.SuggestionIcon>
+                        <Search size={18} strokeWidth={2} />
+                      </S.SuggestionIcon>
                       <S.SuggestionText>{suggestion.text}</S.SuggestionText>
                     </S.SuggestionItem>
                   ))}
@@ -136,7 +146,7 @@ const SearchPopover = ({
       isOpen={isOpen}
       onClose={onClose}
       triggerRef={triggerRef}
-      position="bottom-left"
+      position="bottom"
       matchTriggerWidth={true}
     >
       {renderContent()}

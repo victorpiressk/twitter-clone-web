@@ -8,8 +8,7 @@ export const TextareaContainer = styled.div`
 
 export const StyledTextarea = styled.textarea`
   width: 100%;
-  min-height: 60px;
-  padding: 12px 0;
+  min-height: 28px;
 
   font-family: inherit;
   font-size: ${fontSizes.xl};
@@ -28,11 +27,17 @@ export const StyledTextarea = styled.textarea`
   }
 `
 
-export const CharCounter = styled.span<{ isLimit: boolean }>`
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
+export const CounterContainer = styled.div`
+  width: 100%;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid ${(props) => props.theme.colors.border.primary};
+  display: flex;
+  justify-content: flex-end;
+`
 
+export const CharCounter = styled.span<{ isLimit: boolean }>`
+  padding: 0 16px;
   font-size: ${fontSizes.sm};
   color: ${(props) =>
     props.isLimit

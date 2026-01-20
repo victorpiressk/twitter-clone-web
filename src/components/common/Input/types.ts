@@ -1,5 +1,5 @@
 export type InputProps = {
-  type?: 'text' | 'email' | 'password' | 'number'
+  type?: 'text' | 'email' | 'password' | 'number' | 'url' | 'date'
   name: string
   label?: string
   placeholder?: string
@@ -9,4 +9,7 @@ export type InputProps = {
   disabled?: boolean
   required?: boolean
   autoFocus?: boolean
+  maxLength?: number
+  multiline?: boolean
+  rows?: number
 }

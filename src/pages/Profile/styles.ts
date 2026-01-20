@@ -12,13 +12,15 @@ export const ProfileHeader = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: ${(props) => props.theme.colors.background.primary};
+
+  background-color: ${(props) => props.theme.colors.background.blur};
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-  padding: 12px 16px;
+  -webkit-backdrop-filter: blur(12px);
+
+  padding: 2px 10px;
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
 `
 
 export const HeaderInfo = styled.div``
@@ -33,7 +35,6 @@ export const HeaderTitle = styled.h2`
 export const PostCount = styled.p`
   font-size: ${fontSizes.sm};
   color: ${(props) => props.theme.colors.text.secondary};
-  margin: 2px 0 0 0;
 `
 
 export const TabContent = styled.div`
