@@ -9,16 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-**PostForm:**
 - Ícones de mídia no PostForm: Image, Smile, BarChart2, MapPin, Calendar.
 - Botões circulares com hover azul claro (rgba(29, 155, 240, 0.1)).
 - Tooltips (title) para acessibilidade em cada ícone.
 - Estrutura preparada para funcionalidades futuras (upload, emoji, enquete, etc).
+- Componente `ImageUpload` global para seleção de imagens (máx 4).
+- Componente `ImagePreview` global com grid responsivo e botão remover.
+- Validações: tipos permitidos (jpg, png, gif, webp), tamanho máximo 5MB.
+- Layout grid adaptativo: 1 imagem (full), 2 (50/50), 3 (grande + 2 pequenas), 4 (grid 2x2).
+- Integração com PostForm: preview de imagens antes de postar.
+- Botão "Adicionar imagem" desabilitado quando atingir 4 imagens.
+- Limpeza automática de memória com `URL.revokeObjectURL`.
+
+### Changed
+
+- Botão "Postar" agora ativa se houver conteúdo OU imagens.
+- Estado de imagens gerenciado localmente (array de ImageFile).
+- Integração com componentes globais ImageUpload e ImagePreview.
 
 ### Technical
 - MediaIcons container com gap de 4px entre ícones.
 - IconButton: 36x36px, cor primary, transição suave.
 - Ícones lucide-react com size 20px e strokeWidth 2.
+- ImageFile type: { file: File, preview: string, id: string }.
+- Preview URLs criados com `URL.createObjectURL` e liberados após remoção.
+- Grid CSS com template dinâmico baseado na quantidade de imagens.
+- Botão remover: backdrop-filter blur(4px), posicionamento absoluto.
+- Componentes reutilizáveis em `src/components/common/`.
+
 
 ## [0.0.5] - 2026-01-20
 

@@ -3,7 +3,10 @@ import { Image, Smile, BarChart2, MapPin, Calendar } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
 import Button from '../../../../components/common/Button'
+import ImageUpload from '../../../../components/common/ImageUpload'
+import ImagePreview from '../../../../components/common/ImagePreview'
 import type { PostFormProps } from './types'
+import type { ImageFile } from '../../../../components/common/ImagePreview/types'
 import * as S from './styles'
 
 const PostForm = ({
@@ -12,6 +15,29 @@ const PostForm = ({
   onSubmit
 }: PostFormProps) => {
   const [content, setContent] = useState('')
+  const [images, setImages] = useState<ImageFile[]>([])
+
+  const handleImageUpload = (newFiles: File[]) => {
+    const newImages: ImageFile[] = newFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      id: `${Date.now()}-${Math.random()}`
+    }))
+
+    setImages((prev) => [...prev, ...newImages])
+  }
+
+  const handleRemoveImage = (id: string) => {
+    setImages((prev) => {
+      const updated = prev.filter((img) => img.id !== id)
+      // Libera memória do preview
+      const removed = prev.find((img) => img.id === id)
+      if (removed) {
+        URL.revokeObjectURL(removed.preview)
+      }
+      return updated
+    })
+  }
 
   const handleSubmit = () => {
     if (content.trim()) {
@@ -20,7 +46,8 @@ const PostForm = ({
     }
   }
 
-  const isDisabled = !content.trim() || content.length > 280
+  const isDisabled =
+    (!content.trim() && images.length === 0) || content.length > 280
 
   return (
     <S.PostFormContainer>
@@ -34,14 +61,30 @@ const PostForm = ({
           rows={1}
         />
 
+        {/* Preview de Imagens */}
+        <ImagePreview images={images} onRemove={handleRemoveImage} />
+
         <S.PostFormActions>
           <S.MediaIcons>
-            {/* Imagem */}
+            {/* ImageUpload integrado */}
+            <ImageUpload
+              onImagesChange={handleImageUpload}
+              maxImages={4}
+              currentImageCount={images.length}
+            />
+
+            {/* Botão de Imagem (trigger do ImageUpload) */}
             <S.IconButton
               type="button"
-              onClick={() => console.log('Adicionar imagem')}
+              onClick={() => {
+                const input = document.querySelector(
+                  'input[type="file"]'
+                ) as HTMLInputElement
+                input?.click()
+              }}
               aria-label="Adicionar imagem"
               title="Adicionar imagem"
+              disabled={images.length >= 4}
             >
               <Image size={20} strokeWidth={2} />
             </S.IconButton>
