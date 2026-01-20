@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2026-01-20
+
+### Added
+
+**PostForm:**
+- Ícones de mídia no PostForm: Image, Smile, BarChart2, MapPin, Calendar.
+- Botões circulares com hover azul claro (rgba(29, 155, 240, 0.1)).
+- Tooltips (title) para acessibilidade em cada ícone.
+- Estrutura preparada para funcionalidades futuras (upload, emoji, enquete, etc).
+
+### Technical
+- MediaIcons container com gap de 4px entre ícones.
+- IconButton: 36x36px, cor primary, transição suave.
+- Ícones lucide-react com size 20px e strokeWidth 2.
+
 ## [0.0.5] - 2026-01-20
 
 ### Added

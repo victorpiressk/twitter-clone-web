@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { Image, ImagePlay, Laugh } from 'lucide-react'
+import { Image, Smile, BarChart2, MapPin, Calendar } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
 import Button from '../../../../components/common/Button'
 import type { PostFormProps } from './types'
 import * as S from './styles'
-import { colors } from '../../../../styles/globalStyles'
 
 const PostForm = ({
   userName = 'Usuário',
@@ -17,7 +16,7 @@ const PostForm = ({
   const handleSubmit = () => {
     if (content.trim()) {
       onSubmit(content)
-      setContent('') // Limpa após enviar
+      setContent('')
     }
   }
 
@@ -36,11 +35,58 @@ const PostForm = ({
         />
 
         <S.PostFormActions>
-          <div>
-            <Image size={18} strokeWidth={2} color={colors.primary} />
-            <ImagePlay size={18} strokeWidth={2} color={colors.primary} />
-            <Laugh size={18} strokeWidth={2} color={colors.primary} />
-          </div>
+          <S.MediaIcons>
+            {/* Imagem */}
+            <S.IconButton
+              type="button"
+              onClick={() => console.log('Adicionar imagem')}
+              aria-label="Adicionar imagem"
+              title="Adicionar imagem"
+            >
+              <Image size={20} strokeWidth={2} />
+            </S.IconButton>
+
+            {/* Emoji */}
+            <S.IconButton
+              type="button"
+              onClick={() => console.log('Adicionar emoji')}
+              aria-label="Adicionar emoji"
+              title="Adicionar emoji"
+            >
+              <Smile size={20} strokeWidth={2} />
+            </S.IconButton>
+
+            {/* Enquete */}
+            <S.IconButton
+              type="button"
+              onClick={() => console.log('Criar enquete')}
+              aria-label="Criar enquete"
+              title="Criar enquete"
+            >
+              <BarChart2 size={20} strokeWidth={2} />
+            </S.IconButton>
+
+            {/* Localização */}
+            <S.IconButton
+              type="button"
+              onClick={() => console.log('Adicionar localização')}
+              aria-label="Adicionar localização"
+              title="Adicionar localização"
+            >
+              <MapPin size={20} strokeWidth={2} />
+            </S.IconButton>
+
+            {/* Agendar */}
+            <S.IconButton
+              type="button"
+              onClick={() => console.log('Agendar post')}
+              aria-label="Agendar post"
+              title="Agendar post"
+            >
+              <Calendar size={20} strokeWidth={2} />
+            </S.IconButton>
+          </S.MediaIcons>
+
           <Button
             type="button"
             variant="secondary"

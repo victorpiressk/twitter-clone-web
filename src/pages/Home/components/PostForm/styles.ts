@@ -1,7 +1,11 @@
 import styled from 'styled-components'
 import { ButtonContainer } from '../../../../components/common/Button/styles'
 import { StyledTextarea } from '../../../../components/common/Textarea/styles'
-import { colors, fontWeights } from '../../../../styles/globalStyles'
+import {
+  colors,
+  fontWeights,
+  transitions
+} from '../../../../styles/globalStyles'
 
 export const PostFormContainer = styled.div`
   display: flex;
@@ -24,21 +28,43 @@ export const PostFormContent = styled.div`
 export const PostFormActions = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 12px;
-
-  div {
-    padding-left: 2px;
-    border-radius: 9999px;
-
-    &:hover {
-      background-color: ${colors.hover.primary};
-    }
-    svg {
-      margin-right: 18px;
-    }
-  }
 
   ${ButtonContainer} {
     font-weight: ${fontWeights.bold};
+  }
+`
+
+export const MediaIcons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
+
+export const IconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: ${colors.primary};
+  transition: ${transitions.fast};
+
+  &:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    stroke: currentColor;
   }
 `
