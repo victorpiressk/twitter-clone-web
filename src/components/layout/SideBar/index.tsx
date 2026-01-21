@@ -1,22 +1,11 @@
 import { useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import {
-  Twitter,
-  Home,
-  Search,
-  Bell,
-  Mail,
-  UserPlus,
-  User,
-  MoreHorizontal,
-  Settings,
-  Info,
-  Github,
-  Dock
-} from 'lucide-react'
+import { Twitter, MoreHorizontal } from 'lucide-react'
 import Button from '../../common/Button'
 import Avatar from '../../common/Avatar'
 import Popover from '../../common/Popover'
+import CreatePostModal from './components/CreatePostModal'
+import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
 import * as S from './styles'
 
 const SideBar = () => {
@@ -24,6 +13,7 @@ const SideBar = () => {
   const navigate = useNavigate()
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -34,71 +24,37 @@ const SideBar = () => {
     avatar: undefined
   }
 
-  const navItems = [
-    {
-      path: '/home',
-      label: 'Página Inicial',
-      icon: <Home size={26.25} />
-    },
-    {
-      path: '/explore',
-      label: 'Explorar',
-      icon: <Search size={26.25} />
-    },
-    {
-      path: '/notifications',
-      label: 'Notificações',
-      icon: <Bell size={26.25} />
-    },
-    { path: '/connect', label: 'Seguir', icon: <UserPlus size={26.25} /> },
-    { path: '/messages', label: 'Bate-papo', icon: <Mail size={26.25} /> },
-    { path: '/profile', label: 'Perfil', icon: <User size={26.25} /> }
-  ]
-
-  const moreItems = [
-    {
-      label: 'Configurações e privacidade',
-      icon: <Settings size={24} />,
-      action: () => navigate('/settings')
-    },
-    {
-      label: 'Sobre o projeto',
-      icon: <Info size={24} />,
-      action: () => console.log('Sobre')
-    },
-    {
-      label: 'GitHub',
-      icon: <Github size={24} />,
-      action: () => window.open('https://github.com/seu-usuario', '_blank')
-    },
-    {
-      label: 'Documentação da API',
-      icon: <Dock size={24} />,
-      action: () => console.log('Docs')
+  const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
+    switch (item.action) {
+      case 'navigate':
+        navigate(item.path!)
+        break
+      case 'external':
+        window.open(item.url!, '_blank')
+        break
+      case 'custom':
+        console.log(`${item.id} clicked`)
+        break
     }
-  ]
-
-  const profileMenuItems = [
-    {
-      label: 'Adicionar conta existente',
-      action: () => {
-        console.log('Adicionar conta')
-        setIsProfileMenuOpen(false)
-      }
-    },
-    {
-      label: `Sair de @${currentUser.username}`,
-      action: () => {
-        console.log('Logout')
-        setIsProfileMenuOpen(false)
-        navigate('/login')
-      }
-    }
-  ]
-
-  const handleMoreItemClick = (action: () => void) => {
-    action()
     setIsMoreOpen(false)
+  }
+
+  const handleProfileMenuClick = (itemId: string) => {
+    switch (itemId) {
+      case 'add-account':
+        console.log('Adicionar conta')
+        break
+      case 'logout':
+        console.log('Logout')
+        navigate('/login')
+        break
+    }
+    setIsProfileMenuOpen(false)
+  }
+
+  const handleCreatePost = (content: string) => {
+    console.log('Post criado:', content)
+    // TODO: Integrar com API
   }
 
   return (
@@ -112,20 +68,25 @@ const SideBar = () => {
               </S.Logo>
             </li>
 
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <Button
-                  type="link"
-                  to={item.path}
-                  variant="ghost"
-                  active={location.pathname === item.path}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Button>
-              </li>
-            ))}
+            {/* Navegação principal */}
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon
+              return (
+                <li key={item.path}>
+                  <Button
+                    type="link"
+                    to={item.path}
+                    variant="ghost"
+                    active={location.pathname === item.path}
+                  >
+                    <Icon size={26.25} />
+                    <span>{item.label}</span>
+                  </Button>
+                </li>
+              )
+            })}
 
+            {/* Botão Mais */}
             <li>
               <S.SideButton
                 ref={moreButtonRef}
@@ -138,17 +99,19 @@ const SideBar = () => {
               </S.SideButton>
             </li>
 
+            {/* Botão Postar */}
             <li>
               <S.SideButton
                 type="button"
                 variant="secondary"
-                onClick={() => console.log('Abrir modal de post')}
+                onClick={() => setIsCreatePostModalOpen(true)}
               >
                 Postar
               </S.SideButton>
             </li>
           </S.NavList>
 
+          {/* Botão Perfil */}
           <S.FooterButton
             ref={profileButtonRef}
             type="button"
@@ -171,27 +134,30 @@ const SideBar = () => {
         </S.Nav>
       </S.Aside>
 
-      {/* Popover do botão Mais */}
+      {/* Popover "Mais" */}
       <Popover
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         triggerRef={moreButtonRef}
         position="top-left"
       >
-        {moreItems.map((item, index) => (
-          <S.PopoverItem
-            key={index}
-            onClick={() => handleMoreItemClick(item.action)}
-          >
-            <span style={{ marginRight: '12px', fontSize: '18px' }}>
-              {item.icon}
-            </span>
-            {item.label}
-          </S.PopoverItem>
-        ))}
+        {MORE_ITEMS.map((item) => {
+          const Icon = item.icon
+          return (
+            <S.PopoverItem
+              key={item.id}
+              onClick={() => handleMoreItemClick(item)}
+            >
+              <span style={{ marginRight: '12px', fontSize: '18px' }}>
+                <Icon size={24} />
+              </span>
+              {item.label}
+            </S.PopoverItem>
+          )
+        })}
       </Popover>
 
-      {/* Popover do menu Perfil */}
+      {/* Popover Perfil */}
       <Popover
         isOpen={isProfileMenuOpen}
         onClose={() => setIsProfileMenuOpen(false)}
@@ -199,12 +165,27 @@ const SideBar = () => {
         position="top"
         variant="profile"
       >
-        {profileMenuItems.map((item, index) => (
-          <S.PopoverItem key={index} onClick={item.action} $variant="profile">
-            {item.label}
+        {PROFILE_MENU_ITEMS.map((item) => (
+          <S.PopoverItem
+            key={item.id}
+            onClick={() => handleProfileMenuClick(item.id)}
+            $variant="profile"
+          >
+            {item.id === 'logout'
+              ? `${item.label} de @${currentUser.username}`
+              : item.label}
           </S.PopoverItem>
         ))}
       </Popover>
+
+      {/* Modal Criar Post */}
+      <CreatePostModal
+        isOpen={isCreatePostModalOpen}
+        onClose={() => setIsCreatePostModalOpen(false)}
+        onSubmit={handleCreatePost}
+        userName={currentUser.displayName}
+        userAvatar={currentUser.avatar}
+      />
     </>
   )
 }

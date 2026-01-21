@@ -1,27 +1,20 @@
-import { useRef } from 'react'
-import { Image } from 'lucide-react'
 import type { ImageUploadProps } from './types'
 import * as S from './styles'
 
 const ImageUpload = ({
   onImagesChange,
   maxImages = 4,
-  currentImageCount
+  currentImageCount,
+  inputRef
 }: ImageUploadProps) => {
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const handleClick = () => {
-    inputRef.current?.click()
-  }
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
 
-    if (!files.length) return
+    if (!files.length) {
+      return
+    }
 
-    // Validações
     const validFiles = files.filter((file) => {
-      // Tipo
       const validTypes = [
         'image/jpeg',
         'image/jpg',
@@ -34,7 +27,6 @@ const ImageUpload = ({
         return false
       }
 
-      // Tamanho (5MB)
       const maxSize = 5 * 1024 * 1024
       if (file.size > maxSize) {
         alert(`Arquivo ${file.name} excede 5MB`)
@@ -44,7 +36,6 @@ const ImageUpload = ({
       return true
     })
 
-    // Limite de imagens
     const remaining = maxImages - currentImageCount
     const filesToAdd = validFiles.slice(0, remaining)
 
@@ -56,31 +47,20 @@ const ImageUpload = ({
       onImagesChange(filesToAdd)
     }
 
-    // Limpa input para permitir selecionar o mesmo arquivo novamente
     e.target.value = ''
   }
 
   const isDisabled = currentImageCount >= maxImages
 
   return (
-    <>
-      <S.HiddenInput
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-        multiple
-        onChange={handleFileChange}
-        disabled={isDisabled}
-      />
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={isDisabled}
-        style={{ display: 'none' }} // Será renderizado pelo PostForm
-      >
-        <Image size={20} />
-      </button>
-    </>
+    <S.HiddenInput
+      ref={inputRef} // ← USA ref via props
+      type="file"
+      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+      multiple
+      onChange={handleFileChange}
+      disabled={isDisabled}
+    />
   )
 }
 

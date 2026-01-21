@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import InforBar from '../../components/Layout/InfoBar'
 import { ContentWrapper } from '../../styles/globalStyles'
-import PostForm from './components/PostForm'
+import PostForm from '../../components/common/PostForm'
 import PostList from '../../components/common/PostList'
 import HomeTabs from './components/HomeTabs'
 import type { ActiveTab } from './components/HomeTabs/types'
 import type { Post } from '../../components/common/PostCard/types'
+import type { HomeProps } from './types'
 import * as S from './styles'
 
 // Mock data (depois vem da API)
@@ -309,7 +310,7 @@ const mockPosts: Post[] = [
   }
 ]
 
-const HomeLayout = () => {
+const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('forYou')
   const [posts, setPosts] = useState<Post[]>(mockPosts)
 
@@ -392,7 +393,13 @@ const HomeLayout = () => {
       <S.HomeContainer>
         <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <PostForm userName="Victor Pires" onSubmit={handleCreatePost} />
+        <PostForm
+          userName={userName}
+          userAvatar={userAvatar}
+          onSubmit={handleCreatePost}
+          // ← Não passa content/images = modo não-controlado
+          // ← showActions=true por padrão, actions aparecem normalmente
+        />
 
         <PostList
           posts={filteredPosts}

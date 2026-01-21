@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components'
+import { light } from '../../../styles/themes/light'
 
 const fadeIn = keyframes`
   from {
@@ -91,22 +92,6 @@ export const ModalContainer = styled.div<ModalContainerProps>`
 export const ModalContent = styled.div`
   flex: 1;
   overflow-y: auto;
-
-  /* Scrollbar customizada */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${(props) => props.theme.colors.border.primary};
-    border-radius: 3px;
-
-    &:hover {
-      background: ${(props) => props.theme.colors.border.secondary};
-    }
-  }
+  overscroll-behavior-y: none;
+  color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
 `

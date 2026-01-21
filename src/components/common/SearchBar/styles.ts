@@ -1,7 +1,10 @@
 import styled from 'styled-components'
 import { colors, transitions } from '../../../styles/globalStyles'
 import { light } from '../../../styles/themes/light'
-import type { SearchBarProps } from './types'
+
+export type SearchFormProps = {
+  $variant?: string
+}
 
 export const SearchBarContainer = styled.div`
   position: sticky;
@@ -14,7 +17,7 @@ export const SearchBarContainer = styled.div`
   width: 100%;
 `
 
-export const SearchForm = styled.form<SearchBarProps>`
+export const SearchForm = styled.form<SearchFormProps>`
   position: relative;
   display: flex;
   align-items: center;
@@ -24,7 +27,7 @@ export const SearchForm = styled.form<SearchBarProps>`
   padding: 11px 10px;
   transition: ${transitions.fast};
 
-  width: ${(props) => (props.variant === 'large' ? '100%' : '350px')};
+  width: ${(props) => (props.$variant === 'large' ? '100%' : '350px')};
 
   &:focus-within {
     background-color: transparent;

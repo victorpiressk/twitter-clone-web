@@ -123,7 +123,7 @@ const SearchBar = ({ variant = 'large', onFocus }: SearchBarProps) => {
         <S.SearchForm
           ref={searchFormRef}
           onSubmit={handleSearch}
-          variant={variant}
+          $variant={variant}
         >
           <S.SearchIcon>
             <Search size={16} strokeWidth={2} />
