@@ -5,4 +5,5 @@ export type SearchBarProps = {
   onSearch?: (query: string) => void
   variant?: SearchBarVariant
   onFocus?: () => void
+  value?: string
 }

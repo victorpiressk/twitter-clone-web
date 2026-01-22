@@ -5,8 +5,8 @@ type AvatarContainerProps = {
 }
 
 const sizes = {
-  small: '32px',
-  medium: '40px',
+  small: '40px',
+  medium: '64px',
   large: '133px'
 }
 

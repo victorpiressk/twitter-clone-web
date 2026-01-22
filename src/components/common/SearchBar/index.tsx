@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
 import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
@@ -11,11 +11,21 @@ import type {
 import type { SearchBarProps } from './types'
 import * as S from './styles'
 
-const SearchBar = ({ variant = 'large', onFocus }: SearchBarProps) => {
+const SearchBar = ({
+  variant = 'large',
+  onFocus,
+  value: externalValue = '',
+  onSearch
+}: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState('')
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isClearModalOpen, setIsClearModalOpen] = useState(false)
   const searchFormRef = useRef<HTMLFormElement>(null)
+
+  // ← Sincroniza com prop externa
+  useEffect(() => {
+    setSearchValue(externalValue)
+  }, [externalValue])
 
   // Mock histórico (depois vem do localStorage/API)
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([
@@ -93,8 +103,9 @@ const SearchBar = ({ variant = 'large', onFocus }: SearchBarProps) => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Buscar:', searchValue)
-    // TODO: Implementar busca + adicionar ao histórico
+    if (onSearch && searchValue.trim()) {
+      onSearch(searchValue.trim())
+    }
   }
 
   const handleFocus = () => {

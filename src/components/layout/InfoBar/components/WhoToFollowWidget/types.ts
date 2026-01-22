@@ -3,6 +3,7 @@ export type UserSuggestion = {
   username: string
   displayName: string
   avatar?: string
+  bio?: string
   isFollowing: boolean
 }
 

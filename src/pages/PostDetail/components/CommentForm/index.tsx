@@ -19,7 +19,7 @@ const CommentForm = ({ onSubmit, userAvatar }: CommentFormProps) => {
 
   return (
     <S.CommentFormContainer>
-      <Avatar src={userAvatar} alt="Você" size="medium" />
+      <Avatar src={userAvatar} alt="Você" size="small" />
 
       <S.CommentFormContent>
         <Textarea

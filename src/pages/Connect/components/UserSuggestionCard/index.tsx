@@ -31,7 +31,7 @@ const UserSuggestionCard = ({
   return (
     <S.CardContainer>
       <S.AvatarWrapper onClick={handleUserClick}>
-        <Avatar src={user.avatar} alt={user.displayName} size="medium" />
+        <Avatar src={user.avatar} alt={user.displayName} size="small" />
       </S.AvatarWrapper>
 
       <S.UserInfo onClick={handleUserClick}>

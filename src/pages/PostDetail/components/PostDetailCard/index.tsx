@@ -29,7 +29,7 @@ const PostDetailCard = ({ post, onLike, onRetweet }: PostDetailCardProps) => {
         <Avatar
           src={post.author.avatar}
           alt={post.author.displayName}
-          size="medium"
+          size="small"
         />
         <S.AuthorInfo>
           <S.DisplayName>{post.author.displayName}</S.DisplayName>

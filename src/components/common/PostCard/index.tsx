@@ -29,8 +29,15 @@ const PostCard = ({ post, onLike, onRetweet, onComment }: PostCardProps) => {
     return num.toString()
   }
 
+  // Navega para o post
   const handleClickPost = () => {
     navigate(`/${post.author.username}/status/${post.id}`)
+  }
+
+  // Navega para o perfil do autor
+  const handleClickProfile = (e: React.MouseEvent) => {
+    e.stopPropagation() // Impede navegação para o post
+    navigate(`/${post.author.username}`)
   }
 
   return (
@@ -38,13 +45,32 @@ const PostCard = ({ post, onLike, onRetweet, onComment }: PostCardProps) => {
       <Avatar
         src={post.author.avatar}
         alt={post.author.displayName}
-        size="medium"
+        size="small"
+        onClick={handleClickProfile}
+        showProfilePopover={true}
+        userProfileData={{
+          id: post.author.id,
+          username: post.author.username,
+          displayName: post.author.displayName,
+          avatar: post.author.avatar,
+          bio: post.author.bio,
+          stats: {
+            following: 123, // mock
+            followers: 456 // mock
+          },
+          isFollowing: post.author.isFollowing
+        }}
+        onFollowToggle={(userId) => console.log('Follow toggle:', userId)}
       />
 
       <S.PostContent>
         <S.PostHeader>
-          <S.DisplayName>{post.author.displayName}</S.DisplayName>
-          <S.Username>@{post.author.username}</S.Username>
+          <S.DisplayName onClick={handleClickProfile}>
+            {post.author.displayName}
+          </S.DisplayName>
+          <S.Username onClick={handleClickProfile}>
+            @{post.author.username}
+          </S.Username>
           <S.Separator>·</S.Separator>
           <S.PostDate>{formatDate(post.createdAt)}</S.PostDate>
         </S.PostHeader>

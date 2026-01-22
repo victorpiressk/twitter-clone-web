@@ -121,7 +121,7 @@ const SideBar = () => {
             <Avatar
               src={currentUser.avatar}
               alt={currentUser.displayName}
-              size="medium"
+              size="small"
             />
             <S.UserNames>
               <S.DisplayName>{currentUser.displayName}</S.DisplayName>

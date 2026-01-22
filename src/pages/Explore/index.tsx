@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import InfoBar from '../../components/Layout/InfoBar'
 import SearchBar from '../../components/common/SearchBar'
 import BackButton from '../../components/common/BackButton'
@@ -19,7 +20,8 @@ const mockPosts: Post[] = [
     author: {
       id: '1',
       username: 'tech_news',
-      displayName: 'Tech News BR'
+      displayName: 'Tech News BR',
+      isFollowing: false
     },
     content:
       '🚀 Novidades do React 19: Server Components agora estão estáveis! #React #WebDev',
@@ -33,7 +35,8 @@ const mockPosts: Post[] = [
     author: {
       id: '2',
       username: 'dev_brasil',
-      displayName: 'Devs Brasil'
+      displayName: 'Devs Brasil',
+      isFollowing: false
     },
     content:
       'TypeScript 5.4 traz melhorias incríveis de performance! Confira: https://example.com',
@@ -47,7 +50,8 @@ const mockPosts: Post[] = [
     author: {
       id: '3',
       username: 'frontend_tips',
-      displayName: 'Frontend Tips'
+      displayName: 'Frontend Tips',
+      isFollowing: false
     },
     content:
       'Dica: Use CSS Container Queries ao invés de Media Queries para componentes mais flexíveis! 💡',
@@ -68,9 +72,31 @@ const mockTrends: Trend[] = [
 ]
 
 const Explore = () => {
-  const [activeTab, setActiveTab] = useState<ExploreTab>('for-you')
+  const [searchParams, setSearchParams] = useSearchParams()
   const [posts, setPosts] = useState(mockPosts)
+
+  // DERIVAR estado da URL (não usar useState + useEffect)
+  const activeTab: ExploreTab =
+    (searchParams.get('tab') as ExploreTab) || 'for-you'
+  const searchQuery = searchParams.get('q') || ''
+
   const [isSearchFocused, setIsSearchFocused] = useState(false)
+
+  const handleTabChange = (tab: ExploreTab) => {
+    // Mantém query se existir
+    const params: Record<string, string> = { tab }
+    if (searchQuery) params.q = searchQuery
+    setSearchParams(params)
+  }
+
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      setSearchParams({ q: query.trim(), tab: activeTab })
+    } else {
+      // Se limpar busca, mantém só a tab
+      setSearchParams({ tab: activeTab })
+    }
+  }
 
   const handleLike = (postId: string) => {
     setPosts((prev) =>
@@ -183,10 +209,12 @@ const Explore = () => {
               <SearchBar
                 variant="large"
                 onFocus={() => setIsSearchFocused(true)}
+                value={searchQuery}
+                onSearch={handleSearch}
               />
             </S.SearchBarContent>
 
-            <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
+            <ExploreTabs activeTab={activeTab} onTabChange={handleTabChange} />
           </S.SearchBarWrapper>
 
           <S.TabContent>{renderTabContent()}</S.TabContent>

@@ -18,7 +18,7 @@ const FollowUserCard = ({ user, onFollowToggle }: FollowUserCardProps) => {
 
   return (
     <S.CardContainer onClick={handleCardClick}>
-      <Avatar src={user.avatar} alt={user.displayName} size="medium" />
+      <Avatar src={user.avatar} alt={user.displayName} size="small" />
 
       <S.UserInfo>
         <S.UserNames>

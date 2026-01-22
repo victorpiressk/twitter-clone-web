@@ -33,6 +33,7 @@ export const SuggestionItem = styled.li`
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
+  cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {

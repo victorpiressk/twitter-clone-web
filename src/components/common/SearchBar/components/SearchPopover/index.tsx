@@ -113,7 +113,7 @@ const SearchPopover = ({
                   <Avatar
                     src={user.avatar}
                     alt={user.displayName}
-                    size="medium"
+                    size="small"
                   />
 
                   <S.UserResultInfo>

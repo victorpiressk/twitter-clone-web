@@ -20,18 +20,21 @@ const mockSuggestions: UserSuggestion[] = [
     id: '1',
     username: 'joaosilva',
     displayName: 'João Silva',
+    bio: 'Bio texte 1',
     isFollowing: false
   },
   {
     id: '2',
     username: 'mariacosta',
     displayName: 'Maria Costa',
+    bio: 'Bio texte 2',
     isFollowing: false
   },
   {
     id: '3',
     username: 'pedrosantos',
     displayName: 'Pedro Santos',
+    bio: 'Bio texte 3',
     isFollowing: true
   }
 ]

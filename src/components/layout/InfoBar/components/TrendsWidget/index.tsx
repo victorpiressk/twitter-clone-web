@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import type { TrendsWidgetProps } from './types'
-import * as S from './styles'
 import Button from '../../../../common/Button'
+import * as S from './styles'
 
 const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
+  const navigate = useNavigate()
+
   const formatCount = (count: number): string => {
     if (count >= 1000000) {
       return `${(count / 1000000).toFixed(1)}M`
@@ -15,6 +18,13 @@ const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
 
   const displayTrends = showAll ? trends : trends.slice(0, 3)
 
+  // ✅ Handler para clicar no trend
+  const handleTrendClick = (trendName: string) => {
+    // Remove # se existir e faz encode para URL
+    const query = trendName.replace('#', '')
+    navigate(`/explore?q=${encodeURIComponent(query)}&tab=trending`)
+  }
+
   return (
     <S.Widget>
       <S.WidgetHeader>
@@ -23,7 +33,10 @@ const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
 
       <S.TrendsList>
         {displayTrends.map((trend) => (
-          <S.TrendItem key={trend.id}>
+          <S.TrendItem
+            key={trend.id}
+            onClick={() => handleTrendClick(trend.name)}
+          >
             <S.TrendCategory>{trend.category}</S.TrendCategory>
             <S.TrendName>{trend.name}</S.TrendName>
             <S.TrendCount>{formatCount(trend.tweetCount)} posts</S.TrendCount>

@@ -87,7 +87,7 @@ const PostForm = ({
 
   return (
     <S.PostFormContainer $isModal={isModal}>
-      <Avatar src={userAvatar} alt={userName} size="medium" />
+      <Avatar src={userAvatar} alt={userName} size="small" />
 
       <S.PostFormContent>
         <Textarea

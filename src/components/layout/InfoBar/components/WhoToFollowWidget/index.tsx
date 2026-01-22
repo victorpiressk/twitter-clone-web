@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../common/Avatar'
 import Button from '../../../../common/Button'
 import type { WhoToFollowWidgetProps } from './types'
@@ -7,6 +8,23 @@ const WhoToFollowWidget = ({
   suggestions,
   onFollowToggle
 }: WhoToFollowWidgetProps) => {
+  const navigate = useNavigate()
+
+  // ✅ Handler para clicar no card (exceto no botão)
+  const handleUserClick = (username: string, e: React.MouseEvent) => {
+    // Se clicou no botão, não navega
+    if ((e.target as HTMLElement).closest('button')) {
+      return
+    }
+    navigate(`/${username}`)
+  }
+
+  // ✅ Handler para o botão de seguir (previne navegação)
+  const handleFollowClick = (userId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Impede que o click do card seja acionado
+    onFollowToggle(userId)
+  }
+
   return (
     <S.Widget>
       <S.WidgetHeader>
@@ -15,8 +33,29 @@ const WhoToFollowWidget = ({
 
       <S.SuggestionsList>
         {suggestions.map((user) => (
-          <S.SuggestionItem key={user.id}>
-            <Avatar src={user.avatar} alt={user.displayName} size="medium" />
+          <S.SuggestionItem
+            key={user.id}
+            onClick={(e) => handleUserClick(user.username, e)}
+          >
+            <Avatar
+              src={user.avatar}
+              alt={user.displayName}
+              size="small"
+              showProfilePopover={true}
+              userProfileData={{
+                id: user.id,
+                username: user.username,
+                displayName: user.displayName,
+                avatar: user.avatar,
+                bio: user.bio,
+                stats: {
+                  following: 123, // mock
+                  followers: 456 // mock
+                },
+                isFollowing: user.isFollowing
+              }}
+              onFollowToggle={(userId) => console.log('Follow toggle:', userId)}
+            />
 
             <S.UserInfo>
               <S.DisplayName>{user.displayName}</S.DisplayName>
@@ -26,7 +65,7 @@ const WhoToFollowWidget = ({
             <Button
               type="button"
               variant={user.isFollowing ? 'outline' : 'secondary'}
-              onClick={() => onFollowToggle(user.id)}
+              onClick={(e) => handleFollowClick(user.id, e)}
             >
               {user.isFollowing ? 'Seguindo' : 'Seguir'}
             </Button>

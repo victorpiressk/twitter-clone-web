@@ -5,7 +5,8 @@ export type Post = {
     username: string
     displayName: string
     avatar?: string
-    isFollowing?: boolean
+    bio?: string
+    isFollowing: boolean
   }
   content: string
   createdAt: string
