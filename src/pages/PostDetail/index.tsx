@@ -4,10 +4,11 @@ import PostDetailCard from './components/PostDetailCard'
 import CommentForm from './components/CommentForm'
 import PostList from '../../components/common/PostList'
 import type { Post } from '../../components/common/PostCard/types'
-import type { PostWithComments } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import ScrollToTop from '../../hooks/useScrollToTop'
+import type { PostWithComments } from './types'
 import * as S from './styles'
 
 // Mock data (depois vem da API)
@@ -158,32 +159,35 @@ const PostDetail = () => {
   }
 
   return (
-    <ContentWrapper>
-      <S.PostDetailContainer>
-        <S.PostDetailHeader>
-          <BackButton />
-          <S.HeaderTitle>Post</S.HeaderTitle>
-        </S.PostDetailHeader>
+    <>
+      <ScrollToTop />
+      <ContentWrapper>
+        <S.PostDetailContainer>
+          <S.PostDetailHeader>
+            <BackButton />
+            <S.HeaderTitle>Post</S.HeaderTitle>
+          </S.PostDetailHeader>
 
-        <PostDetailCard
-          post={post}
-          onLike={handleLike}
-          onRetweet={handleRetweet}
-        />
-
-        <CommentForm onSubmit={handleComment} />
-
-        <S.CommentsSection>
-          <PostList
-            posts={comments}
-            onLike={handleCommentLike}
-            onRetweet={handleCommentRetweet}
-            onComment={handleCommentComment}
+          <PostDetailCard
+            post={post}
+            onLike={handleLike}
+            onRetweet={handleRetweet}
           />
-        </S.CommentsSection>
-      </S.PostDetailContainer>
-      <InfoBar />
-    </ContentWrapper>
+
+          <CommentForm onSubmit={handleComment} />
+
+          <S.CommentsSection>
+            <PostList
+              posts={comments}
+              onLike={handleCommentLike}
+              onRetweet={handleCommentRetweet}
+              onComment={handleCommentComment}
+            />
+          </S.CommentsSection>
+        </S.PostDetailContainer>
+        <InfoBar />
+      </ContentWrapper>
+    </>
   )
 }
 

@@ -7,6 +7,7 @@ import HomeTabs from './components/HomeTabs'
 import type { ActiveTab } from './components/HomeTabs/types'
 import type { Post } from '../../components/common/PostCard/types'
 import type { HomeProps } from './types'
+import ScrollToTop from '../../hooks/useScrollToTop'
 import * as S from './styles'
 
 // Mock data (depois vem da API)
@@ -389,27 +390,28 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
   }
 
   return (
-    <ContentWrapper>
-      <S.HomeContainer>
-        <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
+    <>
+      <ScrollToTop />
+      <ContentWrapper>
+        <S.HomeContainer>
+          <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <PostForm
-          userName={userName}
-          userAvatar={userAvatar}
-          onSubmit={handleCreatePost}
-          // ← Não passa content/images = modo não-controlado
-          // ← showActions=true por padrão, actions aparecem normalmente
-        />
+          <PostForm
+            userName={userName}
+            userAvatar={userAvatar}
+            onSubmit={handleCreatePost}
+          />
 
-        <PostList
-          posts={filteredPosts}
-          onLike={handleLike}
-          onRetweet={handleRetweet}
-          onComment={handleComment}
-        />
-      </S.HomeContainer>
-      <InforBar variant="default" />
-    </ContentWrapper>
+          <PostList
+            posts={filteredPosts}
+            onLike={handleLike}
+            onRetweet={handleRetweet}
+            onComment={handleComment}
+          />
+        </S.HomeContainer>
+        <InforBar variant="default" />
+      </ContentWrapper>
+    </>
   )
 }
 

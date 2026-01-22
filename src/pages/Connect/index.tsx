@@ -5,6 +5,7 @@ import type { ConnectTab, UserSuggestion } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import ScrollToTop from '../../hooks/useScrollToTop'
 import * as S from './styles'
 
 // Mock data - Sugestões
@@ -105,46 +106,49 @@ const Connect = () => {
   }
 
   return (
-    <ContentWrapper>
-      <S.ConnectContainer>
-        <S.ConnectHeader>
-          <BackButton />
-          <S.HeaderTitle>Seguir</S.HeaderTitle>
-        </S.ConnectHeader>
+    <>
+      <ScrollToTop />
+      <ContentWrapper>
+        <S.ConnectContainer>
+          <S.ConnectHeader>
+            <BackButton />
+            <S.HeaderTitle>Seguir</S.HeaderTitle>
+          </S.ConnectHeader>
 
-        <ConnectTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <ConnectTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {activeTab === 'suggestions' && (
-          <>
-            <S.SectionTitle>Sugestões para você</S.SectionTitle>
+          {activeTab === 'suggestions' && (
+            <>
+              <S.SectionTitle>Sugestões para você</S.SectionTitle>
+              <S.UsersList>
+                {suggestions.map((user) => (
+                  <UserSuggestionCard
+                    key={user.id}
+                    user={user}
+                    onFollowToggle={handleFollowToggle}
+                    showSubscribe={false}
+                  />
+                ))}
+              </S.UsersList>
+            </>
+          )}
+
+          {activeTab === 'creators' && (
             <S.UsersList>
-              {suggestions.map((user) => (
+              {creators.map((user) => (
                 <UserSuggestionCard
                   key={user.id}
                   user={user}
                   onFollowToggle={handleFollowToggle}
-                  showSubscribe={false}
+                  showSubscribe={true}
                 />
               ))}
             </S.UsersList>
-          </>
-        )}
-
-        {activeTab === 'creators' && (
-          <S.UsersList>
-            {creators.map((user) => (
-              <UserSuggestionCard
-                key={user.id}
-                user={user}
-                onFollowToggle={handleFollowToggle}
-                showSubscribe={true}
-              />
-            ))}
-          </S.UsersList>
-        )}
-      </S.ConnectContainer>
-      <InfoBar />
-    </ContentWrapper>
+          )}
+        </S.ConnectContainer>
+        <InfoBar />
+      </ContentWrapper>
+    </>
   )
 }
 

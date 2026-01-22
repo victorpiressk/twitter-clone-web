@@ -5,6 +5,7 @@ import NotificationItem from './components/NotificationItem'
 import type { NotificationTab, Notification } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
+import ScrollToTop from '../../hooks/useScrollToTop'
 import * as S from './styles'
 
 // Mock data
@@ -129,32 +130,38 @@ const Notifications = () => {
   const filteredNotifications = getFilteredNotifications()
 
   return (
-    <ContentWrapper>
-      <S.NotificationsContainer>
-        <S.NotificationsHeader>
-          <S.HeaderTitle>Notificações</S.HeaderTitle>
-          <NotificationTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        </S.NotificationsHeader>
+    <>
+      <ScrollToTop />
+      <ContentWrapper>
+        <S.NotificationsContainer>
+          <S.NotificationsHeader>
+            <S.HeaderTitle>Notificações</S.HeaderTitle>
+            <NotificationTabs
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          </S.NotificationsHeader>
 
-        <S.NotificationsList>
-          {filteredNotifications.length > 0 ? (
-            filteredNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onClick={() => handleNotificationClick(notification)}
-              />
-            ))
-          ) : (
-            <S.EmptyState>
-              <h3>Nenhuma notificação</h3>
-              <p>Quando alguém interagir com você, aparecerá aqui.</p>
-            </S.EmptyState>
-          )}
-        </S.NotificationsList>
-      </S.NotificationsContainer>
-      <InfoBar />
-    </ContentWrapper>
+          <S.NotificationsList>
+            {filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onClick={() => handleNotificationClick(notification)}
+                />
+              ))
+            ) : (
+              <S.EmptyState>
+                <h3>Nenhuma notificação</h3>
+                <p>Quando alguém interagir com você, aparecerá aqui.</p>
+              </S.EmptyState>
+            )}
+          </S.NotificationsList>
+        </S.NotificationsContainer>
+        <InfoBar />
+      </ContentWrapper>
+    </>
   )
 }
 

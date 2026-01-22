@@ -9,6 +9,7 @@ import Explore from '../pages/Explore'
 import Notifications from '../pages/Notifications'
 import Connect from '../pages/Connect'
 import Messages from '../pages/Messages'
+import FollowPage from '../pages/FollowPage'
 
 const AppRoutes = () => {
   return (
@@ -29,6 +30,8 @@ const AppRoutes = () => {
         {/* Rotas dinâmicas */}
         <Route path="/:username/status/:postId" element={<PostDetail />} />
         <Route path="/:username" element={<Profile />} />
+        <Route path="/:username/following" element={<FollowPage />} />
+        <Route path="/:username/followers" element={<FollowPage />} />
       </Route>
     </Routes>
   )

@@ -8,6 +8,7 @@ import TrendsWidget from '../../components/Layout/InfoBar/components/TrendsWidge
 import type { ExploreTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
 import type { Trend } from '../../components/Layout/InfoBar/components/TrendsWidget/types'
+import ScrollToTop from '../../hooks/useScrollToTop'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
@@ -170,26 +171,29 @@ const Explore = () => {
   }
 
   return (
-    <ContentWrapper>
-      <S.ExploreContainer>
-        <S.SearchBarWrapper>
-          <S.SearchBarContent $showBackButton={isSearchFocused}>
-            {isSearchFocused && (
-              <BackButton onClick={() => setIsSearchFocused(false)} />
-            )}
-            <SearchBar
-              variant="large"
-              onFocus={() => setIsSearchFocused(true)}
-            />
-          </S.SearchBarContent>
+    <>
+      <ScrollToTop />
+      <ContentWrapper>
+        <S.ExploreContainer>
+          <S.SearchBarWrapper>
+            <S.SearchBarContent $showBackButton={isSearchFocused}>
+              {isSearchFocused && (
+                <BackButton onClick={() => setIsSearchFocused(false)} />
+              )}
+              <SearchBar
+                variant="large"
+                onFocus={() => setIsSearchFocused(true)}
+              />
+            </S.SearchBarContent>
 
-          <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        </S.SearchBarWrapper>
+            <ExploreTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          </S.SearchBarWrapper>
 
-        <S.TabContent>{renderTabContent()}</S.TabContent>
-      </S.ExploreContainer>
-      <InfoBar variant="minimal" />
-    </ContentWrapper>
+          <S.TabContent>{renderTabContent()}</S.TabContent>
+        </S.ExploreContainer>
+        <InfoBar variant="minimal" />
+      </ContentWrapper>
+    </>
   )
 }
 

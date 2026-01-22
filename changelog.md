@@ -46,6 +46,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Home:**
 - Adicionadas props `userName` e `userAvatar` no PostForm (mock de usuário).
 
+**Página Seguindo/Seguidores:**
+- Página FollowPage com tabs Seguindo e Seguidores.
+- Componente FollowTabs para navegação entre tabs.
+- Componente FollowUserCard com avatar, nome, @username, bio e botão Seguir/Seguindo.
+- Rotas dinâmicas: `/:username/following` e `/:username/followers`.
+- Header com blur effect, BackButton e informações do usuário.
+- Estados vazios com mensagens informativas quando não há usuários.
+- Navegação no ProfileStats: click em "Seguindo" ou "Seguidores" redireciona para página correspondente.
+
+**Hook Global:**
+- Hook `useScrollToTop` para resetar scroll ao topo em todas as navegações.
+- Aplicado em 7 páginas: Connect, Explore, Home, Notifications, PostDetail, Profile, FollowPage.
+
 
 ### Changed
 
@@ -63,6 +76,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Textarea:**
 - Prop `isModal` removida (não utilizada, mantido visual com 1 row).
+
+**FollowPage:**
+- Estado activeTab derivado diretamente da URL (sem useState/useEffect).
+- getCurrentTab() detecta tab atual pelo location.pathname.
+
+**Navegação:**
+- Click no card do usuário redireciona para perfil (/:username).
+- ProfileStats agora navegável (click em estatísticas).
 
 ### Fixed
 
@@ -83,6 +104,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ImageUpload com inputRef via props para instâncias isoladas.
 - Estado de images gerenciado localmente em cada PostForm.
 - Prop `isModal` controla isolamento de estado (não altura de textarea).
+- Estado derivado da URL: fonte única de verdade, sem sincronização.
+- useScrollToTop: hook reutilizável, executa window.scrollTo(0, 0) a cada mudança de pathname.
+- FollowUserCard: click no card navega, click no botão stopPropagation (não navega).
+- Mock data: mockFollowing e mockFollowers com isFollowing controlado localmente.
+- Header sticky com blur adaptativo (background.blur do theme).
 
 ### Known Issues (v0.0.7+)
 - Posts criados não incluem imagens (onSubmit só recebe texto).
