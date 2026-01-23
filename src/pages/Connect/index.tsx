@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConnectTabs from './components/ConnectTabs'
 import UserSuggestionCard from './components/UserSuggestionCard'
-import type { ConnectTab, UserSuggestion } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
+import type { ConnectTab, UserSuggestion } from './types'
 import * as S from './styles'
 
 // Mock data - Sugestões
@@ -84,6 +85,11 @@ const Connect = () => {
   const [activeTab, setActiveTab] = useState<ConnectTab>('suggestions')
   const [suggestions, setSuggestions] = useState(mockSuggestions)
   const [creators, setCreators] = useState(mockCreators)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 1500)
+  }, [])
 
   const handleFollowToggle = (userId: string) => {
     if (activeTab === 'suggestions') {
@@ -121,28 +127,40 @@ const Connect = () => {
             <>
               <S.SectionTitle>Sugestões para você</S.SectionTitle>
               <S.UsersList>
-                {suggestions.map((user) => (
-                  <UserSuggestionCard
-                    key={user.id}
-                    user={user}
-                    onFollowToggle={handleFollowToggle}
-                    showSubscribe={false}
-                  />
-                ))}
+                {isLoading ? (
+                  <UserCardListSkeleton count={3} />
+                ) : (
+                  <>
+                    {suggestions.map((user) => (
+                      <UserSuggestionCard
+                        key={user.id}
+                        user={user}
+                        onFollowToggle={handleFollowToggle}
+                        showSubscribe={false}
+                      />
+                    ))}
+                  </>
+                )}
               </S.UsersList>
             </>
           )}
 
           {activeTab === 'creators' && (
             <S.UsersList>
-              {creators.map((user) => (
-                <UserSuggestionCard
-                  key={user.id}
-                  user={user}
-                  onFollowToggle={handleFollowToggle}
-                  showSubscribe={true}
-                />
-              ))}
+              {isLoading ? (
+                <UserCardListSkeleton count={3} />
+              ) : (
+                <>
+                  {creators.map((user) => (
+                    <UserSuggestionCard
+                      key={user.id}
+                      user={user}
+                      onFollowToggle={handleFollowToggle}
+                      showSubscribe={true}
+                    />
+                  ))}
+                </>
+              )}
             </S.UsersList>
           )}
         </S.ConnectContainer>

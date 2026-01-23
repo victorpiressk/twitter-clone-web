@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import InforBar from '../../components/Layout/InfoBar'
 import { ContentWrapper } from '../../styles/globalStyles'
 import PostForm from '../../components/common/PostForm'
@@ -9,6 +9,7 @@ import type { Post } from '../../components/common/PostCard/types'
 import type { HomeProps } from './types'
 import ScrollToTop from '../../hooks/useScrollToTop'
 import * as S from './styles'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 
 // Mock data (depois vem da API)
 const mockPosts: Post[] = [
@@ -314,6 +315,15 @@ const mockPosts: Post[] = [
 const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('forYou')
   const [posts, setPosts] = useState<Post[]>(mockPosts)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simula fetch de posts
+    setTimeout(() => {
+      setPosts(mockPosts)
+      setIsLoading(false)
+    }, 2000)
+  }, [])
 
   const filteredPosts = useMemo(() => {
     if (activeTab === 'following') {
@@ -402,12 +412,16 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
             onSubmit={handleCreatePost}
           />
 
-          <PostList
-            posts={filteredPosts}
-            onLike={handleLike}
-            onRetweet={handleRetweet}
-            onComment={handleComment}
-          />
+          {isLoading ? (
+            <PostListSkeleton count={5} />
+          ) : (
+            <PostList
+              posts={filteredPosts}
+              onLike={handleLike}
+              onRetweet={handleRetweet}
+              onComment={handleComment}
+            />
+          )}
         </S.HomeContainer>
         <InforBar variant="default" />
       </ContentWrapper>

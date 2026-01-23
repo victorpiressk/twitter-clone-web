@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PostDetailCard from './components/PostDetailCard'
 import CommentForm from './components/CommentForm'
 import PostList from '../../components/common/PostList'
-import type { Post } from '../../components/common/PostCard/types'
-import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import PostDetailSkeleton from '../../components/common/Skeleton/components/PostDetailSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
+import type { Post } from '../../components/common/PostCard/types'
 import type { PostWithComments } from './types'
+import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 
 // Mock data (depois vem da API)
 const mockPost: PostWithComments = {
@@ -17,7 +19,8 @@ const mockPost: PostWithComments = {
   author: {
     id: '1',
     username: 'victor',
-    displayName: 'Victor Pires'
+    displayName: 'Victor Pires',
+    isFollowing: false
   },
   content: 'Olá mundo! Este é meu primeiro post no Twitter Clone 🚀',
   createdAt: new Date(Date.now() - 3600000).toISOString(),
@@ -35,7 +38,8 @@ const mockPost: PostWithComments = {
       author: {
         id: '2',
         username: 'maria',
-        displayName: 'Maria Costa'
+        displayName: 'Maria Costa',
+        isFollowing: true
       },
       content: 'Ótimo post!',
       createdAt: new Date(Date.now() - 1800000).toISOString(),
@@ -48,7 +52,8 @@ const mockPost: PostWithComments = {
       author: {
         id: '3',
         username: 'joao',
-        displayName: 'João Silva'
+        displayName: 'João Silva',
+        isFollowing: true
       },
       content: 'Concordo! 👍',
       createdAt: new Date(Date.now() - 900000).toISOString(),
@@ -63,6 +68,13 @@ const PostDetail = () => {
   const { username, postId } = useParams()
   const [post, setPost] = useState(mockPost)
   const [comments, setComments] = useState(mockPost.comments)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+  }, [postId])
 
   // TODO: Integrar com API
   console.log('Viewing post:', username, postId)
@@ -97,7 +109,8 @@ const PostDetail = () => {
       author: {
         id: '1',
         username: 'victor',
-        displayName: 'Victor Pires'
+        displayName: 'Victor Pires',
+        isFollowing: false
       },
       content,
       createdAt: new Date().toISOString(),
@@ -168,21 +181,29 @@ const PostDetail = () => {
             <S.HeaderTitle>Post</S.HeaderTitle>
           </S.PostDetailHeader>
 
-          <PostDetailCard
-            post={post}
-            onLike={handleLike}
-            onRetweet={handleRetweet}
-          />
+          {isLoading ? (
+            <PostDetailSkeleton />
+          ) : (
+            <PostDetailCard
+              post={post}
+              onLike={handleLike}
+              onRetweet={handleRetweet}
+            />
+          )}
 
           <CommentForm onSubmit={handleComment} />
 
           <S.CommentsSection>
-            <PostList
-              posts={comments}
-              onLike={handleCommentLike}
-              onRetweet={handleCommentRetweet}
-              onComment={handleCommentComment}
-            />
+            {isLoading ? (
+              <PostListSkeleton count={5} />
+            ) : (
+              <PostList
+                posts={comments}
+                onLike={handleCommentLike}
+                onRetweet={handleCommentRetweet}
+                onComment={handleCommentComment}
+              />
+            )}
           </S.CommentsSection>
         </S.PostDetailContainer>
         <InfoBar />

@@ -1,3 +1,5 @@
+import type { UserProfileData } from '../../../../common/Avatar/components/AvatarProfilePopover/types'
+
 export type UserSuggestion = {
   id: string
   username: string
@@ -8,6 +10,7 @@ export type UserSuggestion = {
 }
 
 export type WhoToFollowWidgetProps = {
+  user: UserProfileData
   suggestions: UserSuggestion[]
   onFollowToggle: (userId: string) => void
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from '../../../../common/Modal'
 import PostForm from '../../../../common/PostForm'
 import PostFormActions from '../../../../common/PostForm/components/PostFormActions'
+import { useToast } from '../../../../../hooks/useToast'
 import type { CreatePostModalProps } from './types'
 import type { ImageFile } from '../../../../common/ImagePreview/types'
 import * as S from './styles'
@@ -13,6 +14,8 @@ const CreatePostModal = ({
   userName,
   userAvatar
 }: CreatePostModalProps) => {
+  const { showToast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [content, setContent] = useState('')
   const [images, setImages] = useState<ImageFile[]>([])
 
@@ -25,13 +28,25 @@ const CreatePostModal = ({
     setImages((prev) => [...prev, ...newImages])
   }
 
-  const handleSubmit = () => {
-    if (content.trim()) {
-      onSubmit(content)
+  const handleSubmit = async () => {
+    if (!content.trim() && images.length === 0) return
+
+    setIsSubmitting(true)
+
+    try {
+      await onSubmit(content)
+
+      showToast('success', 'Post enviado com sucesso!')
+
       setContent('')
       images.forEach((img) => URL.revokeObjectURL(img.preview))
       setImages([])
+
       onClose()
+    } catch {
+      showToast('error', 'Ocorreu um erro ao postar. Tente novamente.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -55,6 +70,7 @@ const CreatePostModal = ({
         maxLength={280}
         onImageUpload={handleImageUpload}
         onSubmit={handleSubmit}
+        loading={isSubmitting}
       />
     </S.FooterContainer>
   )

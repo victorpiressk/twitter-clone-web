@@ -91,7 +91,7 @@ const SideBar = () => {
               <S.SideButton
                 ref={moreButtonRef}
                 type="button"
-                variant="ghost"
+                $variant="ghost"
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
               >
                 <MoreHorizontal size={24} strokeWidth={2} />
@@ -103,7 +103,7 @@ const SideBar = () => {
             <li>
               <S.SideButton
                 type="button"
-                variant="secondary"
+                $variant="secondary"
                 onClick={() => setIsCreatePostModalOpen(true)}
               >
                 Postar
@@ -115,7 +115,7 @@ const SideBar = () => {
           <S.FooterButton
             ref={profileButtonRef}
             type="button"
-            variant="ghost"
+            $variant="ghost"
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
           >
             <Avatar

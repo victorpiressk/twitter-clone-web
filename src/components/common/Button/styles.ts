@@ -9,8 +9,9 @@ import {
 import type { ButtonVariant } from './types'
 
 type StyledButtonProps = {
-  variant: ButtonVariant
+  $variant: ButtonVariant
   $active?: boolean
+  $loading: boolean
 }
 
 // Estilos base compartilhados
@@ -18,6 +19,7 @@ const baseStyles = css<StyledButtonProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 
   padding: 8px 16px;
   border: none;
@@ -32,6 +34,13 @@ const baseStyles = css<StyledButtonProps>`
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  ${(props) =>
+    props.$loading &&
+    css`
+      cursor: wait;
+      position: relative;
+    `}
 `
 
 // Variantes
@@ -145,13 +154,13 @@ const variants = {
 // Button (type="button" ou "submit")
 export const ButtonContainer = styled.button<StyledButtonProps>`
   ${baseStyles}
-  ${(props) => variants[props.variant]}
+  ${({ $variant }) => variants[$variant]}
 `
 
 // Link (type="link")
 export const ButtonLink = styled(Link)<StyledButtonProps>`
   ${baseStyles}
-  ${({ variant }) => variants[variant]}
+  ${({ $variant }) => variants[$variant]}
   text-decoration: none;
 
   &:visited,
@@ -160,4 +169,16 @@ export const ButtonLink = styled(Link)<StyledButtonProps>`
     color: inherit;
     text-decoration: none;
   }
+`
+
+export const ButtonContent = styled.span<{ $loading: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  ${(props) =>
+    props.$loading &&
+    css`
+      opacity: 0.7;
+    `}
 `

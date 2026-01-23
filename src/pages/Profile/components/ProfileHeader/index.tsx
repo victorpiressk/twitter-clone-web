@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { MapPin, Link as LinkIcon, Calendar, Cake } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
 import ProfileStats from '../ProfileStats'
+import { useToast } from '../../../../hooks/useToast'
 import type { ProfileHeaderProps } from './types'
 import * as S from './styles'
 
@@ -10,6 +12,34 @@ const ProfileHeader = ({
   onFollowToggle,
   onEditProfile
 }: ProfileHeaderProps) => {
+  const { showToast } = useToast()
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleFollowClick = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsLoading(true)
+
+    try {
+      if (user.isFollowing) {
+        showToast('info', `Você deixou de seguir @${user.username}`)
+      } else {
+        showToast('success', `Você agora segue @${user.username}`)
+      }
+
+      await onFollowToggle(user.id) // Simula API call
+      setIsFollowing(!isFollowing)
+    } catch {
+      if (user.isFollowing) {
+        showToast('error', `Erro ao deixar de seguir @${user.username}`)
+      } else {
+        showToast('error', `Erro ao seguir @${user.username}`)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const formatDate = (
     dateString: string,
     mode: 'short' | 'full' = 'short'
@@ -44,7 +74,8 @@ const ProfileHeader = ({
             <Button
               type="button"
               variant={user.isFollowing ? 'outline' : 'secondary'}
-              onClick={onFollowToggle}
+              onClick={handleFollowClick}
+              loading={isLoading}
             >
               {user.isFollowing ? 'Seguindo' : 'Seguir'}
             </Button>

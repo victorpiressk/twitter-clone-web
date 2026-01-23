@@ -1,41 +1,54 @@
-import { ButtonContainer, ButtonLink } from './styles'
+import Spinner from '../Spinner'
 import type { ButtonProps } from './types'
+import * as S from './styles'
 
 const Button = ({
-  type,
-  title,
-  to,
-  onClick,
   children,
+  type,
   variant = 'primary',
+  onClick,
+  to,
+  active = false,
   disabled = false,
-  active = false
+  loading = false
 }: ButtonProps) => {
-  if (type === 'button' || type === 'submit') {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (loading || disabled) return
+    onClick?.(e)
+  }
+
+  // Renderiza Spinner + Children
+  const content = (
+    <>
+      {loading && <Spinner size="small" />}
+      {children}
+    </>
+  )
+
+  if (type === 'submit' || type === 'button') {
     return (
-      <ButtonContainer
+      <S.ButtonContainer
         type={type}
-        title={title}
-        onClick={onClick}
-        variant={variant}
-        disabled={disabled}
+        onClick={handleClick}
+        $variant={variant}
         $active={active}
+        disabled={disabled || loading}
+        $loading={loading}
       >
-        {children}
-      </ButtonContainer>
+        {content}
+      </S.ButtonContainer>
     )
   }
 
   return (
-    <ButtonLink
-      type={type}
-      title={title}
+    <S.ButtonLink
       to={to as string}
-      variant={variant}
+      $variant={variant}
       $active={active}
+      $loading={loading}
     >
-      {children}
-    </ButtonLink>
+      {content}
+    </S.ButtonLink>
   )
 }
 

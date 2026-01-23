@@ -3,6 +3,7 @@ import Avatar from '../Avatar'
 import Textarea from '../Textarea'
 import ImagePreview from '../ImagePreview'
 import PostFormActions from './components/PostFormActions'
+import { useToast } from '../../../hooks/useToast'
 import type { PostFormProps } from './types'
 import type { ImageFile } from '../ImagePreview/types'
 import * as S from './styles'
@@ -23,6 +24,9 @@ const PostForm = ({
   isModal = false,
   showActions = true
 }: PostFormProps) => {
+  const { showToast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Estado interno (usado quando NÃO é controlado)
   const [internalContent, setInternalContent] = useState('')
   const [internalImages, setInternalImages] = useState<ImageFile[]>([])
@@ -69,16 +73,26 @@ const PostForm = ({
     }
   }
 
-  const handleSubmit = () => {
-    if (content.trim() && onSubmit) {
-      onSubmit(content)
+  const handleSubmit = async () => {
+    if (!content.trim() && images.length === 0) return
 
-      // Limpa apenas se não-controlado
-      if (!isControlled) {
-        setInternalContent('')
-        images.forEach((img) => URL.revokeObjectURL(img.preview))
-        setInternalImages([])
+    setIsSubmitting(true)
+
+    try {
+      if (onSubmit) {
+        await onSubmit(content) // Se for uma chamada assíncrona, use await
+        showToast('success', 'Post criado com sucesso!')
+
+        if (!isControlled) {
+          setInternalContent('')
+          images.forEach((img) => URL.revokeObjectURL(img.preview))
+          setInternalImages([])
+        }
       }
+    } catch {
+      showToast('error', 'Erro ao criar post. Tente novamente.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -109,6 +123,7 @@ const PostForm = ({
             maxLength={280}
             onImageUpload={handleImageUpload}
             onSubmit={handleSubmit}
+            loading={isSubmitting}
           />
         )}
       </S.PostFormContent>

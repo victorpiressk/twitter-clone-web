@@ -7,6 +7,7 @@ import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import ScrollToTop from '../../hooks/useScrollToTop'
 import * as S from './styles'
+import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
 
 // Mock data
 const initialNotifications: Notification[] = [
@@ -96,6 +97,11 @@ const Notifications = () => {
     const saved = localStorage.getItem('notifications')
     return saved ? JSON.parse(saved) : initialNotifications
   })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 1500)
+  }, [])
 
   // ← Salva no localStorage sempre que mudar
   useEffect(() => {
@@ -144,13 +150,19 @@ const Notifications = () => {
 
           <S.NotificationsList>
             {filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onClick={() => handleNotificationClick(notification)}
-                />
-              ))
+              <>
+                {isLoading ? (
+                  <NotificationListSkeleton count={7} />
+                ) : (
+                  filteredNotifications.map((notification) => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                      onClick={() => handleNotificationClick(notification)}
+                    />
+                  ))
+                )}
+              </>
             ) : (
               <S.EmptyState>
                 <h3>Nenhuma notificação</h3>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import Avatar from '../../index'
 import Button from '../../../Button'
+import { useToast } from '../../../../../hooks/useToast'
 import type { AvatarProfilePopoverProps } from './types'
 import * as S from './styles'
 
@@ -16,6 +17,9 @@ const AvatarProfilePopover = ({
   onMouseLeave
 }: AvatarProfilePopoverProps) => {
   const navigate = useNavigate()
+  const { showToast } = useToast()
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState<{ top: number; left: number }>({
     top: 0,
@@ -77,9 +81,28 @@ const AvatarProfilePopover = ({
     onClose()
   }
 
-  const handleFollowClick = (e: React.MouseEvent) => {
+  const handleFollowClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    onFollowToggle(userData.id)
+    setIsLoading(true)
+
+    try {
+      if (userData.isFollowing) {
+        showToast('info', `Você deixou de seguir @${userData.username}`)
+      } else {
+        showToast('success', `Você agora segue @${userData.username}`)
+      }
+
+      await onFollowToggle(userData.id)
+      setIsFollowing(!isFollowing)
+    } catch {
+      if (userData.isFollowing) {
+        showToast('error', `Erro ao deixar de seguir @${userData.username}`)
+      } else {
+        showToast('error', `Erro ao seguir @${userData.username}`)
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleFollowingClick = () => {
@@ -113,6 +136,7 @@ const AvatarProfilePopover = ({
           type="button"
           variant={userData.isFollowing ? 'outline' : 'secondary'}
           onClick={handleFollowClick}
+          loading={isLoading}
         >
           {userData.isFollowing ? 'Seguindo' : 'Seguir'}
         </Button>

@@ -59,6 +59,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hook `useScrollToTop` para resetar scroll ao topo em todas as navegações.
 - Aplicado em 7 páginas: Connect, Explore, Home, Notifications, PostDetail, Profile, FollowPage.
 
+**Navegação e Interações:**
+- TrendsWidget: click em trend navega para Explore com tab "Assuntos do Momento" e SearchBar preenchida.
+- WhoToFollowWidget: click em usuário navega para perfil correspondente.
+- PostCard: avatar, displayName e username clicáveis navegando para perfil do autor.
+- AvatarProfilePopover: hover no avatar exibe popover com informações do usuário.
+  - Exibe avatar, nome, username, bio, seguindo/seguidores.
+  - Botão Seguir/Seguindo integrado.
+  - Largura máxima de 300px.
+  - Posicionamento dinâmico (acima ou abaixo baseado no viewport).
+  - Delay de 500ms para abrir, 300ms para fechar.
+  - Mouse no popover cancela fechamento.
+
+**SearchBar:**
+- Prop `value` para controle externo do valor.
+- Prop `onSearch` para callback de busca.
+- Sincronização com prop externa via useEffect.
+
+**Explore:**
+- Detecção de query params da URL (`q` e `tab`).
+- Estado derivado da URL (sem useState/useEffect).
+- SearchBar preenchida automaticamente ao navegar de TrendsWidget.
+- Tab "Assuntos do Momento" ativada ao clicar em trend.
+
+**Sistema de Toasts:**
+- Componente Toast com 4 tipos (success, error, info, warning).
+- ToastContext e hook useToast para gerenciamento global.
+- ToastContainer renderizado via Portal (document.body).
+- Auto-dismiss configurável (padrão 3s).
+- Animações slide in/out suaves.
+- Click para fechar manualmente.
+
+**Spinner Component:**
+- Spinner reutilizável com 3 tamanhos (small, medium, large).
+- Animação CSS de rotação (0.6s linear infinite).
+- Suporte a cores customizáveis (usa currentColor por padrão).
+
+**Button com Loading State:**
+- Prop `loading` adicionada ao Button.
+- Spinner exibido automaticamente quando loading=true.
+- Botão desabilitado durante loading (cursor: wait).
+- Gap de 8px entre spinner e texto.
+
+**Skeleton Loaders:**
+- Skeleton base com 3 variantes (text, circle, rect).
+- Animação shimmer gradient (1.5s).
+- PostSkeleton e PostListSkeleton para feed de posts.
+- PostDetailSkeleton para página de post individual.
+- UserCardSkeleton e UserCardListSkeleton para listas de usuários.
+- NotificationSkeleton e NotificationListSkeleton para notificações.
+
+**Toasts Implementados:**
+- Criar post (PostForm e CreatePostModal).
+- Seguir/Deixar de seguir (ProfileHeader, FollowUserCard, AvatarProfilePopover, UserSuggestionCard, WhoToFollowWidget).
+- Editar perfil (EditProfileModal - sucesso ao salvar).
+- Editar data de nascimento (BirthDateModal - sucesso + edições restantes).
+
+**Loading States Implementados:**
+- Botão Seguir/Seguindo (5 componentes).
+- Botão Postar (PostForm e CreatePostModal).
+- Botão Salvar (EditProfileModal e BirthDateModal).
+
+**Skeletons Implementados:**
+- Home (PostListSkeleton - feed principal).
+- Profile (PostListSkeleton - posts do usuário).
+- Explore (PostListSkeleton - posts da busca).
+- PostDetail (PostDetailSkeleton - post individual + PostListSkeleton - comentários).
+- FollowPage (UserCardListSkeleton - seguindo/seguidores).
+- Connect (UserCardListSkeleton - sugestões de usuários).
+- Notifications (NotificationListSkeleton - lista de notificações).
+
 
 ### Changed
 
@@ -85,10 +155,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Click no card do usuário redireciona para perfil (/:username).
 - ProfileStats agora navegável (click em estatísticas).
 
+**Avatar:**
+- Props adicionadas: `showProfilePopover`, `userProfileData`, `onFollowToggle`.
+- Sistema de hover com timers para abrir/fechar popover.
+- Suporte a múltiplos contextos (PostCard, WhoToFollowWidget, etc).
+
+**Explore:**
+- Estado `activeTab` e `searchQuery` derivados de `searchParams` (URL como fonte única de verdade).
+- handleTabChange mantém query ao trocar de tab.
+- handleSearch atualiza URL com query e tab.
+
+**TrendsWidget:**
+- Click em trend navega para `/explore?q=<trend>&tab=trending`.
+- Botão "Mostrar mais" navega para `/explore?tab=trending`.
+- Remoção de `#` do nome da trend antes de encodar URL.
+
+**WhoToFollowWidget:**
+- Click em usuário navega para `/:username`.
+
+**PostCard:**
+- Avatar, displayName e username com `onClick` navegando para perfil.
+- Integração com AvatarProfilePopover no avatar.
+
+**Button Component:**
+- Adicionada prop `loading?: boolean`.
+- Cursor muda para `wait` quando loading.
+- Renderiza Spinner antes do children quando loading=true.
+- Desabilita onClick automaticamente durante loading.
+
+**Componentes com Loading:**
+- Estado `isLoading` ou `isSubmitting` adicionado em 9 componentes.
+- Handlers agora são async e simulam delay.
+- WhoToFollowWidget usa Set<string> para loading individual por usuário.
+
+
 ### Fixed
 
 - Loop infinito no useEffect do PostForm (images nas dependências causava reset).
 - ImageUpload não funcionava na modal (querySelector global pegava input errado).
+
 
 ### Technical
 
@@ -109,6 +214,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FollowUserCard: click no card navega, click no botão stopPropagation (não navega).
 - Mock data: mockFollowing e mockFollowers com isFollowing controlado localmente.
 - Header sticky com blur adaptativo (background.blur do theme).
+- AvatarProfilePopover renderizado via Portal (document.body).
+- useLayoutEffect para cálculo de posição antes do paint.
+- Detecção de espaço disponível (viewport) para decidir posição (top/bottom).
+- Click fora do popover fecha automaticamente.
+- Timers com refs para controle de abertura/fechamento (evita memory leaks).
+- SearchBar sincroniza valor externo com estado interno via useEffect.
+- Explore: URL params como fonte única de verdade (sem sincronização useState).
+- encodeURIComponent usado em query params para segurança.
+
+**Toast System:**
+- Portal rendering (document.body) com z-index 9999.
+- Context API para estado global de toasts.
+- Array de toasts empilhados verticalmente (gap 12px).
+- Auto-remove após duração customizável.
+- Keyframes slideIn/slideOut para animações.
+
+**Spinner:**
+- Border-top transparente para efeito de rotação.
+- Tamanhos: small (14px), medium (18px), large (24px).
+- Border-width proporcional ao tamanho.
+
+**Skeleton:**
+- Shimmer: linear-gradient animado (background-position).
+- Cores adaptativas do theme (border.primary → hover.primary).
+- Variants calculados dinamicamente (circle = border-radius 50%).
+- PostDetailSkeleton sem lista (sempre renderiza 1 só).
+- WhoToFollowWidget com loading por usuário (loadingUserIds Set).
 
 ### Known Issues (v0.0.7+)
 - Posts criados não incluem imagens (onSubmit só recebe texto).

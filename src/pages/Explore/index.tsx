@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import InfoBar from '../../components/Layout/InfoBar'
 import SearchBar from '../../components/common/SearchBar'
@@ -12,6 +12,7 @@ import type { Trend } from '../../components/Layout/InfoBar/components/TrendsWid
 import ScrollToTop from '../../hooks/useScrollToTop'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 
 // Mock data - Posts sugeridos
 const mockPosts: Post[] = [
@@ -74,6 +75,13 @@ const mockTrends: Trend[] = [
 const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [posts, setPosts] = useState(mockPosts)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+  }, [])
 
   // DERIVAR estado da URL (não usar useState + useEffect)
   const activeTab: ExploreTab =
@@ -144,26 +152,38 @@ const Explore = () => {
     switch (activeTab) {
       case 'for-you':
         return (
-          <PostList
-            posts={posts}
-            onLike={handleLike}
-            onRetweet={handleRetweet}
-            onComment={handleComment}
-          />
+          <>
+            {isLoading ? (
+              <PostListSkeleton count={5} />
+            ) : (
+              <PostList
+                posts={posts}
+                onLike={handleLike}
+                onRetweet={handleRetweet}
+                onComment={handleComment}
+              />
+            )}
+          </>
         )
 
       case 'trending':
         return (
           <>
-            <div style={{ padding: '16px' }}>
-              <TrendsWidget trends={mockTrends} showAll />
-            </div>
-            <PostList
-              posts={posts}
-              onLike={handleLike}
-              onRetweet={handleRetweet}
-              onComment={handleComment}
-            />
+            {isLoading ? (
+              <PostListSkeleton count={5} />
+            ) : (
+              <>
+                <div style={{ padding: '16px' }}>
+                  <TrendsWidget trends={mockTrends} showAll />
+                </div>
+                <PostList
+                  posts={posts}
+                  onLike={handleLike}
+                  onRetweet={handleRetweet}
+                  onComment={handleComment}
+                />
+              </>
+            )}
           </>
         )
 

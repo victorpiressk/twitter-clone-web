@@ -4,6 +4,7 @@ import Modal from '../../../../components/common/Modal'
 import Button from '../../../../components/common/Button'
 import Input from '../../../../components/common/Input'
 import BirthDateModal from './components/BirthDateModal'
+import { useToast } from '../../../../hooks/useToast'
 import type { EditProfileModalProps, EditProfileFormData } from './types'
 import * as S from './styles'
 
@@ -13,6 +14,9 @@ const EditProfileModal = ({
   onSave,
   currentData
 }: EditProfileModalProps) => {
+  const { showToast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [formData, setFormData] = useState<EditProfileFormData>({
     displayName: currentData.displayName,
     bio: currentData.bio,
@@ -76,10 +80,18 @@ const EditProfileModal = ({
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
-    onClose()
+    setIsSubmitting(true)
+    try {
+      await onSave(formData)
+      showToast('success', 'Perfil atualizado com sucesso!')
+      onClose()
+    } catch {
+      showToast('error', 'Erro ao atualizar perfil. Tente novamente.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const hasChanges =
@@ -99,6 +111,7 @@ const EditProfileModal = ({
         variant="primary"
         onClick={handleSubmit}
         disabled={!hasChanges}
+        loading={isSubmitting}
       >
         Salvar
       </Button>

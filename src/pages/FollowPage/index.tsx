@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { ContentWrapper } from '../../styles/globalStyles'
 import BackButton from '../../components/common/BackButton'
 import InfoBar from '../../components/Layout/InfoBar'
 import FollowTabs from './components/FollowTabs'
 import FollowUserCard from './components/FollowUserCard'
+import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
 import type { FollowTab, FollowUser } from './types'
+import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
 // Mock data
@@ -51,6 +52,11 @@ const FollowPage = () => {
 
   const [following, setFollowing] = useState(mockFollowing)
   const [followers, setFollowers] = useState(mockFollowers)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 1500)
+  }, [])
 
   // Estado DERIVADO da URL (não precisa de useState nem useEffect)
   const activeTab: FollowTab = location.pathname.includes('/followers')
@@ -108,13 +114,19 @@ const FollowPage = () => {
 
           <S.UserList>
             {currentList.length > 0 ? (
-              currentList.map((user) => (
-                <FollowUserCard
-                  key={user.id}
-                  user={user}
-                  onFollowToggle={handleFollowToggle}
-                />
-              ))
+              <>
+                {isLoading ? (
+                  <UserCardListSkeleton count={5} />
+                ) : (
+                  currentList.map((user) => (
+                    <FollowUserCard
+                      key={user.id}
+                      user={user}
+                      onFollowToggle={handleFollowToggle}
+                    />
+                  ))
+                )}
+              </>
             ) : (
               <S.EmptyState>
                 <h3>

@@ -13,7 +13,8 @@ const PostFormActions = ({
   isDisabled,
   onImageUpload,
   onSubmit,
-  maxLength
+  maxLength,
+  loading
 }: PostFormActionsProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -82,6 +83,7 @@ const PostFormActions = ({
           variant="secondary"
           onClick={onSubmit}
           disabled={isDisabled}
+          loading={loading}
         >
           Postar
         </Button>

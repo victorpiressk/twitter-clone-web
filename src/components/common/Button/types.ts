@@ -15,4 +15,5 @@ export type ButtonProps = {
   children: React.ReactNode
   disabled?: boolean
   active?: boolean
+  loading?: boolean
 }

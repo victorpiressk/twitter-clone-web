@@ -19,7 +19,7 @@ const ITEM_VARIANTS = {
 }
 
 type SideButtonProps = {
-  variant: ButtonVariant
+  $variant: ButtonVariant
 }
 
 interface PopoverItemProps {
@@ -95,12 +95,12 @@ export const Logo = styled.button`
 `
 
 export const SideButton = styled(ButtonContainer)<SideButtonProps>`
-  ${({ variant }) => css`
-    margin: ${variant === 'secondary' ? '4px 0' : '0'};
-    width: ${variant === 'secondary' ? '220px' : 'auto'};
-    padding: ${variant === 'secondary' ? '16px' : '12px'};
-    font-size: ${variant === 'secondary' ? fontSizes.lg : fontSizes.xl};
-    justify-content: ${variant === 'secondary' ? 'center' : 'space-between'};
+  ${({ $variant }) => css`
+    margin: ${$variant === 'secondary' ? '4px 0' : '0'};
+    width: ${$variant === 'secondary' ? '220px' : 'auto'};
+    padding: ${$variant === 'secondary' ? '16px' : '12px'};
+    font-size: ${$variant === 'secondary' ? fontSizes.lg : fontSizes.xl};
+    justify-content: ${$variant === 'secondary' ? 'center' : 'space-between'};
 
     span {
       margin: 0 16px 0 20px;

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
 import PostList from '../../components/common/PostList'
 import EditProfileModal from './components/EditProfileModal'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import type { UserProfile, ProfileTab } from './types'
 import type { Post } from '../../components/common/PostCard/types'
 import type { EditProfileFormData } from './components/EditProfileModal/types'
@@ -37,7 +38,8 @@ const mockPosts: Post[] = [
     author: {
       id: '1',
       username: 'victor',
-      displayName: 'Victor Pires'
+      displayName: 'Victor Pires',
+      isFollowing: false
     },
     content: 'Olá mundo! Este é meu primeiro post 🚀',
     createdAt: new Date(Date.now() - 3600000).toISOString(),
@@ -53,6 +55,14 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
   const [posts, setPosts] = useState(mockPosts)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true)
+
+  useEffect(() => {
+    // Simula fetch de posts do usuário
+    setTimeout(() => {
+      setIsLoadingPosts(false)
+    }, 1500)
+  }, [])
 
   // TODO: Integrar com API
   console.log('Viewing profile of:', username)
@@ -150,12 +160,18 @@ const Profile = () => {
 
           <S.TabContent>
             {activeTab === 'posts' && (
-              <PostList
-                posts={posts}
-                onLike={handleLike}
-                onRetweet={handleRetweet}
-                onComment={handleComment}
-              />
+              <>
+                {isLoadingPosts ? (
+                  <PostListSkeleton count={3} />
+                ) : (
+                  <PostList
+                    posts={posts}
+                    onLike={handleLike}
+                    onRetweet={handleRetweet}
+                    onComment={handleComment}
+                  />
+                )}
+              </>
             )}
 
             {activeTab === 'replies' && (

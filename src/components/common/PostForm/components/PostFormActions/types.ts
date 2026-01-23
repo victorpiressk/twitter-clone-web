@@ -8,4 +8,5 @@ export type PostFormActionsProps = {
   maxLength: number
   onImageUpload: (files: File[]) => void
   onSubmit: () => void
+  loading?: boolean
 }

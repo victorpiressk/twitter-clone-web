@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from '../../../../../../components/common/Modal'
 import Button from '../../../../../../components/common/Button'
 import Input from '../../../../../../components/common/Input'
+import { useToast } from '../../../../../../hooks/useToast'
 import type { BirthDateModalProps } from './types'
 import * as S from './styles'
 
@@ -12,6 +13,8 @@ const BirthDateModal = ({
   onSave,
   editCount
 }: BirthDateModalProps) => {
+  const { showToast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [birthDate, setBirthDate] = useState(currentBirthDate)
 
@@ -21,10 +24,33 @@ const BirthDateModal = ({
     setIsEditing(true)
   }
 
-  const handleSave = () => {
-    onSave(birthDate)
-    setIsEditing(false)
-    onClose()
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      await onSave(birthDate)
+      const remainingEdits = MAX_EDITS - editCount - 1
+
+      if (remainingEdits > 0) {
+        showToast(
+          'success',
+          `Data de nascimento atualizada! ${remainingEdits} ${remainingEdits === 1 ? 'edição restante' : 'edições restantes'}`
+        )
+      } else {
+        showToast(
+          'warning',
+          'Data de nascimento atualizada! Esta foi sua última edição.'
+        )
+      }
+
+      setIsEditing(false)
+      onClose()
+    } catch {
+      showToast('error', 'Erro ao atualizar data de nascimento.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleCancel = () => {
@@ -83,7 +109,12 @@ const BirthDateModal = ({
             </S.DateInputContainer>
 
             <S.Actions>
-              <Button type="button" variant="secondary" onClick={handleSave}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSave}
+                loading={isSubmitting}
+              >
                 Salvar
               </Button>
               <Button type="button" variant="outline" onClick={handleCancel}>
