@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom'
 import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import type { NotificationItemProps } from './types'
 import * as S from './styles'
 
 const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
+  const navigate = useNavigate()
+
   const getNotificationIcon = () => {
     switch (notification.type) {
       case 'like':
@@ -67,6 +70,12 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
 
   const iconData = getNotificationIcon()
 
+  // Navega para o perfil do autor
+  const handleClickProfile = (e: React.MouseEvent) => {
+    e.stopPropagation() // Impede navegação para o post
+    navigate(`/${notification.user.username}`)
+  }
+
   return (
     <S.NotificationContainer onClick={onClick} $isRead={notification.isRead}>
       <S.IconWrapper $color={iconData.color}>{iconData.icon}</S.IconWrapper>
@@ -78,11 +87,14 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
               src={notification.user.avatar}
               alt={notification.user.displayName}
               size="small"
+              onClick={handleClickProfile}
             />
           </S.AvatarWrapper>
 
           <S.NotificationText>
-            <S.Username>{notification.user.displayName}</S.Username>
+            <S.Username onClick={handleClickProfile}>
+              {notification.user.displayName}
+            </S.Username>
             <S.ActionText>{getActionText()}</S.ActionText>
           </S.NotificationText>
         </S.NotificationHeader>

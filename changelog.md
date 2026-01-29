@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Erro de login: "E-mail ou senha incorretos"
 - Erro de registro: "Erro ao criar conta. Tente novamente."
 
+**Navegação em NotificationCard:**
+- Avatar clicável navegando para perfil do usuário.
+- Username clicável navegando para perfil do usuário.
+
 ### Changed
 
 **Rotas:**
@@ -72,6 +76,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Sidebar:**
 - Botão "Sair" no menu do perfil agora executa logout real.
 - Toast de confirmação ao fazer logout.
+
+**NotificationCard:**
+- NotificationCard agora possui navegação completa para perfis.
 
 ### Removed
 
@@ -110,6 +117,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - localStorage.setItem('user', JSON.stringify(user)) ao login/register.
 - localStorage.removeItem('user') ao logout.
 - Inicialização do AuthProvider lê do localStorage.
+
+**Navegação:**
+- useNavigate aplicado em NotificationCard.
+- onClick no avatar e username redirecionando para `/:username`.
 
 
 ## [0.0.6] - 2026-01-23
