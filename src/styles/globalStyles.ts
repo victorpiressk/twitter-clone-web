@@ -48,8 +48,10 @@ export const fontSizes = {
   md: '15px',
   lg: '17px',
   xl: '20px',
-  xxl: '24px',
-  xxxl: '32px'
+  '2xl': '24px',
+  '3xl': '31px',
+  '4xl': '39px',
+  '5xl': '64px'
 }
 
 // 📏 Pesos de fonte
@@ -108,7 +110,7 @@ export const GlobalStyle = createGlobalStyle`
 
   /* Body */
   body {
-    font-size: ${fontSizes.xxl};
+    font-size: ${fontSizes['2xl']};
     font-weight: ${fontWeights.regular};
     line-height: 1.5;
     color: ${(props) => props.theme.colors.text.primary};

@@ -6,8 +6,113 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.0.7] - 2026-01-29
 
-## [0.0.6] - 2026-01-21
+### Added
+
+**Página de Login (Home Pública):**
+- Página de login redesenhada como tela inicial (rota `/`).
+- Layout com 3 containers: Logo (esquerda), Formulário (direita), Footer (rodapé).
+- Título "Acontecendo agora" (64px, heavy) e subtítulo "Inscreva-se no X" (32px, heavy).
+- Botões de inscrição: Google, Apple e "Criar conta".
+- Seção "Já tem uma conta?" com botão "Entrar".
+- Footer genérico com links do site.
+
+**RegisterModal (Modal de Registro):**
+- Modal de registro com 2 etapas (informações básicas e completar cadastro).
+- Etapa 1: Nome, Celular/E-mail (toggle), Data de nascimento.
+- Etapa 2: Nome de usuário, Senha, Confirmar senha.
+- Inputs com labels flutuantes (igual SearchBar).
+- Focus azul nos inputs ativos.
+- Botão "Avançar" desabilitado até preencher todos os campos.
+- Botão do footer muda de "Avançar" para "Criar conta".
+- Validação por etapa (nome, email/celular, data, username, senha).
+- Toast de sucesso ao criar conta.
+- Redireciona para `/home` após registro.
+
+**LoginModal (Modal de Login):**
+- Modal de login com 3 etapas (identificador, senha, signup).
+- Etapa 1: Identificador (telefone, e-mail ou username) + botões sociais (Google, Apple).
+- Etapa 2: Senha (input de identificador desabilitado e opaco).
+- Etapa 3: Signup (mesma tela da página de Login com opção "Criar conta").
+- Inputs com labels flutuantes.
+- Botão "Não tem uma conta? Inscreva-se" na etapa 1.
+- Botão "Criar conta" abre RegisterModal.
+- Toast de sucesso ao fazer login.
+- Redireciona para `/home` após login.
+
+**Sistema de Autenticação:**
+- AuthContext para gerenciamento de sessão.
+- AuthProvider com login, register, logout.
+- Persistência de sessão com localStorage.
+- ProtectedRoute para proteger rotas privadas.
+- Redireciona para `/` se não autenticado.
+- useAuth hook para acessar contexto de autenticação.
+
+**Toasts de Autenticação:**
+- Login bem-sucedido: "Bem-vindo de volta!"
+- Registro bem-sucedido: "Conta criada com sucesso!"
+- Logout: "Você saiu da sua conta"
+- Erro de login: "E-mail ou senha incorretos"
+- Erro de registro: "Erro ao criar conta. Tente novamente."
+
+### Changed
+
+**Rotas:**
+- Rota `/` agora renderiza página de Login (antes era redirect).
+- Rotas `/login` e `/register` removidas.
+- Todas as rotas exceto `/` são protegidas com ProtectedRoute.
+- Navegação direta via URL para rotas protegidas redireciona para `/` se não autenticado.
+
+**App.tsx:**
+- BrowserRouter substituiu RouterProvider (necessário para AuthContext).
+- AuthProvider envolvendo toda a aplicação.
+- Ordem de Providers: ThemeProvider → ToastProvider → BrowserRouter → AuthProvider.
+
+**Sidebar:**
+- Botão "Sair" no menu do perfil agora executa logout real.
+- Toast de confirmação ao fazer logout.
+
+### Removed
+
+- Página `/register` removida (agora é modal).
+- Página `/login` removida (rota `/` é o login).
+- Rota duplicada `/login` removida.
+
+### Fixed
+
+- Fast Refresh warning no AuthContext (adicionado eslint-disable).
+- Validação de formulários com tipagens corretas (RegisterData type).
+- Labels flutuantes funcionando corretamente em todos os inputs.
+
+### Technical
+
+**AuthContext:**
+- User type: id, name, username, email, avatar.
+- RegisterData type: name, contact, birthDate, username, password.
+- Estado de usuário persistido em localStorage.
+- isAuthenticated derivado do user (não é estado separado).
+- login e register são callbacks memoizados.
+
+**ProtectedRoute:**
+- Usa `<Outlet />` para renderizar rotas filhas.
+- Redireciona para `/` com `<Navigate to="/" replace />`.
+- Integrado com useAuth para verificar autenticação.
+
+**Modals:**
+- RegisterModal com 2 etapas (basic, complete).
+- LoginModal com 3 etapas (identifier, password, signup).
+- Inputs flutuantes com estados $hasValue, $isFocused, $hasError.
+- Footer dinâmico baseado na etapa atual.
+- Reset completo ao fechar modal.
+
+**Persistência:**
+- localStorage.setItem('user', JSON.stringify(user)) ao login/register.
+- localStorage.removeItem('user') ao logout.
+- Inicialização do AuthProvider lê do localStorage.
+
+
+## [0.0.6] - 2026-01-23
 
 ### Added
 

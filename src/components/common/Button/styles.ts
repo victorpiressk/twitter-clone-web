@@ -11,7 +11,7 @@ import type { ButtonVariant } from './types'
 type StyledButtonProps = {
   $variant: ButtonVariant
   $active?: boolean
-  $loading: boolean
+  $loading?: boolean
 }
 
 // Estilos base compartilhados

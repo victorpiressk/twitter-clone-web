@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal } from 'lucide-react'
+import { useToast } from '../../../hooks/useToast'
+import { useAuth } from '../../../hooks/useAuth'
 import Button from '../../common/Button'
 import Avatar from '../../common/Avatar'
 import Popover from '../../common/Popover'
@@ -11,6 +13,8 @@ import * as S from './styles'
 const SideBar = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { showToast } = useToast()
+  const { logout } = useAuth()
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
@@ -45,8 +49,8 @@ const SideBar = () => {
         console.log('Adicionar conta')
         break
       case 'logout':
-        console.log('Logout')
-        navigate('/login')
+        logout()
+        showToast('success', 'Você saiu da sua conta')
         break
     }
     setIsProfileMenuOpen(false)

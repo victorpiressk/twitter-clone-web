@@ -1,113 +1,174 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { Twitter } from 'lucide-react'
-import Input from '../../components/common/Input'
-import Button from '../../components/common/Button'
-import type { LoginFormData, LoginFormErrors } from './types'
+import RegisterModal from './components/RegisterModal'
+import LoginModal from './components/LoginModal'
+import GoogleIcon from '../../assets/icons/google-original.svg'
+import AppleIcon from '../../assets/icons/apple-original.svg'
 import * as S from './styles'
 
 const Login = () => {
-  const navigate = useNavigate()
-  const [formData, setFormData] = useState<LoginFormData>({
-    emailOrUsername: '',
-    password: ''
-  })
-  const [errors, setErrors] = useState<LoginFormErrors>({})
-  const [isLoading, setIsLoading] = useState(false)
-
-  const validateForm = (): boolean => {
-    const newErrors: LoginFormErrors = {}
-
-    if (!formData.emailOrUsername.trim()) {
-      newErrors.emailOrUsername = 'Email ou usuário é obrigatório'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Senha é obrigatória'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Senha deve ter no mínimo 6 caracteres'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
-    setIsLoading(true)
-    setErrors({})
-
-    try {
-      // TODO: Integrar com API
-      console.log('Login:', formData)
-
-      // Simula delay de API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Sucesso - redireciona para home
-      navigate('/home')
-    } catch (err) {
-      console.error('Erro no login:', err)
-      setErrors({ general: 'Erro ao fazer login. Tente novamente.' })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   return (
-    <S.LoginContainer>
-      <S.LoginCard>
-        <S.Logo>
-          <Twitter size={40} strokeWidth={2} />
-        </S.Logo>
+    <S.LoginPage>
+      {/* Main Content */}
+      <S.MainContent>
+        {/* Container 1: Logo */}
+        <S.LogoContainer>
+          <Twitter size={302} strokeWidth={2} />
+        </S.LogoContainer>
 
-        <S.Title>Entrar no Twitter Clone</S.Title>
+        {/* Container 2: Formulário */}
+        <S.FormContainer>
+          {/* Título */}
+          <S.Title>Acontecendo agora</S.Title>
 
-        <S.Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="emailOrUsername"
-            label="Email ou usuário"
-            placeholder="Digite seu email ou usuário"
-            value={formData.emailOrUsername}
-            onChange={(value) =>
-              setFormData({ ...formData, emailOrUsername: value })
-            }
-            error={errors.emailOrUsername}
-            required
-            autoFocus
-          />
+          {/* Subtítulo */}
+          <S.Subtitle>Inscreva-se hoje</S.Subtitle>
 
-          <Input
-            type="password"
-            name="password"
-            label="Senha"
-            placeholder="Digite sua senha"
-            value={formData.password}
-            onChange={(value) => setFormData({ ...formData, password: value })}
-            error={errors.password}
-            required
-          />
+          {/* Botões de Inscrição */}
+          <S.SignupButtons>
+            <S.SocialButton $provider="google">
+              <img src={GoogleIcon} alt="Google" />
+              Inscrever-se com o Google
+            </S.SocialButton>
 
-          <S.ForgotPassword href="#">Esqueceu a senha?</S.ForgotPassword>
+            <S.SocialButton $provider="apple">
+              <img src={AppleIcon} alt="Apple" />
+              Inscrever-se com a Apple
+            </S.SocialButton>
+            <S.SignupDivisor>
+              <div></div>
+              <span>OU</span>
+              <div></div>
+            </S.SignupDivisor>
+            <S.SignupButton onClick={() => setIsRegisterModalOpen(true)}>
+              Criar conta
+            </S.SignupButton>
+          </S.SignupButtons>
 
-          {errors.general && <S.ErrorMessage>{errors.general}</S.ErrorMessage>}
+          {/* Termos */}
+          <S.Terms>
+            Ao se inscrever, você concorda com os{' '}
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              Termos de Serviço
+            </a>{' '}
+            e a{' '}
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              Política de Privacidade
+            </a>
+            , incluindo o{' '}
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              Uso de Cookies
+            </a>
+            .
+          </S.Terms>
 
-          <Button type="submit" variant="primary" disabled={isLoading}>
-            {isLoading ? 'Entrando...' : 'Entrar'}
-          </Button>
-        </S.Form>
+          {/* Seção de Login */}
+          <S.LoginSection>
+            <S.LoginText>Já tem uma conta?</S.LoginText>
+            <S.LoginButton onClick={() => setIsLoginModalOpen(true)}>
+              Entrar
+            </S.LoginButton>
+          </S.LoginSection>
+        </S.FormContainer>
+      </S.MainContent>
 
-        <S.Divider>ou</S.Divider>
+      {/* Container 3: Footer */}
+      <S.Footer>
+        <S.FooterContent>
+          <S.FooterLink href="#">Sobre</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Baixe o app X</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Central de Ajuda</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Termos de Serviço</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Política de Privacidade</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Política de Cookies</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Acessibilidade</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Informações de anúncios</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Blog</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Status</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Carreiras</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Recursos da marca</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Publicidade</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Marketing</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">X para Empresas</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Desenvolvedores</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Diretório</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">Configurações</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+        <S.FooterContent>
+          <S.FooterLink href="#">© 2026 X Corp.</S.FooterLink>
+          <span>|</span>
+        </S.FooterContent>
+      </S.Footer>
 
-        <S.SignUpLink>
-          Não tem conta? <Link to="/register">Cadastre-se</Link>
-        </S.SignUpLink>
-      </S.LoginCard>
-    </S.LoginContainer>
+      {/* Modals */}
+      <RegisterModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        onRegisterSuccess={() => {}}
+      />
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={() => {}}
+        onOpenRegister={() => setIsRegisterModalOpen(true)}
+      />
+    </S.LoginPage>
   )
 }
 
