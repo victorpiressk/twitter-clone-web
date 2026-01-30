@@ -60,6 +60,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Avatar clicável navegando para perfil do usuário.
 - Username clicável navegando para perfil do usuário.
 
+**CommentModal:**
+- Modal de comentário ao clicar no ícone 💬 no feed.
+- Exibe post original (compacto, read-only) com avatar, nome, username e timestamp.
+- Campo de texto para comentário com auto-expansão (igual PostForm).
+- PostCharCounter e PostFormActions integrados.
+- Suporte a upload de imagens no comentário.
+- Botão "Responder" no footer com loading state.
+- Toast de sucesso ao enviar comentário.
+- Fecha modal automaticamente após enviar.
+- Texto "Respondendo a @username" entre post original e campo de comentário.
+
+**CommentForm (Global):**
+- Componente CommentForm movido para common (reutilizável).
+- Mesma funcionalidade do PostForm (imagens, contador, actions).
+- Auto-expansão de textarea baseada em scrollHeight.
+- Renderização condicional de actions (inline ou no footer da modal).
+
+**PostCharCounter (Global):**
+- Componente PostCharCounter movido para common (reutilizável).
+- Usado em PostForm, CommentForm e modals.
+
+**PostFormActions (Global):**
+- Componente PostFormActions movido para common (reutilizável).
+- Usado em PostForm, CommentForm e modals.
+
 ### Changed
 
 **Rotas:**
@@ -79,6 +104,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **NotificationCard:**
 - NotificationCard agora possui navegação completa para perfis.
+
+**PostCard:**
+- Click no ícone 💬 abre CommentModal.
+- Estado `isCommentModalOpen` para controlar abertura da modal.
+
+**PostDetail:**
+- Click no ícone 💬 abre CommentModal (igual PostCard).
+- Toast de sucesso ao comentar via PostDetail.
+- Loading no botão "Responder" do CommentForm inline.
+
+**Arquitetura:**
+- PostCharCounter, PostFormActions e CommentForm agora são componentes globais.
+- Componentes reutilizáveis entre PostForm, CommentForm, CreatePostModal e CommentModal.
+- Padrão consistente: actions no footer quando em modal, inline quando em página.
 
 ### Removed
 
@@ -121,6 +160,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Navegação:**
 - useNavigate aplicado em NotificationCard.
 - onClick no avatar e username redirecionando para `/:username`.
+
+**CommentModal:**
+- Portal rendering via Modal component.
+- Post original exibido com linha vertical conectando ao campo de comentário.
+- Textarea com min-height 100px, auto-expansão e placeholder "Poste sua resposta".
+- Footer com botão "Responder" (disabled se vazio, loading durante submit).
+- Estado local de `comment` e `isSubmitting`.
+
+**CommentForm:**
+- Props: onSubmit, currentUserAvatar, currentUserName, isModal, renderActions.
+- isModal controla se renderiza actions inline ou via renderActions callback.
+- Suporta imagens com ImageUpload e ImagePreview.
+- MaxLength 280 caracteres.
+
+**Componentes Globais:**
+- src/components/common/PostCharCounter/
+- src/components/common/PostFormActions/
+- src/components/common/CommentForm/
+- src/components/common/CommentModal/
+
+### Known Issues (v0.1.0+)
+
+- Contador de comentários não incrementa após enviar (precisa de state management global).
+- Toast com erro ao enviar comentário via modal (precisa de models de entidade User/Post padronizados).
+- Imagens enviadas no comentário não aparecem no post criado (precisa de API de upload).
+- currentUserAvatar e currentUserName são props hardcoded (precisa integrar com AuthContext via models).
 
 
 ## [0.0.6] - 2026-01-23

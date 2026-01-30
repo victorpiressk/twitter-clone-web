@@ -1,7 +1,6 @@
 import styled from 'styled-components'
-import { transitions } from '../../../../../styles/globalStyles'
-import { colors } from '../../../../../styles/globalStyles'
-import { ButtonContainer } from '../../../Button/styles'
+import { colors, transitions } from '../../../styles/globalStyles'
+import { ButtonContainer } from '../Button/styles'
 
 export const ActionsContainer = styled.div`
   display: flex;

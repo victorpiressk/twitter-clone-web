@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { colors, fontSizes } from '../../../../../styles/globalStyles'
+import { colors, fontSizes } from '../../../styles/globalStyles'
 
 export const CounterContainer = styled.div`
   width: 100%;

@@ -10,6 +10,11 @@ export const HeaderContainer = styled.div`
   flex-shrink: 0;
 `
 
+export const TitleContainer = styled.div`
+  width: 55%;
+  align-items: start;
+`
+
 export const Title = styled.h2`
   font-size: ${fontSizes.xl};
   font-weight: ${fontWeights.bold};

@@ -4,11 +4,11 @@ import Textarea from '../Textarea'
 import ImagePreview from '../ImagePreview'
 import PostFormActions from '../PostFormActions'
 import { useToast } from '../../../hooks/useToast'
-import type { PostFormProps } from './types'
 import type { ImageFile } from '../ImagePreview/types'
+import type { CommentFormProps } from './types'
 import * as S from './styles'
 
-const PostForm = ({
+const CommentForm = ({
   userName = 'Usuário',
   userAvatar,
 
@@ -21,9 +21,8 @@ const PostForm = ({
   // Props não-controladas (Home usa)
   onSubmit,
 
-  isModal = false,
   showActions = true
-}: PostFormProps) => {
+}: CommentFormProps) => {
   const { showToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -100,16 +99,16 @@ const PostForm = ({
     (!content.trim() && images.length === 0) || content.length > 280
 
   return (
-    <S.PostFormContainer $isModal={isModal}>
+    <S.CommentFormContainer>
       <Avatar src={userAvatar} alt={userName} size="small" />
 
-      <S.PostFormContent>
+      <S.CommentFormContent>
         <Textarea
           value={content}
           onChange={handleContentChange}
-          placeholder="O que está acontecendo?"
+          placeholder="Poste sua resposta"
           maxLength={280}
-          rows={1}
+          rows={2}
         />
 
         <ImagePreview images={images} onRemove={handleRemoveImage} />
@@ -124,12 +123,12 @@ const PostForm = ({
             onImageUpload={handleImageUpload}
             onSubmit={handleSubmit}
             loading={isSubmitting}
-            submitLabel="Postar"
+            submitLabel="Responder"
           />
         )}
-      </S.PostFormContent>
-    </S.PostFormContainer>
+      </S.CommentFormContent>
+    </S.CommentFormContainer>
   )
 }
 
-export default PostForm
+export default CommentForm

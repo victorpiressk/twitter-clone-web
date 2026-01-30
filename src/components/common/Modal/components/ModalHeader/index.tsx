@@ -14,13 +14,15 @@ const ModalHeader = ({
 }: ModalHeaderProps) => {
   return (
     <S.HeaderContainer>
-      <S.Title>{title || ''}</S.Title>
-
       {showCloseButton && (
         <S.CloseButton onClick={onClose} aria-label="Fechar">
           <X size={12} strokeWidth={2} />
         </S.CloseButton>
       )}
+
+      <S.TitleContainer>
+        <S.Title>{title || ''}</S.Title>
+      </S.TitleContainer>
     </S.HeaderContainer>
   )
 }

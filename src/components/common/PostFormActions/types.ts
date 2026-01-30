@@ -1,4 +1,4 @@
-import type { ImageFile } from '../../../ImagePreview/types'
+import type { ImageFile } from '../ImagePreview/types'
 
 export type PostFormActionsProps = {
   content: string
@@ -9,4 +9,5 @@ export type PostFormActionsProps = {
   onImageUpload: (files: File[]) => void
   onSubmit: () => void
   loading?: boolean
+  submitLabel: string
 }

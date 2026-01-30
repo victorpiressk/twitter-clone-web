@@ -1,6 +1,6 @@
 import { useRef } from 'react'
-import Button from '../../../Button'
-import ImageUpload from '../../../ImageUpload'
+import Button from '../Button'
+import ImageUpload from '../ImageUpload'
 import PostCharCounter from '../PostCharCounter'
 import { MEDIA_BUTTONS } from './constants/mediaButtons'
 import type { PostFormActionsProps } from './types'
@@ -14,7 +14,8 @@ const PostFormActions = ({
   onImageUpload,
   onSubmit,
   maxLength,
-  loading
+  loading,
+  submitLabel
 }: PostFormActionsProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -85,7 +86,7 @@ const PostFormActions = ({
           disabled={isDisabled}
           loading={loading}
         >
-          Postar
+          {submitLabel}
         </Button>
       </S.ActionGroup>
     </S.ActionsContainer>

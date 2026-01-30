@@ -1,19 +1,22 @@
 import { useState } from 'react'
-import Modal from '../../../../common/Modal'
-import PostForm from '../../../../common/PostForm'
-import PostFormActions from '../../../../common/PostFormActions'
-import { useToast } from '../../../../../hooks/useToast'
-import type { CreatePostModalProps } from './types'
-import type { ImageFile } from '../../../../common/ImagePreview/types'
+import { Twitter } from 'lucide-react'
+import Modal from '../Modal'
+import Avatar from '../Avatar'
+import PostFormActions from '../PostFormActions'
+import { useToast } from '../../../hooks/useToast'
+import type { ImageFile } from '../ImagePreview/types'
+import type { CommentModalProps } from './types'
 import * as S from './styles'
+import CommentForm from '../CommentForm'
 
-const CreatePostModal = ({
+const CommentModal = ({
+  post,
   isOpen,
   onClose,
   onSubmit,
   userName,
   userAvatar
-}: CreatePostModalProps) => {
+}: CommentModalProps) => {
   const { showToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [content, setContent] = useState('')
@@ -34,7 +37,7 @@ const CreatePostModal = ({
     setIsSubmitting(true)
 
     try {
-      await onSubmit(content)
+      await onSubmit(content, post.id)
 
       showToast('success', 'Post enviado com sucesso!')
 
@@ -60,7 +63,6 @@ const CreatePostModal = ({
   const isDisabled =
     (!content.trim() && images.length === 0) || content.length > 280
 
-  // ✅ Footer fixo com actions
   const footer = (
     <S.FooterContainer>
       <PostFormActions
@@ -71,7 +73,7 @@ const CreatePostModal = ({
         onImageUpload={handleImageUpload}
         onSubmit={handleSubmit}
         loading={isSubmitting}
-        submitLabel="Postar"
+        submitLabel="Responder"
       />
     </S.FooterContainer>
   )
@@ -83,13 +85,39 @@ const CreatePostModal = ({
       size="medium"
       showOverlay
       showCloseButton
-      title=""
+      title={<Twitter size={30} strokeWidth={2} />}
       header={<div />}
       footer={footer}
     >
       <S.ModalContent>
-        {/* ✅ PostForm controlado SEM actions */}
-        <PostForm
+        {/* Post Original */}
+        <S.OriginalPost>
+          <S.PostAvatar>
+            <Avatar
+              src={post.author.avatar}
+              alt={post.author.displayName}
+              size="small"
+            />
+          </S.PostAvatar>
+
+          <S.PostContent>
+            <S.PostHeader>
+              <S.AuthorName>{post.author.displayName}</S.AuthorName>
+              <S.Username>@{post.author.username}</S.Username>
+              <S.Timestamp>· {post.createdAt}</S.Timestamp>
+            </S.PostHeader>
+
+            <S.PostText>{post.content}</S.PostText>
+          </S.PostContent>
+        </S.OriginalPost>
+
+        {/* Replying To */}
+        <S.ReplyingTo>
+          Respondendo a <span>@{post.author.username}</span>
+        </S.ReplyingTo>
+
+        {/* Comment Section */}
+        <CommentForm
           userName={userName}
           userAvatar={userAvatar}
           content={content}
@@ -97,11 +125,11 @@ const CreatePostModal = ({
           onContentChange={setContent}
           onImagesChange={setImages}
           isModal
-          showActions={false} // ← Esconde actions (vão no footer)
+          showActions={false}
         />
       </S.ModalContent>
     </Modal>
   )
 }
 
-export default CreatePostModal
+export default CommentModal

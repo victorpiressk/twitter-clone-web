@@ -12,7 +12,7 @@ export const colors = {
 
   // Accent
   primary: '#1D9BF0',
-  primaryHover: '#1A8CD8',
+  like: '#f91880',
 
   // Feedback
   success: '#00BA7C',
@@ -22,6 +22,8 @@ export const colors = {
   // Hover
   hover: {
     primary: 'rgba(29, 155, 240, 0.1)',
+    success: 'rgba(0, 186, 124, 0.1)',
+    like: 'rgba(249, 24, 128, 0.1)',
     error: '#c9182b'
   }
 }

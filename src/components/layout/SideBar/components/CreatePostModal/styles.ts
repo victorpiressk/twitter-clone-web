@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { ActionsContainer } from '../../../../common/PostForm/components/PostFormActions/styles'
+import { ActionsContainer } from '../../../../common/PostFormActions/styles'
 
 export const ModalContent = styled.div`
   width: 100%;

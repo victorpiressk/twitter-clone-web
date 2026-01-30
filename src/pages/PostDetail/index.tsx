@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PostDetailCard from './components/PostDetailCard'
-import CommentForm from './components/CommentForm'
+import CommentForm from '../../components/common/CommentForm'
 import PostList from '../../components/common/PostList'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
@@ -188,6 +188,7 @@ const PostDetail = () => {
               post={post}
               onLike={handleLike}
               onRetweet={handleRetweet}
+              onComment={handleCommentComment}
             />
           )}
 

@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import {
+  colors,
   fontSizes,
   fontWeights,
   transitions
@@ -42,7 +43,7 @@ export const PostContent = styled.div`
 `
 
 export const PostText = styled.p`
-  font-size: ${fontSizes.xxl};
+  font-size: ${fontSizes['2xl']};
   line-height: 1.5;
   color: ${(props) => props.theme.colors.text.primary};
   margin: 0 0 16px 0;
@@ -122,19 +123,12 @@ export const ActionButton = styled.button<{
 
   &:hover {
     background-color: ${(props) => {
-      if (props.$color === props.theme.colors.background.primary)
-        return 'rgba(29, 155, 240, 0.1)'
-      if (props.$color === '#00ba7c') return 'rgba(0, 186, 124, 0.1)'
-      if (props.$color === '#f91880') return 'rgba(249, 24, 128, 0.1)'
+      if (props.$color === colors.primary) return `${colors.hover.primary}`
+      if (props.$color === colors.success) return `${colors.hover.success}`
+      if (props.$color === colors.like) return `${colors.hover.like}`
       return props.theme.colors.hover.primary
     }};
 
     color: ${(props) => props.$color || props.theme.colors.text.primary};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
   }
 `

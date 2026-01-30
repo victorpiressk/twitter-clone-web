@@ -4,4 +4,5 @@ export type PostDetailCardProps = {
   post: Post
   onLike: () => void
   onRetweet: () => void
+  onComment: (postId: string) => void
 }
