@@ -1,11 +1,175 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.0.8] - 2026-02-07
+
+### Added
+
+#### Sistema de Retweet Completo
+- **RetweetPopover**: Menu com opções "Retweet", "Desfazer Retweet" e "Comentar"
+- **RetweetModal**: Modal para Quote Tweet (Retweet com comentário)
+- **OriginalPostEmbed**: Componente para renderizar post original embutido em Quotes
+- **OriginalPostPreview**: Componente para preview compacto de posts (usado em CommentModal)
+- **Indicador "X retweetou"**: Feedback visual para retweets simples
+- **Quote Tweet**: Funcionalidade completa de retweet com comentário e imagens
+- Suporte a Quote de Quote (quotes aninhados)
+- Renderização de posts citados no feed e PostDetail
+
+#### Sistema de Modais Genéricos
+- **FormModal**: Modal genérico reutilizável para formulários (posts, comentários, quotes)
+- **BaseForm**: Formulário genérico com suporte a texto, imagens e conteúdo extra
+- **useFormModal**: Hook centralizado para lógica de formulários (estado, validação, submit, cleanup)
+- **FormActions**: Componente genérico de ações de formulário (upload, contador, submit)
+- **CharCounter**: Contador de caracteres reutilizável
+
+#### Sistema de Popovers com Floating UI
+- Migração completa para **@floating-ui/react**
+- **BasePopover**: Popover base com scroll tracking automático
+- **PopoverContext**: Context API para estratégias de posicionamento dinâmico
+- **usePopoverStrategy**: Hook para gerenciar strategy (absolute/fixed) baseado em contexto
+- Suporte a estratégias de posicionamento (absolute para scroll tracking, fixed para elementos estáticos)
+- Collision detection automático (flip + shift)
+- Resize handling automático
+
+#### Gerenciamento de Estado Global
+- **PostContext**: Context API para estado global de posts
+- **usePost**: Hook para consumir PostContext
+- Métodos: `createPost`, `likePost`, `retweetPost`, `quoteTweet`, `commentPost`
+- Single Source of Truth para posts em toda aplicação
+
+#### Funcionalidades de Post
+- Renderização de imagens em posts (grid adaptativo 1-4 imagens)
+- Upload de múltiplas imagens (até 4) em posts, comentários e quotes
+- Preview de imagens com remoção individual
+- Cleanup de memória (URL.revokeObjectURL)
+
+### Changed
+
+#### Refatoração de Modais
+- **CreatePostModal**: Refatorado para usar FormModal (~150 → 25 linhas, -83%)
+- **CommentModal**: Refatorado para usar FormModal (~150 → 30 linhas, -80%)
+- Linha conectora visual em CommentModal (conecta post original ao comentário)
+- Texto "Respondendo a @username" em comentários
+
+#### Refatoração de Popovers
+- **BasePopover**: Migrado de implementação manual para Floating UI
+- Removido cálculo manual de posicionamento (~80 linhas)
+- Removidos listeners de scroll manuais
+- Strategy prop adicionada para controle de posicionamento
+- Mapeamento de positions customizados para Placement (Floating UI)
+
+#### Estrutura de Componentes
+- **PostCard**: 
+  - Adicionado suporte a `quotedPost` (renderiza OriginalPostEmbed)
+  - Adicionado suporte a `retweetedBy` (renderiza indicador)
+  - Callbacks unificados via PostContext
+  - Renderização de imagens em grid
+- **PostList**: Callbacks propagados do Context
+- **PostDetail**: Corrigido para usar post único em vez de array
+- **InfoBar**: Envolvida com PopoverProvider para strategy dinâmica
+
+#### Types
+- **Post**: Campos adicionados:
+  - `images?: string[]`
+  - `quotedPost?: OriginalPostProps`
+  - `retweetedBy?: { name: string; username: string }`
+- **ImageFile**: Tipo criado para gerenciar uploads
+- **ExtendedPopoverProps**: Tipo estendido com `strategy` prop
+
+### Removed
+
+#### Componentes Obsoletos
+- **CommentForm**: Substituído por BaseForm genérico
+- **PostForm** (de common): Movido para pages/Home/components (específico)
+- Lógica manual de posicionamento de popovers (~80 linhas)
+- Código duplicado em modais (~300 linhas eliminadas)
+
+### Fixed
+
+#### Bugs de Popover
+- Popovers não acompanhavam scroll da página
+- Tremor em popovers com posicionamento fixo (InfoBar minimal)
+- Collision detection inconsistente
+- Performance ruim com múltiplos listeners de scroll
+
+#### Bugs de Modal
+- Cleanup de memória em imagens não executado corretamente
+- Estado de formulários não limpo ao fechar modal
+- Validação de caracteres inconsistente
+
+#### Bugs de PostDetail
+- Erro ao passar array em vez de objeto para PostCard
+- Post não encontrado causava tela branca (agora redireciona)
+- Comentários mostravam todos os posts (agora filtrados)
+
+### Dependencies
+
+#### Added
+- `@floating-ui/react`: ^0.26.0 (gerenciamento profissional de popovers)
+
+### Architecture
+
+#### Princípios SOLID Aplicados
+- **Single Responsibility**: 
+  - useFormModal (lógica), BaseForm (UI), FormModal (orquestração)
+  - PostContext (estado), usePost (consumo)
+- **Open/Closed**: FormModal extensível via props/config
+- **Dependency Inversion**: Dependências de abstrações (Floating UI API)
+
+#### Design Patterns
+- **Context Pattern**: PostContext (estado global), PopoverContext (strategy)
+- **Strategy Pattern**: Posicionamento absolute/fixed de popovers
+- **Adapter Pattern**: Mapeamento de positions para Placement
+- **Composition**: BaseForm + FormActions + CharCounter = FormModal
+
+#### Separation of Concerns
+```
+components/
+├── Modals/           # Todas as modais
+├── Forms/            # Componentes de formulário
+├── Posts/            # Componentes relacionados a posts
+├── Popovers/         # Todos os popovers
+└── common/           # Componentes atômicos reutilizáveis
+
+contexts/             # Estado global (PostContext, PopoverContext)
+hooks/                # Custom hooks (usePost, useFormModal, usePopoverStrategy)
+```
+
+### Metrics
+
+#### Code Quality
+- **Duplicação eliminada**: ~300 linhas
+- **Redução de modais**: -83% CreatePostModal, -80% CommentModal
+- **Componentes reutilizáveis**: 8 novos (BaseForm, FormModal, etc)
+- **Contexts criados**: 2 (PostContext, PopoverContext)
+- **Custom hooks**: 3 (usePost, useFormModal, usePopoverStrategy)
+
+#### Performance
+- **Scroll tracking**: 0ms overhead (gerenciado por Floating UI)
+- **Re-renders**: Otimizados (useCallback, useMemo)
+- **Memory leaks**: Resolvidos (cleanup de URLs)
+
+### Highlights
+
+#### Demonstração de Competências
+- Identificação de code smells (duplicação de código)
+- Aplicação de design patterns (Context, Strategy, Adapter)
+- Refatoração incremental sem breaking changes
+- Integração de bibliotecas profissionais (@floating-ui/react)
+- Arquitetura escalável (separation of concerns)
+
+#### Decisões Técnicas Documentadas
+- Escolha de Floating UI vs implementação manual
+- Context API para estado global vs prop drilling
+- Strategy pattern para comportamento dinâmico
+- Composition over inheritance em componentes
+
+
 ## [0.0.7] - 2026-01-29
 
 ### Added

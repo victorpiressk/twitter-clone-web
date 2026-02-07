@@ -1,0 +1,52 @@
+import Avatar from '../../Avatar'
+import type { OriginalPostEmbedProps } from './types'
+import * as S from './styles'
+
+const OriginalPostEmbed = ({ post }: OriginalPostEmbedProps) => {
+  const formatTimestamp = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    if (diffInSeconds < 60) return `${diffInSeconds}s`
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}min`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`
+
+    const diffInDays = Math.floor(diffInSeconds / 86400)
+    if (diffInDays < 7) return `${diffInDays}d`
+
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+  }
+
+  return (
+    <S.Container>
+      <S.Header>
+        <Avatar src={post.author.avatar} alt={post.author.name} size="small" />
+
+        <S.AuthorInfo>
+          <S.TopRow>
+            <S.AuthorName>{post.author.name}</S.AuthorName>
+            <S.Username>@{post.author.username}</S.Username>
+            <S.Timestamp>{formatTimestamp(post.createdAt)}</S.Timestamp>
+          </S.TopRow>
+        </S.AuthorInfo>
+      </S.Header>
+
+      <S.PostContent>{post.content}</S.PostContent>
+
+      {post.images && post.images.length > 0 && (
+        <S.ImagesGrid $count={post.images.length}>
+          {post.images.slice(0, 4).map((image, index) => (
+            <S.PostImage key={index} src={image} alt={`Imagem ${index + 1}`} />
+          ))}
+        </S.ImagesGrid>
+      )}
+    </S.Container>
+  )
+}
+
+export default OriginalPostEmbed

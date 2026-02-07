@@ -38,3 +38,15 @@ export const CommentsSectionTitle = styled.h3`
   margin: 0;
   border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 `
+
+export const NoComments = styled.div`
+  padding: 32px 16px;
+  text-align: center;
+  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+`
+
+export const NoCommentsText = styled.p`
+  font-size: ${fontSizes.md};
+  color: ${(props) => props.theme.colors.text.secondary};
+  margin: 0;
+`

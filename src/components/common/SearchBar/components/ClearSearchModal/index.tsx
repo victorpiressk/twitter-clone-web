@@ -1,4 +1,4 @@
-import Modal from '../../../Modal'
+import Modal from '../../../Modals/BaseModal'
 import Button from '../../../Button'
 import * as S from './styles'
 

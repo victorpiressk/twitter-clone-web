@@ -5,8 +5,7 @@ import {
   transitions
 } from '../../../../../styles/globalStyles'
 
-export const PopoverContainer = styled.div<{ $position: 'top' | 'bottom' }>`
-  position: fixed;
+export const PopoverContainer = styled.div`
   width: 300px;
   background-color: ${(props) => props.theme.colors.background.primary};
   border-radius: 16px;
@@ -16,18 +15,6 @@ export const PopoverContainer = styled.div<{ $position: 'top' | 'bottom' }>`
   display: flex;
   flex-direction: column;
   gap: 12px;
-
-  ${(props) =>
-    props.$position === 'top' &&
-    `
-    transform: translateY(-8px);
-  `}
-
-  ${(props) =>
-    props.$position === 'bottom' &&
-    `
-    transform: translateY(8px);
-  `}
 `
 
 export const TopRow = styled.div`

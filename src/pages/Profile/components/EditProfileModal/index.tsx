@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Camera, ChevronRight, Trash2 } from 'lucide-react'
-import Modal from '../../../../components/common/Modal'
+import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
 import Input from '../../../../components/common/Input'
 import BirthDateModal from './components/BirthDateModal'

@@ -17,11 +17,13 @@ const fontSizes = {
 }
 
 export const AvatarContainer = styled.div<AvatarContainerProps>`
+  position: relative;
   width: ${(props) => sizes[props.size]};
   height: ${(props) => sizes[props.size]};
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  cursor: pointer;
 `
 
 export const AvatarImage = styled.img`

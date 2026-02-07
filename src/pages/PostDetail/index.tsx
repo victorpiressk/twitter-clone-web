@@ -1,73 +1,20 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import PostDetailCard from './components/PostDetailCard'
-import CommentForm from '../../components/common/CommentForm'
-import PostList from '../../components/common/PostList'
+import { useEffect, useState, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import PostCard from '../../components/common/Posts/PostCard'
+import PostList from '../../components/common/Posts/PostList'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import PostDetailSkeleton from '../../components/common/Skeleton/components/PostDetailSkeleton'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
-import type { Post } from '../../components/common/PostCard/types'
-import type { PostWithComments } from './types'
+import { usePost } from '../../hooks/usePost'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
-import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-
-// Mock data (depois vem da API)
-const mockPost: PostWithComments = {
-  id: '1',
-  author: {
-    id: '1',
-    username: 'victor',
-    displayName: 'Victor Pires',
-    isFollowing: false
-  },
-  content: 'Olá mundo! Este é meu primeiro post no Twitter Clone 🚀',
-  createdAt: new Date(Date.now() - 3600000).toISOString(),
-  stats: {
-    comments: 2,
-    retweets: 5,
-    likes: 42,
-    views: 1234
-  },
-  isLiked: false,
-  isRetweeted: false,
-  comments: [
-    {
-      id: '2',
-      author: {
-        id: '2',
-        username: 'maria',
-        displayName: 'Maria Costa',
-        isFollowing: true
-      },
-      content: 'Ótimo post!',
-      createdAt: new Date(Date.now() - 1800000).toISOString(),
-      stats: { comments: 0, retweets: 0, likes: 5, views: 100 },
-      isLiked: false,
-      isRetweeted: false
-    },
-    {
-      id: '3',
-      author: {
-        id: '3',
-        username: 'joao',
-        displayName: 'João Silva',
-        isFollowing: true
-      },
-      content: 'Concordo! 👍',
-      createdAt: new Date(Date.now() - 900000).toISOString(),
-      stats: { comments: 0, retweets: 1, likes: 3, views: 50 },
-      isLiked: false,
-      isRetweeted: false
-    }
-  ]
-}
 
 const PostDetail = () => {
-  const { username, postId } = useParams()
-  const [post, setPost] = useState(mockPost)
-  const [comments, setComments] = useState(mockPost.comments)
+  const { posts, likePost, retweetPost, quoteTweet, commentPost } = usePost()
+  const { postId } = useParams()
+  const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -76,99 +23,45 @@ const PostDetail = () => {
     }, 1000)
   }, [postId])
 
-  // TODO: Integrar com API
-  console.log('Viewing post:', username, postId)
+  // ✅ Encontra o post específico pelo ID
+  const post = useMemo(() => {
+    return posts.find((p) => p.id === Number(postId))
+  }, [posts, postId])
 
-  const handleLike = () => {
-    setPost((prev) => ({
-      ...prev,
-      isLiked: !prev.isLiked,
-      stats: {
-        ...prev.stats,
-        likes: prev.isLiked ? prev.stats.likes - 1 : prev.stats.likes + 1
-      }
-    }))
-  }
+  // ✅ Filtra comentários do post (TODO: quando implementar comentários)
+  const comments = useMemo(() => {
+    // Por enquanto, retorna array vazio
+    // Quando implementar comentários, filtrar posts onde parentId === postId
+    return []
+  }, [])
 
-  const handleRetweet = () => {
-    setPost((prev) => ({
-      ...prev,
-      isRetweeted: !prev.isRetweeted,
-      stats: {
-        ...prev.stats,
-        retweets: prev.isRetweeted
-          ? prev.stats.retweets - 1
-          : prev.stats.retweets + 1
-      }
-    }))
-  }
-
-  const handleComment = (content: string) => {
-    const newComment: Post = {
-      id: Date.now().toString(),
-      author: {
-        id: '1',
-        username: 'victor',
-        displayName: 'Victor Pires',
-        isFollowing: false
-      },
-      content,
-      createdAt: new Date().toISOString(),
-      stats: { comments: 0, retweets: 0, likes: 0, views: 0 },
-      isLiked: false,
-      isRetweeted: false
+  // ✅ Se post não existe, redireciona (post deletado ou ID inválido)
+  useEffect(() => {
+    if (!isLoading && !post) {
+      navigate('/home')
     }
+  }, [isLoading, post, navigate])
 
-    setComments((prev) => [newComment, ...prev])
-    setPost((prev) => ({
-      ...prev,
-      stats: {
-        ...prev.stats,
-        comments: prev.stats.comments + 1
-      }
-    }))
-  }
-
-  const handleCommentLike = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? {
-              ...comment,
-              isLiked: !comment.isLiked,
-              stats: {
-                ...comment.stats,
-                likes: comment.isLiked
-                  ? comment.stats.likes - 1
-                  : comment.stats.likes + 1
-              }
-            }
-          : comment
-      )
+  // ✅ Se ainda carregando ou post não encontrado, mostra skeleton
+  if (isLoading || !post) {
+    return (
+      <>
+        <ScrollToTop />
+        <ContentWrapper>
+          <S.PostDetailContainer>
+            <S.PostDetailHeader>
+              <BackButton />
+              <S.HeaderTitle>Post</S.HeaderTitle>
+            </S.PostDetailHeader>
+            <PostDetailSkeleton />
+            <S.CommentsSection>
+              <PostListSkeleton count={5} />
+            </S.CommentsSection>
+          </S.PostDetailContainer>
+          <InfoBar />
+        </ContentWrapper>
+      </>
     )
-  }
-
-  const handleCommentRetweet = (commentId: string) => {
-    setComments((prev) =>
-      prev.map((comment) =>
-        comment.id === commentId
-          ? {
-              ...comment,
-              isRetweeted: !comment.isRetweeted,
-              stats: {
-                ...comment.stats,
-                retweets: comment.isRetweeted
-                  ? comment.stats.retweets - 1
-                  : comment.stats.retweets + 1
-              }
-            }
-          : comment
-      )
-    )
-  }
-
-  const handleCommentComment = (commentId: string) => {
-    console.log('Responder comentário:', commentId)
   }
 
   return (
@@ -181,29 +74,31 @@ const PostDetail = () => {
             <S.HeaderTitle>Post</S.HeaderTitle>
           </S.PostDetailHeader>
 
-          {isLoading ? (
-            <PostDetailSkeleton />
-          ) : (
-            <PostDetailCard
-              post={post}
-              onLike={handleLike}
-              onRetweet={handleRetweet}
-              onComment={handleCommentComment}
-            />
-          )}
+          {/* ✅ Passa objeto único (post) */}
+          <PostCard
+            post={post}
+            onLike={likePost}
+            onRetweet={retweetPost}
+            onQuoteTweet={quoteTweet}
+            onComment={commentPost}
+          />
 
-          <CommentForm onSubmit={handleComment} />
-
+          {/* ✅ Seção de comentários */}
           <S.CommentsSection>
-            {isLoading ? (
-              <PostListSkeleton count={5} />
-            ) : (
+            {comments.length > 0 ? (
               <PostList
                 posts={comments}
-                onLike={handleCommentLike}
-                onRetweet={handleCommentRetweet}
-                onComment={handleCommentComment}
+                onLike={likePost}
+                onRetweet={retweetPost}
+                onQuoteTweet={quoteTweet}
+                onComment={commentPost}
               />
+            ) : (
+              <S.NoComments>
+                <S.NoCommentsText>
+                  Nenhum comentário ainda. Seja o primeiro a comentar!
+                </S.NoCommentsText>
+              </S.NoComments>
             )}
           </S.CommentsSection>
         </S.PostDetailContainer>

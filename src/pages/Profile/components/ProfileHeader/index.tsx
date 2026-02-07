@@ -3,6 +3,7 @@ import { MapPin, Link as LinkIcon, Calendar, Cake } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
 import ProfileStats from '../ProfileStats'
+import { formatDate } from '../../../../utils'
 import { useToast } from '../../../../hooks/useToast'
 import type { ProfileHeaderProps } from './types'
 import * as S from './styles'
@@ -40,26 +41,6 @@ const ProfileHeader = ({
     }
   }
 
-  const formatDate = (
-    dateString: string,
-    mode: 'short' | 'full' = 'short'
-  ): string => {
-    // Remove a parte de hora se existir (ex: "2020-01-15T00:00:00Z" -> "2020-01-15")
-    const dateOnly = dateString.split('T')[0]
-    const [year, month, day] = dateOnly.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // Cria data local
-
-    if (mode === 'full') {
-      return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      })
-    }
-
-    const monthName = date.toLocaleDateString('pt-BR', { month: 'short' })
-    return `${monthName} de ${year}`
-  }
   return (
     <S.HeaderContainer>
       <S.Banner $imageUrl={user.banner} />
@@ -123,7 +104,7 @@ const ProfileHeader = ({
           {/* Data de entrada */}
           <S.MetadataItem>
             <Calendar size={18} strokeWidth={2} />
-            Entrou em {formatDate(user.joinedAt)}
+            Entrou em {formatDate(user.joinedAt, 'joined')}
           </S.MetadataItem>
         </S.Metadata>
 

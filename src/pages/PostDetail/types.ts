@@ -1,5 +1,5 @@
-import type { Post } from '../../components/common/PostCard/types'
+import type { PostWithInteractions } from '../../components/common/Posts/PostCard/types'
 
-export type PostWithComments = Post & {
-  comments: Post[]
+export type PostWithComments = PostWithInteractions & {
+  comments: PostWithInteractions[]
 }

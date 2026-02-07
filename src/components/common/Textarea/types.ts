@@ -4,4 +4,5 @@ export type TextareaProps = {
   placeholder?: string
   rows?: number
   maxLength?: number
+  disabled?: boolean
 }

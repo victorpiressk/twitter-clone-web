@@ -4,6 +4,7 @@ import SearchBar from '../../common/SearchBar'
 import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
 import Footer from './components/Footer'
+import { PopoverProvider } from '../../../contexts/PopoverContext'
 import type { Trend } from './components/TrendsWidget/types'
 import type { UserSuggestion } from './components/WhoToFollowWidget/types'
 import * as S from './styles'
@@ -88,22 +89,38 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
     )
   }
 
+  const strategy = variant === 'minimal' ? 'fixed' : 'absolute'
+
   return (
-    <S.InfoBarContainer ref={sidebarRef} $topOffset={topOffset}>
-      <S.ContentWrapper>
-        {variant === 'default' ? (
-          <SearchBar variant="small" />
-        ) : (
-          <S.Separator />
-        )}
-        {variant === 'default' && <TrendsWidget trends={mockTrends} />}
-        <WhoToFollowWidget
-          suggestions={suggestions}
-          onFollowToggle={handleFollowToggle}
-        />
-        <Footer />
-      </S.ContentWrapper>
-    </S.InfoBarContainer>
+    <PopoverProvider strategy={strategy}>
+      <S.InfoBarContainer ref={sidebarRef} $topOffset={topOffset}>
+        <S.ContentWrapper>
+          {variant === 'default' ? (
+            <SearchBar variant="small" />
+          ) : (
+            <S.Separator />
+          )}
+          {variant === 'default' && <TrendsWidget trends={mockTrends} />}
+          <WhoToFollowWidget
+            suggestions={suggestions}
+            onFollowToggle={handleFollowToggle}
+            user={{
+              id: '',
+              username: '',
+              displayName: '',
+              avatar: undefined,
+              bio: undefined,
+              stats: {
+                following: 0,
+                followers: 0
+              },
+              isFollowing: false
+            }}
+          />
+          <Footer />
+        </S.ContentWrapper>
+      </S.InfoBarContainer>
+    </PopoverProvider>
   )
 }
 

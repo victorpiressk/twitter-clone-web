@@ -7,7 +7,8 @@ const Textarea = ({
   onChange,
   placeholder = '',
   rows = 1,
-  maxLength
+  maxLength,
+  disabled = false
 }: TextareaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -36,6 +37,7 @@ const Textarea = ({
         placeholder={placeholder}
         rows={rows}
         maxLength={maxLength}
+        disabled={disabled}
       />
     </S.TextareaContainer>
   )

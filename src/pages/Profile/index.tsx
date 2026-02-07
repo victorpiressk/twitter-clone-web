@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
-import PostList from '../../components/common/PostList'
+import PostList from '../../components/common/Posts/PostList'
 import EditProfileModal from './components/EditProfileModal'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import type { UserProfile, ProfileTab } from './types'
-import type { Post } from '../../components/common/PostCard/types'
+import type { Post } from '../../components/common/Posts/PostCard/types'
 import type { EditProfileFormData } from './components/EditProfileModal/types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
@@ -39,7 +39,8 @@ const mockPosts: Post[] = [
       id: '1',
       username: 'victor',
       displayName: 'Victor Pires',
-      isFollowing: false
+      isFollowing: false,
+      avatar: ''
     },
     content: 'Olá mundo! Este é meu primeiro post 🚀',
     createdAt: new Date(Date.now() - 3600000).toISOString(),

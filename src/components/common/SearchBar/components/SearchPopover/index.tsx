@@ -1,8 +1,8 @@
-import Popover from '../../../Popover'
+import { Search, User, X } from 'lucide-react'
+import BasePopover from '../../../Popovers/BasePopover'
+import Avatar from '../../../Avatar'
 import type { SearchPopoverProps } from './types'
 import * as S from './styles'
-import Avatar from '../../../Avatar'
-import { Search, User, X } from 'lucide-react'
 
 const SearchPopover = ({
   isOpen,
@@ -142,15 +142,16 @@ const SearchPopover = ({
   }
 
   return (
-    <Popover
+    <BasePopover
       isOpen={isOpen}
       onClose={onClose}
       triggerRef={triggerRef}
       position="bottom"
-      matchTriggerWidth={true}
+      matchTriggerWidth={false}
+      strategy="fixed"
     >
       {renderContent()}
-    </Popover>
+    </BasePopover>
   )
 }
 

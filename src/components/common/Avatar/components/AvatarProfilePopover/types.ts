@@ -1,8 +1,8 @@
 export type UserProfileData = {
-  id: string
+  id: number
   username: string
   displayName: string
-  avatar?: string
+  avatar?: string | null
   bio?: string
   stats: {
     following: number

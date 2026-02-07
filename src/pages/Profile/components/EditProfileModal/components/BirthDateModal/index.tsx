@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Modal from '../../../../../../components/common/Modal'
+import Modal from '../../../../../../components/common/Modals/BaseModal'
 import Button from '../../../../../../components/common/Button'
 import Input from '../../../../../../components/common/Input'
 import { useToast } from '../../../../../../hooks/useToast'

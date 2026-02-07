@@ -7,6 +7,7 @@ import { light } from './styles/themes/light'
 import { dark } from './styles/themes/dark'
 import { ToastProvider } from './contexts/ToastContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { PostProvider } from './contexts/PostContext'
 
 function App() {
   // 1. Inicialização Preguiçosa: Lê o localStorage antes do primeiro render
@@ -30,27 +31,30 @@ function App() {
       <ToastProvider>
         <BrowserRouter>
           <AuthProvider>
-            <GlobalStyle />
-            <AppRoutes />
+            <PostProvider>
+              <GlobalStyle />
+              <AppRoutes />
 
-            {/* Botão temporário corrigido */}
-            <button
-              onClick={toggleTheme}
-              style={{
-                position: 'fixed',
-                bottom: 20,
-                right: 20,
-                padding: '10px 20px',
-                cursor: 'pointer',
-                borderRadius: '999px',
-                border: '1px solid #ccc',
-                backgroundColor: themeName === 'light' ? '#fff' : '#333',
-                color: themeName === 'light' ? '#333' : '#fff',
-                zIndex: 9999
-              }}
-            >
-              Alternar para o modo {themeName === 'light' ? 'Escuro' : 'Claro'}
-            </button>
+              {/* Botão temporário corrigido */}
+              <button
+                onClick={toggleTheme}
+                style={{
+                  position: 'fixed',
+                  bottom: 20,
+                  right: 20,
+                  padding: '10px 20px',
+                  cursor: 'pointer',
+                  borderRadius: '999px',
+                  border: '1px solid #ccc',
+                  backgroundColor: themeName === 'light' ? '#fff' : '#333',
+                  color: themeName === 'light' ? '#333' : '#fff',
+                  zIndex: 9999
+                }}
+              >
+                Alternar para o modo{' '}
+                {themeName === 'light' ? 'Escuro' : 'Claro'}
+              </button>
+            </PostProvider>
           </AuthProvider>
         </BrowserRouter>
       </ToastProvider>

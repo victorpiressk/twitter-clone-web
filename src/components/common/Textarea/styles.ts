@@ -9,6 +9,7 @@ export const TextareaContainer = styled.div`
 export const StyledTextarea = styled.textarea`
   width: 100%;
   min-height: 28px;
+  padding-top: 6px;
 
   font-family: inherit;
   font-size: ${fontSizes.xl};

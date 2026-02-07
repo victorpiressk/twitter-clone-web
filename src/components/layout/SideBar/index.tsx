@@ -1,16 +1,22 @@
 import { useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal } from 'lucide-react'
-import { useToast } from '../../../hooks/useToast'
-import { useAuth } from '../../../hooks/useAuth'
 import Button from '../../common/Button'
 import Avatar from '../../common/Avatar'
-import Popover from '../../common/Popover'
+import Popover from '../../common/Popovers/BasePopover'
 import CreatePostModal from './components/CreatePostModal'
 import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
+import { useToast } from '../../../hooks/useToast'
+import { useAuth } from '../../../hooks/useAuth'
+import type { SidebarProps } from './types'
 import * as S from './styles'
 
-const SideBar = () => {
+const SideBar = ({
+  onCreatePost,
+  userAvatar,
+  userName,
+  userDisplayName
+}: SidebarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { showToast } = useToast()
@@ -20,13 +26,6 @@ const SideBar = () => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
-
-  // Mock user data (depois vem do contexto/API)
-  const currentUser = {
-    displayName: 'Victor Pires',
-    username: 'victor',
-    avatar: undefined
-  }
 
   const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
     switch (item.action) {
@@ -54,11 +53,6 @@ const SideBar = () => {
         break
     }
     setIsProfileMenuOpen(false)
-  }
-
-  const handleCreatePost = (content: string) => {
-    console.log('Post criado:', content)
-    // TODO: Integrar com API
   }
 
   return (
@@ -122,14 +116,10 @@ const SideBar = () => {
             $variant="ghost"
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
           >
-            <Avatar
-              src={currentUser.avatar}
-              alt={currentUser.displayName}
-              size="small"
-            />
+            <Avatar src={userAvatar} alt={userName} size="small" />
             <S.UserNames>
-              <S.DisplayName>{currentUser.displayName}</S.DisplayName>
-              <S.Username>@{currentUser.username}</S.Username>
+              <S.DisplayName>{userDisplayName}</S.DisplayName>
+              <S.Username>@{userName}</S.Username>
             </S.UserNames>
             <S.MoreIcon>
               <MoreHorizontal size={18} strokeWidth={2} />
@@ -143,7 +133,8 @@ const SideBar = () => {
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
         triggerRef={moreButtonRef}
-        position="top-left"
+        position="top-right"
+        strategy="fixed"
       >
         {MORE_ITEMS.map((item) => {
           const Icon = item.icon
@@ -168,6 +159,7 @@ const SideBar = () => {
         triggerRef={profileButtonRef}
         position="top"
         variant="profile"
+        strategy="fixed"
       >
         {PROFILE_MENU_ITEMS.map((item) => (
           <S.PopoverItem
@@ -176,7 +168,7 @@ const SideBar = () => {
             $variant="profile"
           >
             {item.id === 'logout'
-              ? `${item.label} de @${currentUser.username}`
+              ? `${item.label} de @${userName}`
               : item.label}
           </S.PopoverItem>
         ))}
@@ -186,9 +178,9 @@ const SideBar = () => {
       <CreatePostModal
         isOpen={isCreatePostModalOpen}
         onClose={() => setIsCreatePostModalOpen(false)}
-        onSubmit={handleCreatePost}
-        userName={currentUser.displayName}
-        userAvatar={currentUser.avatar}
+        onSubmit={onCreatePost}
+        userName={userName}
+        userAvatar={userAvatar}
       />
     </>
   )

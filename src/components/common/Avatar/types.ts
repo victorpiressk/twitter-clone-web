@@ -1,7 +1,7 @@
 import type { UserProfileData } from './components/AvatarProfilePopover/types'
 
 export type AvatarProps = {
-  src?: string
+  src?: string | null
   alt?: string
   size?: 'small' | 'medium' | 'large'
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
