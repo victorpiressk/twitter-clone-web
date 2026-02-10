@@ -1,0 +1,28 @@
+import type { MediaFile } from '../../Forms/MediaPreview/types'
+
+export type FormModalProps = {
+  // Controle do modal
+  isOpen: boolean
+  onClose: () => void
+
+  // Dados do usuário
+  userName: string
+  userAvatar: string | null
+
+  // Configuração do formulário
+  placeholder?: string
+  submitLabel?: string
+  successMessage: string
+  errorMessage: string
+
+  // Conteúdo extra (para Comment/Retweet)
+  extraContent?: React.ReactNode
+  mode?: 'comment' | 'retweet'
+
+  // Callback de submit
+  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
+
+  // Customização (opcional)
+  maxLength?: number
+  modalSize?: 'small' | 'medium' | 'large'
+}

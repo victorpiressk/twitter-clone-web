@@ -1,34 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { BrowserRouter } from 'react-router-dom'
+import { GlobalStyle } from './styles/globalStyles'
+import AppRoutes from './routes/routes'
+import { light } from './styles/themes/light'
+import { dark } from './styles/themes/dark'
+import { ToastProvider } from './contexts/ToastContext'
+import { AuthProvider } from './contexts/AuthContext'
+import { PostProvider } from './contexts/PostContext'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // 1. Inicialização Preguiçosa: Lê o localStorage antes do primeiro render
+  const [themeName, setThemeName] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
+    return savedTheme ?? 'light'
+  })
+
+  // 2. Sincronização: Sempre que o themeName mudar, salvamos no localStorage
+  useEffect(() => {
+    localStorage.setItem('theme', themeName)
+  }, [themeName])
+
+  // 3. Função para alternar o tema
+  const toggleTheme = () => {
+    setThemeName((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ThemeProvider theme={themeName === 'light' ? light : dark}>
+      <ToastProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <PostProvider>
+              <GlobalStyle />
+              <AppRoutes />
+
+              {/* Botão temporário corrigido */}
+              <button
+                onClick={toggleTheme}
+                style={{
+                  position: 'fixed',
+                  bottom: 20,
+                  right: 20,
+                  padding: '10px 20px',
+                  cursor: 'pointer',
+                  borderRadius: '999px',
+                  border: '1px solid #ccc',
+                  backgroundColor: themeName === 'light' ? '#fff' : '#333',
+                  color: themeName === 'light' ? '#333' : '#fff',
+                  zIndex: 9999
+                }}
+              >
+                Alternar para o modo{' '}
+                {themeName === 'light' ? 'Escuro' : 'Claro'}
+              </button>
+            </PostProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ToastProvider>
+    </ThemeProvider>
   )
 }
 
