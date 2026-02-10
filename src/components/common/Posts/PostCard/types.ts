@@ -1,4 +1,4 @@
-import type { ImageFile } from '../ImagePreview/types'
+import type { MediaFile } from '../../Forms/MediaPreview/types'
 
 export type User = {
   id: number
@@ -114,6 +114,6 @@ export type PostCardProps = {
   variant?: PostCardVariant
   onLike: (postId: number) => void
   onRetweet: (postId: number) => void
-  onQuoteTweet: (postId: number, content: string, images?: ImageFile[]) => void
-  onComment: (content: string, images?: ImageFile[]) => void
+  onQuoteTweet: (postId: number, content: string, medias?: MediaFile[]) => void
+  onComment: (postId: number, content: string, medias?: MediaFile[]) => void
 }

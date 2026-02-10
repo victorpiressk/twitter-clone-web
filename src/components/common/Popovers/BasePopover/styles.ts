@@ -5,7 +5,7 @@ type PopoverContainerProps = {
 }
 
 export const PopoverContainer = styled.div<PopoverContainerProps>`
-  z-index: 1000;
+  z-index: 3000;
 
   background-color: ${(props) => props.theme.colors.background.primary};
   border-radius: 12px;

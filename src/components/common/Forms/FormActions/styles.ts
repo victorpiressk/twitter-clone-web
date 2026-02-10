@@ -25,7 +25,8 @@ export const ActionGroup = styled.div`
   }
 `
 
-export const IconButton = styled.button`
+export const IconButton = styled.button<{ $isActive?: boolean }>`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,4 +51,8 @@ export const IconButton = styled.button`
   svg {
     stroke: currentColor;
   }
+`
+
+export const IconButtonWrapper = styled.div`
+  position: relative;
 `

@@ -17,16 +17,9 @@ export const PostCardContainer = styled.article<{
 }>`
   position: relative;
   display: flex;
-  gap: 12px;
+  flex-direction: column; /* ← SEMPRE column (actions ficam abaixo) */
   padding: 16px;
-  cursor: pointer;
   transition: ${transitions.fast};
-
-  ${({ $variant }) =>
-    $variant === 'detailed' &&
-    css`
-      flex-direction: column;
-    `}
 
   ${({ $clickable }) =>
     $clickable &&
@@ -36,6 +29,13 @@ export const PostCardContainer = styled.article<{
         background-color: ${(props) => props.theme.colors.hover.primary};
       }
     `}
+`
+
+/* NOVO: Container para Avatar + Content (apenas no modo default) */
+export const PostMainContent = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
 `
 
 export const PostContent = styled.div`
@@ -49,6 +49,7 @@ export const PostHeader = styled.div`
   gap: 4px;
   margin-bottom: 4px;
 `
+
 export const PostHeaderStacked = styled.div`
   display: flex;
   gap: 8px;
@@ -105,12 +106,20 @@ export const PostText = styled.p<{ $variant: PostCardVariant }>`
   word-wrap: break-word;
 `
 
+/* ALTERADO: Actions agora ficam SEMPRE abaixo do conteúdo */
 export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   display: flex;
   justify-content: ${({ $variant }) =>
     $variant === 'detailed' ? 'space-around' : 'space-between'};
   max-width: ${({ $variant }) => ($variant === 'detailed' ? '100%' : '425px')};
   margin-top: 12px;
+
+  /* No modo default, adiciona margem à esquerda para alinhar com o conteúdo */
+  ${({ $variant }) =>
+    $variant === 'default' &&
+    css`
+      margin-left: 52px; /* Avatar (40px) + gap (12px) = 52px */
+    `}
 `
 
 export const ActionButton = styled.button<{
@@ -119,7 +128,6 @@ export const ActionButton = styled.button<{
 }>`
   display: flex;
   align-items: center;
-
   gap: 8px;
   padding: 8px;
   background: none;

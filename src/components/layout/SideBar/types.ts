@@ -1,4 +1,4 @@
-import type { ImageFile } from '../../../components/common/Posts/ImagePreview/types'
+import type { ImageFile } from '../../common/Forms/ImagePreview/types'
 
 export type SidebarProps = {
   userName: string

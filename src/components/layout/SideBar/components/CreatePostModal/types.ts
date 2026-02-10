@@ -1,4 +1,4 @@
-import type { ImageFile } from '../../../../common/Posts/ImagePreview/types'
+import type { ImageFile } from '../../../../common/Forms/ImagePreview/types'
 
 export type CreatePostModalProps = {
   isOpen: boolean

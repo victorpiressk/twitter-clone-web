@@ -81,6 +81,7 @@ const PostDetail = () => {
             onRetweet={retweetPost}
             onQuoteTweet={quoteTweet}
             onComment={commentPost}
+            variant="detailed"
           />
 
           {/* ✅ Seção de comentários */}

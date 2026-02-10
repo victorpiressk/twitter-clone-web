@@ -1,22 +1,28 @@
-import { useState } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
-import ImagePreview from '../../../../components/common/Posts/ImagePreview'
+import MediaPreview from '../../../../components/common/Forms/MediaPreview'
+import LocationPreview from '../../../../components/common/Forms/LocationPreview'
+import PollPreview from '../../../../components/common/Forms/PollPreview'
+import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
 import { useToast } from '../../../../hooks/useToast'
+import { createMediaFile, validateMedia } from '../../../../utils/mediaHelpers'
 import type { PostFormProps } from './types'
-import type { ImageFile } from '../../../../components/common/Posts/ImagePreview/types'
+import type { MediaFile } from '../../../../components/common/Forms/MediaPreview/types'
+import type { Location } from '../../../../components/common/Forms/FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
+import type { Poll } from '../../../../components/common/Forms/FormActions/components/MediaActions/PollCreator/types'
 import * as S from './styles'
 
 const PostForm = ({
   userName = 'Usuário',
   userAvatar,
 
-  // Props controladas (modal usa)
+  // Props controladas (FormModal usa via useFormModal)
   content: controlledContent,
-  images: controlledImages,
+  medias: controlledMedias,
   onContentChange,
-  onImagesChange,
+  onMediasChange,
 
   // Props não-controladas (Home usa)
   onSubmit,
@@ -26,16 +32,21 @@ const PostForm = ({
 }: PostFormProps) => {
   const { showToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
-  // Estado interno (usado quando NÃO é controlado)
+  // Estado interno (usado quando NÃO é controlado - Home)
   const [internalContent, setInternalContent] = useState('')
-  const [internalImages, setInternalImages] = useState<ImageFile[]>([])
+  const [internalMedias, setInternalMedias] = useState<MediaFile[]>([])
+  const [location, setLocation] = useState<Location | null>(null)
+  const [poll, setPoll] = useState<Poll | null>(null)
+  const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
 
-  // Decide se usa estado controlado ou interno
+  // Decide se usa estado controlado (modal) ou interno (home)
   const isControlled = controlledContent !== undefined
   const content = isControlled ? controlledContent! : internalContent
-  const images = isControlled ? controlledImages! : internalImages
+  const medias = isControlled ? controlledMedias! : internalMedias
 
+  // Handler: Mudança de conteúdo
   const handleContentChange = (value: string) => {
     if (isControlled) {
       onContentChange?.(value)
@@ -44,49 +55,120 @@ const PostForm = ({
     }
   }
 
-  const handleImageUpload = (newFiles: File[]) => {
-    const newImages: ImageFile[] = newFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      id: `${Date.now()}-${Math.random()}`
-    }))
+  // Handler: Upload de mídias (valida e cria MediaFile)
+  const handleMediaUpload = useCallback(
+    (newFiles: File[]) => {
+      const validMedias: MediaFile[] = []
 
-    if (isControlled) {
-      onImagesChange?.([...images, ...newImages])
-    } else {
-      setInternalImages((prev) => [...prev, ...newImages])
-    }
-  }
+      for (const file of newFiles) {
+        // Valida antes de adicionar
+        const validation = validateMedia(file, [...medias, ...validMedias])
 
-  const handleRemoveImage = (id: string) => {
-    const updated = images.filter((img) => img.id !== id)
-    const removed = images.find((img) => img.id === id)
+        if (!validation.valid) {
+          showToast('error', validation.error!)
+          continue
+        }
+
+        const mediaFile = createMediaFile(file)
+        if (mediaFile) {
+          validMedias.push(mediaFile)
+        }
+      }
+
+      if (validMedias.length > 0) {
+        if (isControlled) {
+          onMediasChange?.([...medias, ...validMedias])
+        } else {
+          setInternalMedias((prev) => [...prev, ...validMedias])
+        }
+      }
+    },
+    [medias, isControlled, onMediasChange, showToast]
+  )
+
+  // Handler: Remover mídia
+  const handleRemoveMedia = (id: string) => {
+    const updated = medias.filter((m) => m.id !== id)
+    const removed = medias.find((m) => m.id === id)
 
     if (removed) {
       URL.revokeObjectURL(removed.preview)
     }
 
     if (isControlled) {
-      onImagesChange?.(updated)
+      onMediasChange?.(updated)
     } else {
-      setInternalImages(updated)
+      setInternalMedias(updated)
     }
   }
 
+  // Handler: Selecionar Emoji
+  const handleEmojiSelect = (emoji: string) => {
+    handleContentChange(content + emoji)
+    setTimeout(() => {
+      textareaRef.current?.focus()
+    }, 0)
+  }
+
+  // Handler: Selecionar Location
+  const handleLocationSelect = (loc: Location) => {
+    setLocation(loc)
+  }
+
+  // Handler: Remover location
+  const handleRemoveLocation = () => {
+    setLocation(null)
+  }
+
+  // Handler: Criar enquete
+  const handlePollCreate = (pollData: Poll) => {
+    setPoll(pollData)
+
+    // Limpa mídia
+    if (medias.length > 0) {
+      medias.forEach((m) => URL.revokeObjectURL(m.preview))
+      if (isControlled) {
+        onMediasChange?.([])
+      } else {
+        setInternalMedias([])
+      }
+    }
+  }
+
+  // Handler: Remover enquete
+  const handleRemovePoll = () => {
+    setPoll(null)
+  }
+
+  // Handler: Criar agendamento
+  const handleSchedule = (scheduledDate: Date) => {
+    setScheduledFor(scheduledDate)
+  }
+
+  // Handler: Remover agendamento
+  const handleRemoveSchedule = () => {
+    setScheduledFor(null)
+  }
+
+  // Handler: Submit
   const handleSubmit = async () => {
-    if (!content.trim() && images.length === 0) return
+    if (!content.trim() && medias.length === 0) return
 
     setIsSubmitting(true)
 
     try {
       if (onSubmit) {
-        await onSubmit(content, images) // Se for uma chamada assíncrona, use await
+        await onSubmit(content, medias)
         showToast('success', 'Post criado com sucesso!')
 
+        // Cleanup (apenas no modo não-controlado)
         if (!isControlled) {
           setInternalContent('')
-          images.forEach((img) => URL.revokeObjectURL(img.preview))
-          setInternalImages([])
+          medias.forEach((m) => URL.revokeObjectURL(m.preview))
+          setInternalMedias([])
+          setLocation(null)
+          setPoll(null)
+          setScheduledFor(null)
         }
       }
     } catch {
@@ -96,8 +178,9 @@ const PostForm = ({
     }
   }
 
+  // Validação
   const isDisabled =
-    (!content.trim() && images.length === 0) || content.length > 280
+    (!content.trim() && medias.length === 0) || content.length > 280
 
   return (
     <S.PostFormContainer $isModal={isModal}>
@@ -112,19 +195,56 @@ const PostForm = ({
           rows={1}
         />
 
-        <ImagePreview images={images} onRemove={handleRemoveImage} />
+        {/* Componente unificado de preview de medias*/}
+        {medias.length > 0 && (
+          <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
+        )}
+
+        {/* Renderizar preview de enquete */}
+        {poll && (
+          <PollPreview
+            question={poll.question}
+            options={poll.options}
+            duration={poll.duration}
+            onRemove={handleRemovePoll}
+            variant="editable"
+          />
+        )}
+
+        {/* Renderizar preview de Schedule */}
+        {scheduledFor && (
+          <SchedulePreview
+            scheduledDate={scheduledFor}
+            onRemove={handleRemoveSchedule}
+            variant="editable"
+          />
+        )}
+
+        {/* Renderizar preview de location */}
+        {location && (
+          <LocationPreview
+            locationName={location.name}
+            onRemove={handleRemoveLocation}
+            variant="editable"
+          />
+        )}
 
         {/* Renderiza actions apenas se showActions=true */}
         {showActions && (
           <PostFormActions
             content={content}
-            images={images}
+            medias={medias}
+            poll={poll}
             isDisabled={isDisabled}
             maxLength={280}
-            onImageUpload={handleImageUpload}
+            onMediaUpload={handleMediaUpload}
             onSubmit={handleSubmit}
             loading={isSubmitting}
             submitLabel="Postar"
+            onEmojiSelect={handleEmojiSelect}
+            onLocationSelect={handleLocationSelect}
+            onPollCreate={handlePollCreate}
+            onSchedule={handleSchedule}
           />
         )}
       </S.PostFormContent>

@@ -1,30 +1,25 @@
-import type { ImageFile } from '../../Posts/ImagePreview/types'
-
-export type PostFormMode = 'comment' | 'retweet'
+import type { MediaFile } from '../MediaPreview/types'
+import type { Poll } from '../FormActions/components/MediaActions/PollCreator/types'
+import type { Location } from '../FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
 
 export type BaseFormProps = {
-  // Dados do usuário
   userName: string
-  userAvatar: string
-
-  // Estado controlado (vem do useFormModal)
+  userAvatar: string | null
   content: string
-  images: ImageFile[]
+  medias: MediaFile[]
+  location?: Location | null
+  poll?: Poll | null
+  scheduledFor?: Date | null
   onContentChange: (value: string) => void
-  onImagesChange: (images: ImageFile[]) => void
-
-  // Configuração
+  onMediasChange: (medias: MediaFile[]) => void
+  onRemoveLocation?: () => void
+  onRemovePoll?: () => void
+  onRemoveSchedule?: () => void
   placeholder?: string
   maxLength?: number
-
-  // Conteúdo extra (para Comment/Retweet)
   extraContent?: React.ReactNode
-  mode?: PostFormMode
-
-  // Comportamento
   isModal?: boolean
+  mode?: 'comment' | 'retweet'
   disabled?: boolean
-
-  // Callbacks para ações
-  onRemoveImage?: (id: string) => void
+  onRemoveMedia?: (id: string) => void
 }

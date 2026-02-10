@@ -1,4 +1,5 @@
 export const dark = {
+  name: 'dark',
   colors: {
     // Backgrounds
     background: {

@@ -9,10 +9,10 @@ import {
 
 export const MEDIA_BUTTONS = [
   {
-    id: 'image',
-    label: 'Adicionar imagem',
+    id: 'media',
+    label: 'Adicionar media',
     icon: Image,
-    action: 'image' as const
+    action: 'media' as const
   },
   {
     id: 'gif',

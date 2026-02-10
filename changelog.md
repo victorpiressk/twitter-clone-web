@@ -6,6 +6,176 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.0.9] - 2026-02-10
+
+### Added
+
+#### Recursos Adicionais de Postagem
+
+**EmojiPicker - Seletor de Emojis**
+- Integração com emoji-picker-react
+- Tema automático (light/dark) sincronizado
+- Busca de emojis por palavra-chave
+- Categorias de emojis
+- Inserção direta no textarea
+- BasePopover para posicionamento
+
+**GifPicker - Seletor de GIFs**
+- Integração com Giphy API (@giphy/react-components)
+- Busca de GIFs por termo
+- Grid responsivo (2 colunas)
+- Trending GIFs por padrão
+- Scroll infinito de resultados
+- Preview ao hover
+- Seleção e inserção no post
+
+**LocationPicker - Seletor de Localização**
+- 10 localizações mockadas (principais cidades brasileiras)
+- Busca por nome da cidade
+- Filtro em tempo real
+- Coordenadas geográficas armazenadas
+- Seleção de localização para posts
+
+**PollCreator - Criador de Enquetes**
+- Mínimo 2 opções, máximo 4 opções
+- Adição/remoção dinâmica de opções
+- Validação de campos obrigatórios
+- Seleção de duração (1, 3 ou 7 dias)
+- Limite de caracteres por opção (50)
+- Limite de caracteres na pergunta (100)
+
+**PostScheduler - Agendador de Posts**
+- Integração com react-datepicker
+- Locale pt-BR configurado
+- Seleção de data e hora
+- Intervalo de 15 minutos para hora
+- Data mínima: agora + 5 minutos
+- Data máxima: agora + 1 ano
+- Validação de datas passadas (desabilitadas)
+
+**Componentes de Preview**
+- **MediaPreview**: Preview unificado para imagens, GIFs e vídeos
+- **LocationPreview**: Exibição de localização (variant: editable/display)
+- **PollPreview**: Visualização de enquetes (antes e após votação)
+- **SchedulePreview**: Exibição de agendamento (formatação inteligente)
+
+#### Sistema de Regras de Compatibilidade
+
+**Regras Implementadas:**
+- Poll OU Mídia (GIF/Imagens)
+- Emoji compatível com tudo
+- Location compatível com tudo
+- Schedule compatível com tudo
+
+**Comportamento:**
+- Botões desabilitam dinamicamente baseado no conteúdo
+- Mídia é limpa automaticamente ao selecionar tipo incompatível
+- Feedback visual (botão desabilitado com opacidade)
+
+#### Melhorias de Arquitetura
+
+**Reorganização de Componentes:**
+- ImagePreview movido de Posts/ para Forms/
+- MediaPreview unificado (substitui previews separados)
+- Todos os previews centralizados em Forms/
+
+**FormActions Expandido:**
+- Sistema de refs específicas por botão
+- Estado `openPicker` para gerenciar pickers ativos
+- Handlers internos para callbacks
+- Lógica de desabilitação centralizada
+- Renderização condicional de pickers
+
+**useFormModal Expandido:**
+- Estado para: gif, location, poll, scheduledFor
+- Handlers para todos os recursos
+- Cleanup completo ao fechar
+- Validação integrada
+- Lógica de exclusão mútua
+
+### Changed
+
+#### PostForm (Home)
+- Adicionados estados: gif, location, poll, scheduledFor
+- Handlers para todos os recursos
+- Previews renderizados condicionalmente
+- Cleanup expandido no handleSubmit
+
+#### FormModal
+- Props expandidas do useFormModal
+- Todos os handlers passados para FormActions
+- ContentForm recebe todos os estados
+
+#### BaseForm (ContentForm)
+- Props expandidas para novos recursos
+- Renderização de todos os previews
+- Types atualizados
+
+#### PostCard
+- Renderização de location (variant: display)
+- Renderização de poll (com lógica de votação mockada)
+- Renderização de scheduledFor
+- Type Post expandido
+
+### Dependencies
+
+#### Added
+- `emoji-picker-react`: ^1.x.x (seletor de emojis)
+- `@giphy/react-components`: ^9.x.x (componentes Giphy)
+- `@giphy/js-fetch-api`: ^5.x.x (API Giphy)
+- `react-datepicker`: ^4.x.x (seletor de data/hora)
+- `@types/react-datepicker`: ^4.x.x (types do datepicker)
+- `date-fns`: ^3.x.x (manipulação de datas)
+
+#### Separation of Concerns
+- **Pickers**: Componentes de seleção (UI + lógica de busca)
+- **Previews**: Componentes de visualização (editable/display)
+- **FormActions**: Orquestração e gerenciamento de estado
+- **useFormModal**: Estado centralizado e lógica de negócio
+
+### Metrics
+
+#### Componentes Criados
+- 5 Media Actions (Emoji, GIF, Location, Poll, Schedule)
+- 4 Preview Components
+- 1 MediaPreview unificado
+- Total: 10 novos componentes
+
+#### Funcionalidades
+- 5 recursos adicionais de postagem
+- 3 regras de compatibilidade
+- 2 variantes de preview (editable/display)
+
+#### Code Quality
+- Types completos para todos os componentes
+- Styled-components com theme
+- Cleanup de memória (URLs, estados)
+- Validações em tempo real
+- Feedback visual consistente
+
+### Highlights
+
+#### Demonstração de Competências
+- Integração de bibliotecas externas (Giphy, DatePicker, EmojiPicker)
+- Gerenciamento de estado complexo (múltiplos recursos)
+- Regras de negócio (compatibilidade entre features)
+- Componentização avançada (variants, conditional rendering)
+- Performance (cleanup, memoization)
+
+#### Decisões Técnicas Documentadas
+- Uso de bibliotecas vs implementação manual
+- MediaPreview unificado (DRY principle)
+- Variants pattern (editable/display)
+- Estado centralizado (useFormModal)
+- Refs específicas para posicionamento
+
+#### Padrões de Design Aplicados
+- **Single Responsibility**: Cada picker tem uma responsabilidade
+- **DRY**: MediaPreview unificado, BasePopover reutilizado
+- **Open/Closed**: Variants permitem extensão sem modificação
+- **Composition**: Pickers compostos em FormActions
+
+
 ## [0.0.8] - 2026-02-07
 
 ### Added

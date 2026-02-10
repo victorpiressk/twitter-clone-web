@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { transitions } from '../../../../styles/globalStyles'
 
+// Copia EXATAMENTE o PreviewContainer do ImagePreview
 export const PreviewContainer = styled.div<{ $count: number }>`
   display: grid;
   gap: 2px;
@@ -9,7 +10,6 @@ export const PreviewContainer = styled.div<{ $count: number }>`
   margin-top: 12px;
   border: 1px solid ${(props) => props.theme.colors.border.primary};
 
-  /* Layout baseado na quantidade de imagens */
   ${({ $count }) => {
     if ($count === 1) {
       return `
@@ -44,7 +44,8 @@ export const PreviewContainer = styled.div<{ $count: number }>`
   }}
 `
 
-export const ImageWrapper = styled.div`
+// Renomeia ImageWrapper → MediaWrapper (mais genérico)
+export const MediaWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
@@ -53,12 +54,21 @@ export const ImageWrapper = styled.div`
   overflow: hidden;
 `
 
+// Mantém o mesmo estilo para imagens e GIFs
 export const PreviewImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
 `
 
+// Novo: preparado para vídeos
+export const PreviewVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`
+
+// Copia exatamente o RemoveButton
 export const RemoveButton = styled.button`
   position: absolute;
   top: 8px;

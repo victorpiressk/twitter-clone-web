@@ -1,13 +1,20 @@
-import type { ImageFile } from '../../Posts/ImagePreview/types'
+import type { MediaFile } from '../MediaPreview/types'
+import type { Location } from './components/MediaActions/LocationPicker/constants/mockLocations'
+import type { Poll } from './components/MediaActions/PollCreator/types'
 
 export type PostFormActionsProps = {
   content: string
-  images: ImageFile[]
-  maxImages?: number
+  medias: MediaFile[]
+  poll?: Poll | null
+  maxMedias?: number
   isDisabled: boolean
   maxLength: number
-  onImageUpload: (files: File[]) => void
+  onMediaUpload: (files: File[]) => void
   onSubmit: () => void
   loading?: boolean
   submitLabel: string
+  onEmojiSelect: (emoji: string) => void
+  onLocationSelect: (location: Location) => void
+  onPollCreate: (poll: Poll) => void
+  onSchedule: (scheduledDate: Date) => void
 }

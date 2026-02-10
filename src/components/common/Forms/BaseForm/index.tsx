@@ -1,6 +1,9 @@
 import Avatar from '../../Avatar'
 import Textarea from '../../Textarea'
-import ImagePreview from '../../Posts/ImagePreview'
+import MediaPreview from '../MediaPreview'
+import LocationPreview from '../LocationPreview'
+import PollPreview from '../PollPreview'
+import SchedulePreview from '../SchedulePreview'
 import type { BaseFormProps } from './types'
 import * as S from './styles'
 
@@ -8,30 +11,36 @@ const ContentForm = ({
   userName,
   userAvatar,
   content,
-  images,
+  medias,
+  location,
+  poll,
+  scheduledFor,
   onContentChange,
-  onImagesChange,
+  onMediasChange,
+  onRemoveMedia,
+  onRemoveLocation,
+  onRemovePoll,
+  onRemoveSchedule,
   placeholder = 'O que está acontecendo?',
   maxLength = 280,
   extraContent,
   isModal = false,
   mode = 'comment',
-  disabled = false,
-  onRemoveImage
+  disabled = false
 }: BaseFormProps) => {
-  const handleRemoveImage = (id: string) => {
-    if (onRemoveImage) {
-      onRemoveImage(id)
+  const handleRemoveMedia = (id: string) => {
+    if (onRemoveMedia) {
+      onRemoveMedia(id)
     } else {
-      // Fallback: remove via onImagesChange
-      const updated = images.filter((img) => img.id !== id)
-      const removed = images.find((img) => img.id === id)
+      // Fallback
+      const updated = medias.filter((m) => m.id !== id)
+      const removed = medias.find((m) => m.id === id)
 
       if (removed) {
         URL.revokeObjectURL(removed.preview)
       }
 
-      onImagesChange(updated)
+      onMediasChange(updated)
     }
   }
 
@@ -54,12 +63,42 @@ const ContentForm = ({
             disabled={disabled}
           />
 
-          {images.length > 0 && (
-            <ImagePreview images={images} onRemove={handleRemoveImage} />
+          {/* MediaPreview */}
+          {medias.length > 0 && (
+            <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
           )}
 
           {extraContent && mode === 'retweet' && (
             <S.ExtraContentWrapper>{extraContent}</S.ExtraContentWrapper>
+          )}
+
+          {/* PollPreview */}
+          {poll && onRemovePoll && (
+            <PollPreview
+              question={poll.question}
+              options={poll.options}
+              duration={poll.duration}
+              onRemove={onRemovePoll}
+              variant="editable"
+            />
+          )}
+
+          {/* SchedulePreview */}
+          {scheduledFor && onRemoveSchedule && (
+            <SchedulePreview
+              scheduledDate={scheduledFor}
+              onRemove={onRemoveSchedule}
+              variant="editable"
+            />
+          )}
+
+          {/* LocationPreview */}
+          {location && onRemoveLocation && (
+            <LocationPreview
+              locationName={location.name}
+              onRemove={onRemoveLocation}
+              variant="editable"
+            />
           )}
         </S.TextareaWrapper>
       </S.Content>

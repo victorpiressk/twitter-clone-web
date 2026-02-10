@@ -1,4 +1,4 @@
-import type { ImageFile } from '../../Posts/ImagePreview/types'
+import type { MediaFile } from '../../Forms/MediaPreview/types'
 import type { PostMedia } from '../../Posts/PostCard/types'
 
 export type CommentModalProps = {
@@ -15,7 +15,7 @@ export type CommentModalProps = {
     createdAt: string
     images?: PostMedia[]
   }
-  onSubmit: (content: string, images?: ImageFile[]) => Promise<void> | void
+  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
   userName: string
   userAvatar: string | null
 }

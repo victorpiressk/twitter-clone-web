@@ -34,7 +34,7 @@ export const Overlay = styled.div<OverlayProps>`
   z-index: 2000;
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 
   background-color: ${(props) =>
@@ -77,6 +77,7 @@ export const ModalContainer = styled.div<ModalContainerProps>`
   max-width: ${(props) => (props.$size === 'fullscreen' ? '100vw' : '90vw')};
   max-height: ${(props) => (props.$size === 'fullscreen' ? '100vh' : '90vh')};
   height: ${(props) => getModalHeight(props.$size)};
+  transform: translateY(32px);
 
   background-color: ${(props) => props.theme.colors.background.primary};
   border-radius: ${(props) => (props.$size === 'fullscreen' ? '0' : '16px')};

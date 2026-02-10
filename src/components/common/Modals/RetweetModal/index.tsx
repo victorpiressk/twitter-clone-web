@@ -20,7 +20,20 @@ const RetweetModal = ({
       submitLabel="Postar"
       successMessage="Retweet enviado com sucesso!"
       errorMessage="Erro ao enviar Retweet. Tente novamente."
-      extraContent={<OriginalPostEmbed post={originalPost} />}
+      extraContent={
+        <OriginalPostEmbed
+          id={originalPost.author.id}
+          content={originalPost.content}
+          author={originalPost.author}
+          created_at={originalPost.created_at}
+          updated_at={originalPost.updated_at}
+          is_published={originalPost.is_published}
+          stats={originalPost.stats}
+          is_liked={originalPost.is_liked}
+          is_retweeted={originalPost.is_retweeted}
+          is_bookmarked={originalPost.is_bookmarked}
+        />
+      }
       onSubmit={onSubmit}
       maxLength={280}
       modalSize="medium"

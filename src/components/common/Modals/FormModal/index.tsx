@@ -50,13 +50,18 @@ const FormModal = ({
     <S.FooterContainer>
       <PostFormActions
         content={formState.content}
-        images={formState.images}
+        medias={formState.medias}
+        poll={formState.poll}
         isDisabled={formState.isDisabled}
         maxLength={maxLength}
-        onImageUpload={formState.handleImageUpload}
+        onMediaUpload={formState.handleMediaUpload}
         onSubmit={handleSubmitSuccess}
         loading={formState.isSubmitting}
         submitLabel={submitLabel}
+        onEmojiSelect={formState.handleEmojiSelect}
+        onLocationSelect={formState.handleLocationSelect}
+        onPollCreate={formState.handlePollCreate}
+        onSchedule={formState.handleSchedule}
       />
     </S.FooterContainer>
   )
@@ -77,10 +82,16 @@ const FormModal = ({
             userName={userName}
             userAvatar={userAvatar}
             content={formState.content}
-            images={formState.images}
+            medias={formState.medias}
+            location={formState.location}
+            poll={formState.poll}
+            scheduledFor={formState.scheduledFor}
             onContentChange={formState.handleContentChange}
-            onImagesChange={formState.handleImagesChange}
-            onRemoveImage={formState.handleRemoveImage}
+            onMediasChange={formState.handleMediasChange}
+            onRemoveMedia={formState.handleRemoveMedia}
+            onRemoveLocation={formState.handleRemoveLocation}
+            onRemovePoll={formState.handleRemovePoll}
+            onRemoveSchedule={formState.handleRemoveSchedule}
             placeholder={placeholder}
             maxLength={maxLength}
             extraContent={extraContent}

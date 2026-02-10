@@ -1,19 +1,21 @@
-import type { ImageFile } from '../../../../components/common/Posts/ImagePreview/types'
+import type { MediaFile } from '../../../../components/common/Forms/MediaPreview/types'
 
 export type PostFormProps = {
   userName?: string
   userAvatar?: string
 
-  // ← Modo controlado (para modal)
+  // ← Modo controlado (para FormModal)
+  // FormModal passa essas props vindas do useFormModal
   content?: string
-  images?: ImageFile[]
+  medias?: MediaFile[]
   onContentChange?: (value: string) => void
-  onImagesChange?: (images: ImageFile[]) => void
+  onMediasChange?: (medias: MediaFile[]) => void // ← mudou de onImagesChange
 
   // ← Modo não-controlado (para Home)
-  onSubmit?: (content: string, images: ImageFile[]) => void
+  // Home passa apenas onSubmit, PostForm gerencia estado internamente
+  onSubmit?: (content: string, medias: MediaFile[]) => void
 
   // Flags
   isModal?: boolean
-  showActions?: boolean // ← Nova flag para esconder actions
+  showActions?: boolean
 }

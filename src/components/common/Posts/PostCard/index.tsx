@@ -1,18 +1,21 @@
 import { useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Repeat2, Heart, BarChart2 } from 'lucide-react'
-import { useToast } from '../../../../hooks/useToast'
-import { usePost } from '../../../../hooks/usePost' // Importante para buscar o original
 import Avatar from '../../Avatar'
 import RetweetPopover from '../../Popovers/RetweetPopover'
 import RetweetModal from '../../Modals/RetweetModal'
-import type { PostCardProps } from './types'
-import * as S from './styles'
 import CommentModal from '../../Modals/CommentModal'
-import { colors } from '../../../../styles/globalStyles'
-import type { ImageFile } from '../ImagePreview/types'
-import { formatDate } from '../../../../utils'
 import OriginalPostEmbed from '../OriginalPostEmbed'
+import LocationPreview from '../../Forms/LocationPreview'
+import PollPreview from '../../Forms/PollPreview'
+import SchedulePreview from '../../Forms/SchedulePreview'
+import { formatDate } from '../../../../utils/formatDate'
+import { useToast } from '../../../../hooks/useToast'
+import { usePost } from '../../../../hooks/usePost'
+import type { MediaFile } from '../../Forms/MediaPreview/types'
+import type { PostCardProps } from './types'
+import { colors } from '../../../../styles/globalStyles'
+import * as S from './styles'
 
 const PostCard = ({
   post,
@@ -31,25 +34,23 @@ const PostCard = ({
   const [isRetweetModalOpen, setIsRetweetModalOpen] = useState(false)
   const retweetButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Mantemos o estado local para feedback imediato
-  const [localPost, setLocalPost] = useState(post)
+  // Estado de voto (mockado por enquanto)
+  const [hasVoted, setHasVoted] = useState(false)
 
   // --- LÓGICA DE CONTEÚDO (REPOST) ---
-  const isSimpleRetweet = !!localPost.retweet_of && !localPost.retweet_comment
+  const isSimpleRetweet = !!post.retweet_of && !post.retweet_comment
 
   const displayPost = useMemo(() => {
-    let current = localPost
+    let current = post
 
-    // Enquanto o post atual for um retweet simples e houver uma referência válida,
-    // continuamos "subindo" na árvore para achar a fonte original.
     while (current.retweet_of && !current.retweet_comment) {
       const original = posts.find((p) => p.id === current.retweet_of)
-      if (!original) break // Segurança caso o post original não esteja carregado
+      if (!original) break
       current = original
     }
 
     return current
-  }, [localPost, posts])
+  }, [post, posts])
 
   const formatNumber = (num: number): string => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
@@ -68,22 +69,24 @@ const PostCard = ({
     navigate(`/${displayPost.author.username}`)
   }
 
-  const handleCommentSubmit = (content: string, images?: ImageFile[]) => {
-    setLocalPost((prev) => ({
-      ...prev,
-      stats: { ...prev.stats, comments: prev.stats.comments + 1 }
-    }))
-    onComment(content, images)
+  const handleCommentSubmit = (content: string, medias?: MediaFile[]) => {
+    onComment(displayPost.id, content, medias)
   }
 
   const handleRetweetSimple = () => {
-    onRetweet(post.id)
+    onRetweet(displayPost.id)
     setIsRetweetPopoverOpen(false)
-    if (!post.is_retweeted) showToast('success', 'Retweetado!')
+    if (!displayPost.is_retweeted) showToast('success', 'Retweetado!')
   }
 
-  const handleQuoteTweet = (content: string, images?: ImageFile[]) => {
-    onQuoteTweet(post.id, content, images) // ← Chama callback do Context
+  const handleQuoteTweet = (content: string, medias?: MediaFile[]) => {
+    onQuoteTweet(displayPost.id, content, medias)
+  }
+
+  const handleVote = (optionIndex: number) => {
+    // TODO: Integrar com API
+    console.log('Votou na opção:', optionIndex)
+    setHasVoted(true)
   }
 
   return (
@@ -109,56 +112,152 @@ const PostCard = ({
         {variant === 'default' ? (
           /* --- LAYOUT FEED (LATERAL) --- */
           <>
-            <Avatar
-              src={displayPost.author.profile_image}
-              alt={displayPost.author.first_name}
-              size="small"
-              onClick={handleClickProfile}
-              showProfilePopover={true}
-              userProfileData={{
-                id: displayPost.author.id,
-                username: displayPost.author.username,
-                displayName: displayPost.author.first_name,
-                avatar: displayPost.author.profile_image,
-                bio: displayPost.author.bio,
-                stats: { following: 123, followers: 456 },
-                isFollowing: displayPost.author.isFollowing
-              }}
-            />
+            {/* Container para Avatar + Content (em linha) */}
+            <S.PostMainContent>
+              <Avatar
+                src={displayPost.author.profile_image}
+                alt={displayPost.author.first_name}
+                size="small"
+                onClick={handleClickProfile}
+                showProfilePopover={true}
+                userProfileData={{
+                  id: displayPost.author.id,
+                  username: displayPost.author.username,
+                  displayName: displayPost.author.first_name,
+                  avatar: displayPost.author.profile_image,
+                  bio: displayPost.author.bio,
+                  stats: { following: 123, followers: 456 },
+                  isFollowing: displayPost.author.isFollowing
+                }}
+              />
 
-            <S.PostContent>
-              <S.PostHeader>
-                <S.DisplayName onClick={handleClickProfile}>
-                  {displayPost.author.first_name}
-                </S.DisplayName>
-                <S.Username onClick={handleClickProfile}>
-                  @{displayPost.author.username}
-                </S.Username>
-                <S.Separator>·</S.Separator>
-                <S.PostDate>
-                  {formatDate(displayPost.created_at, 'feed')}
-                </S.PostDate>
-              </S.PostHeader>
+              <S.PostContent>
+                <S.PostHeader>
+                  <S.DisplayName onClick={handleClickProfile}>
+                    {displayPost.author.first_name}
+                  </S.DisplayName>
+                  <S.Username onClick={handleClickProfile}>
+                    @{displayPost.author.username}
+                  </S.Username>
+                  <S.Separator>·</S.Separator>
+                  <S.PostDate>
+                    {formatDate(displayPost.created_at, 'feed')}
+                  </S.PostDate>
+                </S.PostHeader>
 
-              <S.PostText $variant={variant}>{displayPost.content}</S.PostText>
+                <S.PostText $variant={variant}>
+                  {displayPost.content}
+                </S.PostText>
 
-              {/* ✅ ADICIONAR: Renderiza post citado (Quote) */}
-              {displayPost.retweet_comment && (
-                <OriginalPostEmbed post={displayPost.retweet_comment} />
-              )}
+                {displayPost.media && displayPost.media.length > 0 && (
+                  <S.ImagesGrid $count={displayPost.media.length}>
+                    {displayPost.media.map((media, idx) => (
+                      <S.PostImage
+                        key={media.id || idx}
+                        src={media.url}
+                        alt="Media"
+                      />
+                    ))}
+                  </S.ImagesGrid>
+                )}
 
-              {displayPost.media && displayPost.media.length > 0 && (
-                <S.ImagesGrid $count={displayPost.media.length}>
-                  {displayPost.media.map((media, idx) => (
-                    <S.PostImage
-                      key={media.id || idx}
-                      src={media.url}
-                      alt="Media"
-                    />
-                  ))}
-                </S.ImagesGrid>
-              )}
-            </S.PostContent>
+                {/* Renderiza post citado (Quote) */}
+                {displayPost.retweet_comment && displayPost.retweet_of && (
+                  <OriginalPostEmbed
+                    id={displayPost.author.id}
+                    content={displayPost.content}
+                    author={displayPost.author}
+                    created_at={displayPost.created_at}
+                    updated_at={displayPost.updated_at}
+                    is_published={displayPost.is_published}
+                    stats={displayPost.stats}
+                    is_liked={displayPost.is_liked}
+                    is_retweeted={displayPost.is_retweeted}
+                    is_bookmarked={displayPost.is_bookmarked}
+                  />
+                )}
+
+                {/* PollPreview (modo display) */}
+                {displayPost.poll && (
+                  <PollPreview
+                    question={displayPost.poll.question}
+                    options={displayPost.poll.options}
+                    variant="display"
+                    totalVotes={displayPost.poll.total_votes || 0}
+                    votes={
+                      displayPost.poll.options.find((option) => option.votes) ||
+                      {}
+                    }
+                    hasVoted={hasVoted}
+                    onVote={handleVote}
+                  />
+                )}
+
+                {/* SchedulePreview (modo display) */}
+                {displayPost.scheduled_for && (
+                  <SchedulePreview
+                    scheduledDate={new Date(displayPost.scheduled_for)}
+                    variant="display"
+                  />
+                )}
+
+                {/* LocationPreview (modo display) */}
+                {displayPost.location && (
+                  <LocationPreview
+                    locationName={displayPost.location.name}
+                    variant="display"
+                  />
+                )}
+              </S.PostContent>
+            </S.PostMainContent>
+
+            {/* Actions FORA do PostContent, mas ainda dentro do container */}
+            <S.PostActions $variant={variant}>
+              <S.ActionButton
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsCommentModalOpen(true)
+                }}
+                $color={colors.primary}
+              >
+                <MessageCircle size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.comments)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton
+                ref={retweetButtonRef}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsRetweetPopoverOpen(true)
+                }}
+                $active={displayPost.is_retweeted}
+                $color={colors.success}
+              >
+                <Repeat2 size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.retweets)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onLike(displayPost.id)
+                }}
+                $active={displayPost.is_liked}
+                $color={colors.like}
+              >
+                <Heart
+                  size={18}
+                  strokeWidth={2}
+                  fill={displayPost.is_liked ? 'currentColor' : 'none'}
+                />
+                <span>{formatNumber(displayPost.stats.likes)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton>
+                <BarChart2 size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.views)}</span>
+              </S.ActionButton>
+            </S.PostActions>
           </>
         ) : (
           /* --- LAYOUT DETALHE (STACKED) --- */
@@ -194,63 +293,111 @@ const PostCard = ({
                 </S.ImagesGrid>
               )}
 
+              {/* Renderiza post citado no modo detailed também */}
+              {displayPost.retweet_comment && displayPost.retweet_of && (
+                <OriginalPostEmbed
+                  id={displayPost.author.id}
+                  content={displayPost.content}
+                  author={displayPost.author}
+                  created_at={displayPost.created_at}
+                  updated_at={displayPost.updated_at}
+                  is_published={displayPost.is_published}
+                  stats={displayPost.stats}
+                  is_liked={displayPost.is_liked}
+                  is_retweeted={displayPost.is_retweeted}
+                  is_bookmarked={displayPost.is_bookmarked}
+                />
+              )}
+
+              {/* PollPreview (modo display) */}
+              {displayPost.poll && (
+                <PollPreview
+                  question={displayPost.poll.question}
+                  options={displayPost.poll.options}
+                  variant="display"
+                  totalVotes={displayPost.poll.total_votes || 0}
+                  votes={
+                    displayPost.poll.options.find((option) => option.votes) ||
+                    {}
+                  }
+                  hasVoted={hasVoted}
+                  onVote={handleVote}
+                />
+              )}
+
+              {/* SchedulePreview (modo display) */}
+              {displayPost.scheduled_for && (
+                <SchedulePreview
+                  scheduledDate={new Date(displayPost.scheduled_for)}
+                  variant="display"
+                />
+              )}
+
+              {/* LocationPreview (modo display) */}
+              {displayPost.location && (
+                <LocationPreview
+                  locationName={displayPost.location.name}
+                  variant="display"
+                />
+              )}
+
               <S.PostDateDetailed>
                 {formatDate(displayPost.created_at, 'detail')}
               </S.PostDateDetailed>
             </S.PostContent>
+
+            {/* Actions no modo detailed (já está correto aqui) */}
+            <S.PostActions $variant={variant}>
+              <S.ActionButton
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsCommentModalOpen(true)
+                }}
+                $color={colors.primary}
+              >
+                <MessageCircle size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.comments)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton
+                ref={retweetButtonRef}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsRetweetPopoverOpen(true)
+                }}
+                $active={displayPost.is_retweeted}
+                $color={colors.success}
+              >
+                <Repeat2 size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.retweets)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onLike(displayPost.id)
+                }}
+                $active={displayPost.is_liked}
+                $color={colors.like}
+              >
+                <Heart
+                  size={18}
+                  strokeWidth={2}
+                  fill={displayPost.is_liked ? 'currentColor' : 'none'}
+                />
+                <span>{formatNumber(displayPost.stats.likes)}</span>
+              </S.ActionButton>
+
+              <S.ActionButton>
+                <BarChart2 size={18} strokeWidth={2} />
+                <span>{formatNumber(displayPost.stats.views)}</span>
+              </S.ActionButton>
+            </S.PostActions>
           </>
         )}
-
-        {/* --- AÇÕES (COMUNS A AMBOS OS LAYOUTS) --- */}
-        <S.PostActions $variant={variant}>
-          <S.ActionButton
-            onClick={(e) => {
-              e.stopPropagation()
-              setIsCommentModalOpen(true)
-            }}
-            $color={colors.primary}
-          >
-            <MessageCircle size={18} strokeWidth={2} />
-            <span>{formatNumber(displayPost.stats.comments)}</span>
-          </S.ActionButton>
-
-          <S.ActionButton
-            ref={retweetButtonRef}
-            onClick={(e) => {
-              e.stopPropagation()
-              setIsRetweetPopoverOpen(true)
-            }}
-            $active={displayPost.is_retweeted}
-            $color={colors.success}
-          >
-            <Repeat2 size={18} strokeWidth={2} />
-            <span>{formatNumber(displayPost.stats.retweets)}</span>
-          </S.ActionButton>
-
-          <S.ActionButton
-            onClick={(e) => {
-              e.stopPropagation()
-              onLike(displayPost.id)
-            }}
-            $active={displayPost.is_liked}
-            $color={colors.like}
-          >
-            <Heart
-              size={18}
-              strokeWidth={2}
-              fill={displayPost.is_liked ? 'currentColor' : 'none'}
-            />
-            <span>{formatNumber(displayPost.stats.likes)}</span>
-          </S.ActionButton>
-
-          <S.ActionButton>
-            <BarChart2 size={18} strokeWidth={2} />
-            <span>{formatNumber(displayPost.stats.views)}</span>
-          </S.ActionButton>
-        </S.PostActions>
       </S.PostCardContainer>
 
-      {/* Modais usando displayPost para garantir que você responde ao post certo */}
+      {/* Modais */}
       <CommentModal
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
@@ -285,20 +432,10 @@ const PostCard = ({
       <RetweetModal
         isOpen={isRetweetModalOpen}
         onClose={() => setIsRetweetModalOpen(false)}
-        originalPost={{
-          id: displayPost.id,
-          author: {
-            name: displayPost.author.first_name,
-            username: displayPost.author.username,
-            avatar: displayPost.author.profile_image
-          },
-          content: displayPost.content,
-          createdAt: displayPost.created_at,
-          images: displayPost.media
-        }}
+        originalPost={displayPost}
         onSubmit={handleQuoteTweet}
-        userAvatar={displayPost.author.profile_image}
         userName={displayPost.author.username}
+        userAvatar={displayPost.author.profile_image}
       />
     </S.Wrapper>
   )

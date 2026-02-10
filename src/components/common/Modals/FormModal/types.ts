@@ -1,4 +1,4 @@
-import type { ImageFile } from '../../Posts/ImagePreview/types'
+import type { MediaFile } from '../../Forms/MediaPreview/types'
 
 export type FormModalProps = {
   // Controle do modal
@@ -7,7 +7,7 @@ export type FormModalProps = {
 
   // Dados do usuário
   userName: string
-  userAvatar: string
+  userAvatar: string | null
 
   // Configuração do formulário
   placeholder?: string
@@ -20,7 +20,7 @@ export type FormModalProps = {
   mode?: 'comment' | 'retweet'
 
   // Callback de submit
-  onSubmit: (content: string, images?: ImageFile[]) => Promise<void> | void
+  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
 
   // Customização (opcional)
   maxLength?: number
