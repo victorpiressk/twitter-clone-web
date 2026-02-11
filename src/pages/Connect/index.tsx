@@ -6,78 +6,87 @@ import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
-import type { ConnectTab, UserSuggestion } from './types'
+import type { ConnectTab } from './types'
 import * as S from './styles'
+import type { UserCard } from '../../models'
 
 // Mock data - Sugestões
-const mockSuggestions: UserSuggestion[] = [
+const mockSuggestions: UserCard[] = [
   {
-    id: '1',
+    id: 1,
+    avatar: '',
     username: 'joaosilva',
-    displayName: 'João Silva',
+    firstName: 'João',
+    lastName: 'Silva',
     bio: 'Desenvolvedor Full Stack | React + Node.js',
-    isFollowing: false,
-    isCreator: false
+    isFollowing: false
   },
   {
-    id: '2',
+    id: 2,
+    avatar: '',
     username: 'mariacosta',
-    displayName: 'Maria Costa',
+    firstName: 'Maria',
+    lastName: 'Costa',
     bio: 'Designer UX/UI | Criando experiências incríveis',
-    isFollowing: false,
-    isCreator: false
+    isFollowing: false
   },
   {
-    id: '3',
+    id: 3,
+    avatar: '',
     username: 'pedrosantos',
-    displayName: 'Pedro Santos',
+    firstName: 'Pedro',
+    lastName: 'Santos',
     bio: 'Product Manager | Apaixonado por tecnologia',
-    isFollowing: true,
-    isCreator: false
+    isFollowing: true
   },
   {
-    id: '4',
+    id: 4,
+    avatar: '',
     username: 'anaoliveira',
-    displayName: 'Ana Oliveira',
+    firstName: 'Ana',
+    lastName: 'Oliveira',
     bio: 'Engenheira de Software | Python & Django',
-    isFollowing: false,
-    isCreator: false
+    isFollowing: false
   }
 ]
 
 // Mock data - Criadores
-const mockCreators: UserSuggestion[] = [
+const mockCreators: UserCard[] = [
   {
-    id: '5',
+    id: 5,
+    avatar: '',
     username: 'techbr',
-    displayName: 'Tech Brasil',
+    firstName: 'Tech',
+    lastName: 'Brasil',
     bio: 'Canal de tecnologia e programação 🚀',
-    isFollowing: false,
-    isCreator: true
+    isFollowing: false
   },
   {
-    id: '6',
+    id: 6,
+    avatar: '',
     username: 'devbrasil',
-    displayName: 'Dev Brasil',
+    firstName: 'Dev',
+    lastName: 'Brasil',
     bio: 'Dicas diárias de desenvolvimento web',
-    isFollowing: false,
-    isCreator: true
+    isFollowing: false
   },
   {
-    id: '7',
+    id: 7,
+    avatar: '',
     username: 'designtips',
-    displayName: 'Design Tips',
+    firstName: 'Design',
+    lastName: 'Tips',
     bio: 'Inspiração e tutoriais de design',
-    isFollowing: true,
-    isCreator: true
+    isFollowing: true
   },
   {
-    id: '8',
+    id: 8,
+    avatar: '',
     username: 'codenews',
-    displayName: 'Code News',
+    firstName: 'Code',
+    lastName: 'News',
     bio: 'Notícias do mundo da programação',
-    isFollowing: false,
-    isCreator: true
+    isFollowing: false
   }
 ]
 
@@ -91,7 +100,7 @@ const Connect = () => {
     setTimeout(() => setIsLoading(false), 1500)
   }, [])
 
-  const handleFollowToggle = (userId: string) => {
+  const handleFollowToggle = (userId: number) => {
     if (activeTab === 'suggestions') {
       setSuggestions((prev) =>
         prev.map((user) =>

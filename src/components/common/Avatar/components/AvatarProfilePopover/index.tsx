@@ -80,7 +80,7 @@ const AvatarProfilePopover = ({
           <div onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <Avatar
               src={userData.avatar}
-              alt={userData.displayName}
+              alt={userData.firstName}
               size="medium"
               showProfilePopover={false}
             />
@@ -96,7 +96,9 @@ const AvatarProfilePopover = ({
         </S.TopRow>
 
         <S.UserInfo onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
-          <S.DisplayName>{userData.displayName}</S.DisplayName>
+          <S.DisplayName>
+            {userData.firstName} {userData.lastName}
+          </S.DisplayName>
           <S.Username>@{userData.username}</S.Username>
         </S.UserInfo>
 

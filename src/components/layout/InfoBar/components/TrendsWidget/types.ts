@@ -1,11 +1,6 @@
-export type Trend = {
-  id: string
-  category: string
-  name: string
-  tweetCount: number
-}
+import type { Trend } from '../../../../../models'
 
 export type TrendsWidgetProps = {
-  trends: Trend[]
+  trends: Trend[] // ← Array de trends
   showAll?: boolean
 }

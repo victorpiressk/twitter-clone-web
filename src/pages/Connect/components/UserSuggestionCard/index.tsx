@@ -55,11 +55,13 @@ const UserSuggestionCard = ({
   return (
     <S.CardContainer>
       <S.AvatarWrapper onClick={handleUserClick}>
-        <Avatar src={user.avatar} alt={user.displayName} size="small" />
+        <Avatar src={user.avatar} alt={user.firstName} size="small" />
       </S.AvatarWrapper>
 
       <S.UserInfo onClick={handleUserClick}>
-        <S.DisplayName>{user.displayName}</S.DisplayName>
+        <S.DisplayName>
+          {user.firstName} {user.lastName}
+        </S.DisplayName>
         <S.Username>@{user.username}</S.Username>
         {user.bio && <S.Bio>{user.bio}</S.Bio>}
       </S.UserInfo>

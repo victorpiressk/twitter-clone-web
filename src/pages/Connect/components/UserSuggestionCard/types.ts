@@ -1,7 +1,7 @@
-import type { UserSuggestion } from '../../types'
+import type { UserCard } from '../../../../models'
 
 export type UserSuggestionCardProps = {
-  user: UserSuggestion
-  onFollowToggle: (userId: string) => void
+  user: UserCard
+  onFollowToggle: (userId: number) => void
   showSubscribe?: boolean // Se true, mostra "Inscrever-se" ao invés de "Seguir"
 }

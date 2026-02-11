@@ -2,90 +2,88 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NotificationTabs from './components/NotificationTabs'
 import NotificationItem from './components/NotificationItem'
-import type { NotificationTab, Notification } from './types'
-import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
-import ScrollToTop from '../../hooks/useScrollToTop'
-import * as S from './styles'
 import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
+import ScrollToTop from '../../hooks/useScrollToTop'
+import type { NotificationTab } from './types'
+import type { Notification } from '../../models'
+import { ContentWrapper } from '../../styles/globalStyles'
+import * as S from './styles'
 
 // Mock data
 const initialNotifications: Notification[] = [
   {
-    id: '1',
+    id: 1,
     type: 'like',
-    user: {
-      id: '2',
+    actor: {
+      id: 2,
       username: 'joao',
-      displayName: 'João Silva',
-      avatar: undefined
+      firstName: 'João',
+      lastName: 'Silva',
+      avatar: ''
     },
-    post: {
-      id: '1',
-      content: 'Olá mundo! Este é meu primeiro post 🚀'
-    },
+    targetPostId: 1,
     createdAt: new Date(Date.now() - 7200000).toISOString(),
-    isRead: false
+    read: false,
+    readAt: 'Olá mundo! Este é meu primeiro post 🚀'
   },
   {
-    id: '2',
+    id: 2,
     type: 'follow',
-    user: {
-      id: '3',
+    actor: {
+      id: 3,
       username: 'maria',
-      displayName: 'Maria Costa',
-      avatar: undefined
+      firstName: 'Maria',
+      lastName: 'Costa',
+      avatar: ''
     },
     createdAt: new Date(Date.now() - 18000000).toISOString(),
-    isRead: false
+    read: false
   },
   {
-    id: '3',
+    id: 3,
     type: 'retweet',
-    user: {
-      id: '4',
+    actor: {
+      id: 4,
       username: 'pedro',
-      displayName: 'Pedro Santos',
-      avatar: undefined
+      firstName: 'Pedro',
+      lastName: 'Santos',
+      avatar: ''
     },
-    post: {
-      id: '1',
-      content: 'Olá mundo! Este é meu primeiro post 🚀'
-    },
+    targetPostId: 1,
     createdAt: new Date(Date.now() - 86400000).toISOString(),
-    isRead: true
+    read: true,
+    readAt: 'Olá mundo! Este é meu primeiro post 🚀'
   },
   {
-    id: '4',
+    id: 4,
     type: 'reply',
-    user: {
-      id: '5',
+    actor: {
+      id: 5,
       username: 'ana',
-      displayName: 'Ana Oliveira',
-      avatar: undefined
+      firstName: 'Ana',
+      lastName: 'Oliveira',
+      avatar: ''
     },
-    post: {
-      id: '2',
-      content: 'Concordo totalmente com você!'
-    },
+    targetCommentId: 2,
     createdAt: new Date(Date.now() - 172800000).toISOString(),
-    isRead: true
+    read: true,
+    readAt: 'Concordo totalmente com você!'
   },
   {
-    id: '5',
+    id: 5,
     type: 'mention',
-    user: {
-      id: '6',
+    actor: {
+      id: 6,
       username: 'carlos',
-      displayName: 'Carlos Mendes',
-      avatar: undefined
+      firstName: 'Carlos',
+      lastName: 'Mendes',
+      avatar: ''
     },
-    post: {
-      id: '3',
-      content: '@victor você viu essa notícia?'
-    },
+    targetPostId: 3,
     createdAt: new Date(Date.now() - 259200000).toISOString(),
-    isRead: true
+    read: true,
+    readAt: '@victor você viu essa notícia?'
   }
 ]
 
@@ -116,9 +114,11 @@ const Notifications = () => {
 
     // Navega baseado no tipo
     if (notification.type === 'follow') {
-      navigate(`/${notification.user.username}`)
-    } else if (notification.post) {
-      navigate(`/${notification.user.username}/status/${notification.post.id}`)
+      navigate(`/${notification.actor.username}`)
+    } else if (notification.targetPostId) {
+      navigate(
+        `/${notification.actor.username}/status/${notification.targetPostId}`
+      )
     }
   }
 

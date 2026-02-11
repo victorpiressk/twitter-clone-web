@@ -1,11 +1,5 @@
-import type { PostMedia, UserCard } from '../PostCard/types'
+import type { Post } from '../../../../models'
 
 export type OriginalPostEmbedProps = {
-  post: {
-    id: number
-    author: UserCard
-    content: string
-    createdAt: string
-    media?: PostMedia[]
-  }
+  post: Post
 }

@@ -5,58 +5,53 @@ import ProfileTabs from './components/ProfileTabs'
 import PostList from '../../components/common/Posts/PostList'
 import EditProfileModal from './components/EditProfileModal'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-import type { UserProfile, ProfileTab } from './types'
-import type { Post } from '../../components/common/Posts/PostCard/types'
+import type { ProfileTab } from './types'
 import type { EditProfileFormData } from './components/EditProfileModal/types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import * as S from './styles'
+import type { PostWithInteractions } from '../../models'
+import { MOCK_CURRENT_USER, MOCK_PROFILE_USER } from '../../mocks/user'
 
-// Mock data (depois vem da API)
-const mockUser: UserProfile = {
-  id: '1',
-  username: 'victor',
-  displayName: 'Victor Pires',
-  bio: 'Desenvolvedor Full Stack | React + TypeScript + Django\n🚀 Construindo coisas incríveis',
-  location: 'Senhor do Bonfim, BA',
-  website: 'https://github.com/victorpiressk',
-  birthDate: '1995-01-06',
-  joinedAt: '2020-01-15T00:00:00Z',
-  stats: {
-    posts: 123,
-    following: 100,
-    followers: 500
-  },
-  isFollowing: false,
-  isOwnProfile: true
-}
-
-const mockPosts: Post[] = [
+const mockPosts: PostWithInteractions[] = [
   {
-    id: '1',
+    id: 1,
     author: {
-      id: '1',
+      id: 1,
       username: 'victor',
-      displayName: 'Victor Pires',
+      firstName: 'Victor',
+      lastName: 'Pires',
+      bio: '',
       isFollowing: false,
-      avatar: ''
+      avatar: '',
+      stats: {
+        following: 100,
+        followers: 500
+      }
     },
     content: 'Olá mundo! Este é meu primeiro post 🚀',
     createdAt: new Date(Date.now() - 3600000).toISOString(),
     stats: { comments: 12, retweets: 5, likes: 42, views: 1234 },
+    updatedAt: '',
+    isPublished: true,
     isLiked: false,
-    isRetweeted: false
+    isRetweeted: false,
+    isBookmarked: false
   }
 ]
 
 const Profile = () => {
-  const { username } = useParams()
-  const [user, setUser] = useState(mockUser)
+  const { username } = useParams<{ username: string }>()
+
+  const [user, setUser] = useState(MOCK_CURRENT_USER)
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
   const [posts, setPosts] = useState(mockPosts)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
+
+  // Calcular isOwnProfile
+  const isOwnProfile = MOCK_CURRENT_USER.id === MOCK_PROFILE_USER.id
 
   useEffect(() => {
     // Simula fetch de posts do usuário
@@ -96,7 +91,7 @@ const Profile = () => {
     // await api.updateProfile(user.id, data)
   }
 
-  const handleLike = (postId: string) => {
+  const handleLike = (postId: number) => {
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -115,7 +110,7 @@ const Profile = () => {
     )
   }
 
-  const handleRetweet = (postId: string) => {
+  const handleRetweet = (postId: number) => {
     setPosts((prev) =>
       prev.map((post) =>
         post.id === postId
@@ -134,8 +129,13 @@ const Profile = () => {
     )
   }
 
-  const handleComment = (postId: string) => {
+  const handleComment = (postId: number) => {
     console.log('Comentar no post:', postId)
+  }
+
+  const handleQuoteTweet = (postId: number) => {
+    console.log('Quote Tweet do post:', postId)
+    // TODO: Abrir modal de Quote Tweet
   }
 
   return (
@@ -146,13 +146,16 @@ const Profile = () => {
             <BackButton />
 
             <S.HeaderInfo>
-              <S.HeaderTitle>{user.displayName}</S.HeaderTitle>
+              <S.HeaderTitle>
+                {user.firstName} {user.lastName}
+              </S.HeaderTitle>
               <S.PostCount>{user.stats.posts} posts</S.PostCount>
             </S.HeaderInfo>
           </S.ProfileHeader>
 
           <ProfileHeader
             user={user}
+            isOwnProfile={isOwnProfile}
             onFollowToggle={handleFollowToggle}
             onEditProfile={handleEditProfile}
           />
@@ -170,6 +173,7 @@ const Profile = () => {
                     onLike={handleLike}
                     onRetweet={handleRetweet}
                     onComment={handleComment}
+                    onQuoteTweet={handleQuoteTweet}
                   />
                 )}
               </>
@@ -222,7 +226,7 @@ const Profile = () => {
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveProfile}
         currentData={{
-          displayName: user.displayName,
+          displayName: `${user.firstName} ${user.lastName}`,
           bio: user.bio || '',
           location: user.location || '',
           website: user.website || '',

@@ -17,8 +17,8 @@ export type EditProfileModalProps = {
     bio: string
     location: string
     website: string
-    birthDate: string
-    avatar?: string
-    banner?: string
+    birthDate: string | null
+    avatar?: string | null
+    banner?: string | null
   }
 }

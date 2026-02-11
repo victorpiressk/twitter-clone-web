@@ -43,11 +43,13 @@ const FollowUserCard = ({ user, onFollowToggle }: FollowUserCardProps) => {
 
   return (
     <S.CardContainer onClick={handleCardClick}>
-      <Avatar src={user.avatar} alt={user.displayName} size="small" />
+      <Avatar src={user.avatar} alt={user.firstName} size="small" />
 
       <S.UserInfo>
         <S.UserNames>
-          <S.DisplayName>{user.displayName}</S.DisplayName>
+          <S.DisplayName>
+            {user.firstName} {user.lastName}
+          </S.DisplayName>
           <S.Username>@{user.username}</S.Username>
         </S.UserNames>
         {user.bio && <S.Bio>{user.bio}</S.Bio>}

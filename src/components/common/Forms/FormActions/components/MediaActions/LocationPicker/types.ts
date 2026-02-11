@@ -1,4 +1,4 @@
-import type { Location } from './constants/mockLocations'
+import type { Location } from '../../../../../../../models'
 
 export type LocationPickerProps = {
   isOpen: boolean

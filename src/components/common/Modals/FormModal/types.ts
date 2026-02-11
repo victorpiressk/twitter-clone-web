@@ -1,4 +1,4 @@
-import type { MediaFile } from '../../Forms/MediaPreview/types'
+import type { PostMedia } from '../../../../models'
 
 export type FormModalProps = {
   // Controle do modal
@@ -20,7 +20,7 @@ export type FormModalProps = {
   mode?: 'comment' | 'retweet'
 
   // Callback de submit
-  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
+  onSubmit: (content: string, medias?: PostMedia[]) => Promise<void> | void
 
   // Customização (opcional)
   maxLength?: number

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import BasePopover from '../../../../../Popovers/BasePopover'
-import { MOCK_LOCATIONS } from './constants/mockLocations'
+import { MOCK_LOCATIONS } from '../../../../../../../mocks/locations'
 import type { LocationPickerProps } from './types'
 import * as S from './styles'
 
@@ -12,7 +12,6 @@ const LocationPickerComponent = ({
 }: LocationPickerProps) => {
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Filtra localizações baseado na busca
   const filteredLocations = useMemo(() => {
     if (!searchTerm.trim()) {
       return MOCK_LOCATIONS
@@ -27,7 +26,7 @@ const LocationPickerComponent = ({
   const handleLocationClick = (location: (typeof MOCK_LOCATIONS)[0]) => {
     onLocationSelect(location)
     onClose()
-    setSearchTerm('') // Limpa busca ao fechar
+    setSearchTerm('')
   }
 
   return (

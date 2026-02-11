@@ -1,24 +1,19 @@
 import { createContext, useState, useCallback, useEffect } from 'react'
-
-export type User = {
-  id: string
-  name: string
-  username: string
-  email: string
-  avatar?: string
-}
+import { MOCK_CURRENT_USER } from '../mocks/user'
+import type { UserWithFollowState } from '../models'
 
 export type RegisterData = {
-  name: string
+  username: string
+  firstName: string
+  lastName: string
   contact: string
   birthDate: string
-  username: string
   password: string
 }
 
 type AuthContextType = {
   isAuthenticated: boolean
-  user: User | null
+  user: UserWithFollowState | null
   isInitialLoading: boolean
   login: (identifier: string, password: string) => Promise<void>
   register: (userData: RegisterData) => Promise<void>
@@ -28,7 +23,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserWithFollowState | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 
   // 1. Sincronização Inicial (Onde a mágica acontece)
@@ -60,16 +55,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Login attempt:', { identifier, password })
 
-    const mockUser: User = {
-      id: '1',
-      name: 'Victor Pires',
-      username: 'victor',
-      email: 'victor@example.com',
-      avatar: undefined
-    }
-
-    setUser(mockUser)
-    localStorage.setItem('user', JSON.stringify(mockUser))
+    setUser(MOCK_CURRENT_USER)
+    localStorage.setItem('user', JSON.stringify(MOCK_CURRENT_USER))
   }, [])
 
   const register = useCallback(async (userData: RegisterData) => {
@@ -78,12 +65,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('Register attempt:', userData)
 
-    const mockUser: User = {
-      id: Date.now().toString(),
-      name: userData.name,
+    const mockUser: UserWithFollowState = {
+      id: Date.now(),
       username: userData.username,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
       email: userData.contact,
-      avatar: undefined
+      avatar: null,
+      banner: null,
+      bio: '',
+      location: '',
+      website: '',
+      birthDate: userData.birthDate,
+      createdAt: Date.now().toString(),
+      stats: {
+        posts: 0,
+        following: 0,
+        followers: 0
+      },
+      isFollowing: false
     }
 
     setUser(mockUser)

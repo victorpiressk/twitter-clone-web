@@ -2,11 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
 import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
+import type { UserCard } from '../../../models'
 import type {
   SearchPopoverState,
   SearchHistoryItem,
-  SearchSuggestion,
-  SearchUserResult
+  SearchSuggestion
 } from './components/SearchPopover/types'
 import type { SearchBarProps } from './types'
 import * as S from './styles'
@@ -22,19 +22,18 @@ const SearchBar = ({
   const [isClearModalOpen, setIsClearModalOpen] = useState(false)
   const searchFormRef = useRef<HTMLFormElement>(null)
 
-  // ← Sincroniza com prop externa
   useEffect(() => {
     setSearchValue(externalValue)
   }, [externalValue])
 
-  // Mock histórico (depois vem do localStorage/API)
+  // ✅ Mock histórico
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([
     { id: '1', type: 'search', text: 'react hooks' },
     { id: '2', type: 'search', text: 'typescript' },
     { id: '3', type: 'user', text: 'Victor Pires', username: 'victor' }
   ])
 
-  // Mock dados para busca (depois vem da API)
+  // ✅ Mock sugestões de busca
   const allSuggestions: SearchSuggestion[] = [
     { id: '1', text: 'react' },
     { id: '2', text: 'react hooks' },
@@ -43,34 +42,46 @@ const SearchBar = ({
     { id: '5', text: 'javascript' }
   ]
 
-  const allUsers: SearchUserResult[] = [
+  // ✅ CORREÇÃO: Tipo correto UserCard
+  const allUsers: UserCard[] = [
     {
-      id: '1',
-      displayName: 'React Brasil',
+      id: 1,
       username: 'reactbrasil',
-      bio: 'Comunidade brasileira de React'
+      firstName: 'React',
+      lastName: 'Brasil',
+      avatar: 'https://i.pravatar.cc/150?img=1',
+      bio: 'Comunidade brasileira de React',
+      isFollowing: false
     },
     {
-      id: '2',
-      displayName: 'React Community',
+      id: 2,
       username: 'reactjs',
-      bio: 'Official React community'
+      firstName: 'React',
+      lastName: 'Community',
+      avatar: 'https://i.pravatar.cc/150?img=2',
+      bio: 'Official React community',
+      isFollowing: false
     },
     {
-      id: '3',
-      displayName: 'TypeScript',
+      id: 3,
       username: 'typescript',
-      bio: 'TypeScript is a superset of JavaScript'
+      firstName: 'TypeScript',
+      lastName: '',
+      avatar: 'https://i.pravatar.cc/150?img=3',
+      bio: 'TypeScript is a superset of JavaScript',
+      isFollowing: true
     },
     {
-      id: '4',
-      displayName: 'Victor Pires',
+      id: 4,
       username: 'victor',
-      bio: 'Desenvolvedor Full Stack'
+      firstName: 'Victor',
+      lastName: 'Pires',
+      avatar: 'https://i.pravatar.cc/150?img=4',
+      bio: 'Desenvolvedor Full Stack',
+      isFollowing: false
     }
   ]
 
-  // Filtra sugestões baseado no searchValue
   const getFilteredSuggestions = (): SearchSuggestion[] => {
     if (!searchValue.trim()) return []
     return allSuggestions
@@ -78,19 +89,20 @@ const SearchBar = ({
       .slice(0, 3)
   }
 
-  // Filtra usuários baseado no searchValue
-  const getFilteredUsers = (): SearchUserResult[] => {
+  // ✅ CORREÇÃO: Retorna UserCard[]
+  const getFilteredUsers = (): UserCard[] => {
     if (!searchValue.trim()) return []
     return allUsers
-      .filter(
-        (u) =>
-          u.displayName.toLowerCase().includes(searchValue.toLowerCase()) ||
-          u.username.toLowerCase().includes(searchValue.toLowerCase())
-      )
+      .filter((u) => {
+        const fullName = `${u.firstName} ${u.lastName}`.toLowerCase()
+        const query = searchValue.toLowerCase()
+        return (
+          fullName.includes(query) || u.username.toLowerCase().includes(query)
+        )
+      })
       .slice(0, 3)
   }
 
-  // Determina o estado do Popover
   const getPopoverState = (): SearchPopoverState => {
     if (searchValue.trim()) {
       return 'searching'
@@ -160,7 +172,6 @@ const SearchBar = ({
         </S.SearchForm>
       </S.SearchBarContainer>
 
-      {/* Popover de busca */}
       <SearchPopover
         isOpen={isPopoverOpen}
         onClose={() => setIsPopoverOpen(false)}
@@ -175,7 +186,6 @@ const SearchBar = ({
         variant={variant}
       />
 
-      {/* Modal de Limpar tudo */}
       <ClearSearchModal
         isOpen={isClearModalOpen}
         onClose={() => setIsClearModalOpen(false)}

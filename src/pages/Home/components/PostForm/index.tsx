@@ -6,16 +6,14 @@ import LocationPreview from '../../../../components/common/Forms/LocationPreview
 import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
-import { useToast } from '../../../../hooks/useToast'
 import { createMediaFile, validateMedia } from '../../../../utils/mediaHelpers'
+import { useToast } from '../../../../hooks/useToast'
+import type { Poll, PostMedia, Location } from '../../../../models'
 import type { PostFormProps } from './types'
-import type { MediaFile } from '../../../../components/common/Forms/MediaPreview/types'
-import type { Location } from '../../../../components/common/Forms/FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
-import type { Poll } from '../../../../components/common/Forms/FormActions/components/MediaActions/PollCreator/types'
 import * as S from './styles'
 
 const PostForm = ({
-  userName = 'Usuário',
+  userName,
   userAvatar,
 
   // Props controladas (FormModal usa via useFormModal)
@@ -36,7 +34,7 @@ const PostForm = ({
 
   // Estado interno (usado quando NÃO é controlado - Home)
   const [internalContent, setInternalContent] = useState('')
-  const [internalMedias, setInternalMedias] = useState<MediaFile[]>([])
+  const [internalMedias, setInternalMedias] = useState<PostMedia[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
@@ -58,7 +56,7 @@ const PostForm = ({
   // Handler: Upload de mídias (valida e cria MediaFile)
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
-      const validMedias: MediaFile[] = []
+      const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
         // Valida antes de adicionar
@@ -92,7 +90,7 @@ const PostForm = ({
     const removed = medias.find((m) => m.id === id)
 
     if (removed) {
-      URL.revokeObjectURL(removed.preview)
+      URL.revokeObjectURL(removed.url)
     }
 
     if (isControlled) {
@@ -126,7 +124,7 @@ const PostForm = ({
 
     // Limpa mídia
     if (medias.length > 0) {
-      medias.forEach((m) => URL.revokeObjectURL(m.preview))
+      medias.forEach((m) => URL.revokeObjectURL(m.url))
       if (isControlled) {
         onMediasChange?.([])
       } else {
@@ -164,7 +162,7 @@ const PostForm = ({
         // Cleanup (apenas no modo não-controlado)
         if (!isControlled) {
           setInternalContent('')
-          medias.forEach((m) => URL.revokeObjectURL(m.preview))
+          medias.forEach((m) => URL.revokeObjectURL(m.url))
           setInternalMedias([])
           setLocation(null)
           setPoll(null)
@@ -205,7 +203,7 @@ const PostForm = ({
           <PollPreview
             question={poll.question}
             options={poll.options}
-            duration={poll.duration}
+            duration={poll.durationHours}
             onRemove={handleRemovePoll}
             variant="editable"
           />

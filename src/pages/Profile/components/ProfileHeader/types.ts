@@ -1,7 +1,8 @@
-import type { UserProfile } from '../../types'
+import type { UserWithFollowState } from '../../../../models'
 
 export type ProfileHeaderProps = {
-  user: UserProfile
-  onFollowToggle: (userId: string) => void
+  user: UserWithFollowState
+  isOwnProfile: boolean
+  onFollowToggle: (userId: number) => void
   onEditProfile?: () => void
 }

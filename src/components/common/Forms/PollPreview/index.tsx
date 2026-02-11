@@ -52,7 +52,7 @@ const PollPreview = ({
 
       <S.OptionsContainer>
         {options.map((option, index) => {
-          const percentage = getPercentage(option)
+          const percentage = getPercentage(option.text)
           const showResults = variant === 'display' && hasVoted
 
           return (
@@ -65,7 +65,7 @@ const PollPreview = ({
               {showResults && <S.OptionBar $percentage={percentage} />}
 
               <S.OptionText $hasVoted={hasVoted}>
-                <span>{option}</span>
+                <span>{option.percentage}</span>
                 {showResults && (
                   <S.OptionPercentage>{percentage}%</S.OptionPercentage>
                 )}

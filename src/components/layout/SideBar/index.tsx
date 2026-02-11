@@ -10,13 +10,9 @@ import { useToast } from '../../../hooks/useToast'
 import { useAuth } from '../../../hooks/useAuth'
 import type { SidebarProps } from './types'
 import * as S from './styles'
+import { MOCK_CURRENT_USER } from '../../../mocks/user'
 
-const SideBar = ({
-  onCreatePost,
-  userAvatar,
-  userName,
-  userDisplayName
-}: SidebarProps) => {
+const SideBar = ({ onCreatePost }: SidebarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { showToast } = useToast()
@@ -26,6 +22,8 @@ const SideBar = ({
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
+
+  const [user] = useState(MOCK_CURRENT_USER)
 
   const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
     switch (item.action) {
@@ -116,10 +114,12 @@ const SideBar = ({
             $variant="ghost"
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
           >
-            <Avatar src={userAvatar} alt={userName} size="small" />
+            <Avatar src={user.avatar} alt={user.username} size="small" />
             <S.UserNames>
-              <S.DisplayName>{userDisplayName}</S.DisplayName>
-              <S.Username>@{userName}</S.Username>
+              <S.DisplayName>
+                {user.firstName} {user.lastName}
+              </S.DisplayName>
+              <S.Username>@{user.username}</S.Username>
             </S.UserNames>
             <S.MoreIcon>
               <MoreHorizontal size={18} strokeWidth={2} />
@@ -168,7 +168,7 @@ const SideBar = ({
             $variant="profile"
           >
             {item.id === 'logout'
-              ? `${item.label} de @${userName}`
+              ? `${item.label} de @${user.username}`
               : item.label}
           </S.PopoverItem>
         ))}
@@ -179,8 +179,8 @@ const SideBar = ({
         isOpen={isCreatePostModalOpen}
         onClose={() => setIsCreatePostModalOpen(false)}
         onSubmit={onCreatePost}
-        userName={userName}
-        userAvatar={userAvatar}
+        userName={user.username}
+        userAvatar={user.avatar}
       />
     </>
   )

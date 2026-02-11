@@ -1,11 +1,10 @@
-import type { MediaFile } from '../../Forms/MediaPreview/types'
-import type { PostWithInteractions } from '../../Posts/PostCard/types'
+import type { PostMedia, PostWithInteractions } from '../../../../models'
 
 export type RetweetModalProps = {
   isOpen: boolean
   onClose: () => void
   originalPost: PostWithInteractions
-  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
+  onSubmit: (content: string, medias?: PostMedia[]) => Promise<void> | void
   userName: string
   userAvatar: string | null
 }

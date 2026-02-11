@@ -1,9 +1,9 @@
-import type { ImageFile } from '../../../../common/Forms/ImagePreview/types'
+import type { PostMedia } from '../../../../../models'
 
 export type CreatePostModalProps = {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (content: string, images?: ImageFile[]) => Promise<void> | void
+  onSubmit: (content: string, images?: PostMedia[]) => Promise<void> | void
   userName: string
-  userAvatar: string
+  userAvatar: string | null
 }

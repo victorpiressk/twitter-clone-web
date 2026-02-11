@@ -1,3 +1,5 @@
+import type { UserCard } from '../../../../../models'
+
 export type SearchPopoverState = 'empty' | 'history' | 'searching'
 
 export type SearchHistoryItem = {
@@ -12,14 +14,6 @@ export type SearchSuggestion = {
   text: string
 }
 
-export type SearchUserResult = {
-  id: string
-  displayName: string
-  username: string
-  avatar?: string
-  bio?: string
-}
-
 export type SearchPopoverProps = {
   isOpen: boolean
   onClose: () => void
@@ -30,6 +24,6 @@ export type SearchPopoverProps = {
   onClearHistory: () => void
   onOpenClearModal: () => void
   searchSuggestions?: SearchSuggestion[]
-  searchResults?: SearchUserResult[]
+  searchResults?: UserCard[]
   variant?: string
 }

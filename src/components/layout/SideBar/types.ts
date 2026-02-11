@@ -1,8 +1,5 @@
-import type { ImageFile } from '../../common/Forms/ImagePreview/types'
+import type { PostMedia } from '../../../models'
 
 export type SidebarProps = {
-  userName: string
-  userAvatar: string
-  userDisplayName: string
-  onCreatePost: (content: string, images?: ImageFile[]) => Promise<void> | void
+  onCreatePost: (content: string, images?: PostMedia[]) => Promise<void> | void
 }

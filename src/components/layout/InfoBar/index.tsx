@@ -1,47 +1,85 @@
 import { useEffect, useRef, useState } from 'react'
-import type { InfoBarProps } from './types'
 import SearchBar from '../../common/SearchBar'
 import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
 import Footer from './components/Footer'
 import { PopoverProvider } from '../../../contexts/PopoverContext'
-import type { Trend } from './components/TrendsWidget/types'
-import type { UserSuggestion } from './components/WhoToFollowWidget/types'
+import type { UserCardWithStats, Trend } from '../../../models'
+import type { InfoBarProps } from './types'
 import * as S from './styles'
 
-// Mock data
+// ✅ Mock data tipado corretamente
 const mockTrends: Trend[] = [
-  { id: '1', category: 'Tecnologia', name: '#React', tweetCount: 125000 },
-  { id: '2', category: 'Entretenimento', name: '#Netflix', tweetCount: 89000 },
-  { id: '3', category: 'Esportes', name: '#Futebol', tweetCount: 234000 }
-]
-
-const mockSuggestions: UserSuggestion[] = [
   {
-    id: '1',
-    username: 'joaosilva',
-    displayName: 'João Silva',
-    bio: 'Bio texte 1',
-    isFollowing: false
+    id: 1,
+    name: '#React',
+    category: 'technology',
+    tweetCount: 15420,
+    description: 'Discussões sobre React e desenvolvimento web',
+    rank: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    location: 'Brasil'
   },
   {
-    id: '2',
-    username: 'mariacosta',
-    displayName: 'Maria Costa',
-    bio: 'Bio texte 2',
-    isFollowing: false
-  },
-  {
-    id: '3',
-    username: 'pedrosantos',
-    displayName: 'Pedro Santos',
-    bio: 'Bio texte 3',
-    isFollowing: true
+    id: 2,
+    name: '#TypeScript',
+    category: 'technology',
+    tweetCount: 8900,
+    rank: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ]
 
+// ✅ Mock sugestões tipado corretamente
+const mockSuggestions: UserCardWithStats[] = [
+  {
+    id: 1,
+    username: 'reactjs',
+    firstName: 'React',
+    lastName: 'Community',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    bio: 'The official React community',
+    isFollowing: false,
+    stats: {
+      following: 120,
+      followers: 450000
+    }
+  },
+  {
+    id: 2,
+    username: 'typescript',
+    firstName: 'TypeScript',
+    lastName: '',
+    avatar: 'https://i.pravatar.cc/150?img=2',
+    bio: 'TypeScript is a superset of JavaScript',
+    isFollowing: true,
+    stats: {
+      following: 50,
+      followers: 250000
+    }
+  }
+]
+
+// ✅ Mock usuário atual (normalmente viria do auth context/redux)
+const mockCurrentUser: UserCardWithStats = {
+  id: 999,
+  username: 'victor',
+  firstName: 'Victor',
+  lastName: 'Pires',
+  avatar: 'https://i.pravatar.cc/150?img=10',
+  bio: 'Desenvolvedor Full Stack',
+  isFollowing: false,
+  stats: {
+    following: 150,
+    followers: 320
+  }
+}
+
 const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
-  const [suggestions, setSuggestions] = useState(mockSuggestions)
+  const [suggestions, setSuggestions] =
+    useState<UserCardWithStats[]>(mockSuggestions)
   const sidebarRef = useRef<HTMLElement>(null)
   const [topOffset, setTopOffset] = useState<number>(0)
 
@@ -57,18 +95,12 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
       const viewportHeight = window.innerHeight
       const sidebarHeight = sidebarRef.current.offsetHeight
 
-      // Se a sidebar couber na tela, ela fica sempre no topo (0)
       if (sidebarHeight <= viewportHeight) {
         setTopOffset(0)
-      }
-      // Se a sidebar for MAIOR que a tela
-      else {
+      } else {
         if (direction === 'down') {
-          // Quando desce: trava o FINAL da sidebar no fundo da tela
-          // Ex: Tela 800px, Sidebar 1000px -> top: -200px
           setTopOffset(viewportHeight - sidebarHeight)
         } else {
-          // Quando sobe: trava o INÍCIO da sidebar no topo da tela
           setTopOffset(0)
         }
       }
@@ -76,12 +108,12 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
       lastScrollY = scrollY
     }
 
-    // 'passive: true' ajuda na performance da rolagem
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleFollowToggle = (userId: string) => {
+  // ✅ CORREÇÃO: userId é number
+  const handleFollowToggle = (userId: number) => {
     setSuggestions((prev) =>
       prev.map((user) =>
         user.id === userId ? { ...user, isFollowing: !user.isFollowing } : user
@@ -100,23 +132,15 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
           ) : (
             <S.Separator />
           )}
+
           {variant === 'default' && <TrendsWidget trends={mockTrends} />}
+
           <WhoToFollowWidget
+            user={mockCurrentUser}
             suggestions={suggestions}
             onFollowToggle={handleFollowToggle}
-            user={{
-              id: '',
-              username: '',
-              displayName: '',
-              avatar: undefined,
-              bio: undefined,
-              stats: {
-                following: 0,
-                followers: 0
-              },
-              isFollowing: false
-            }}
           />
+
           <Footer />
         </S.ContentWrapper>
       </S.InfoBarContainer>

@@ -1,7 +1,7 @@
 type DateVariant = 'feed' | 'detail' | 'joined' | 'full'
 
 export const formatDate = (
-  dateString: string,
+  dateString: string | null,
   variant: DateVariant = 'feed'
 ): string => {
   if (!dateString) return ''

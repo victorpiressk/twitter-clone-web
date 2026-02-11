@@ -1,8 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useToast } from './useToast'
-import type { MediaFile } from '../components/common/Forms/MediaPreview/types'
-import type { Location } from '../components/common/Forms/FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
-import type { Poll } from '../components/common/Forms/FormActions/components/MediaActions/PollCreator/types'
+import type { Poll, PostMedia, Location } from '../models'
 import { createMediaFile, validateMedia } from '../utils/mediaHelpers'
 
 export type UseFormModalConfig = {
@@ -10,7 +8,7 @@ export type UseFormModalConfig = {
   errorMessage: string
   onSubmit: (
     content: string,
-    medias?: MediaFile[],
+    medias?: PostMedia[],
     location?: Location,
     poll?: Poll,
     scheduledFor?: Date
@@ -20,7 +18,7 @@ export type UseFormModalConfig = {
 export type UseFormModalReturn = {
   // Estado
   content: string
-  medias: MediaFile[]
+  medias: PostMedia[]
   location: Location | null
   poll: Poll | null
   scheduledFor: Date | null
@@ -28,7 +26,7 @@ export type UseFormModalReturn = {
 
   // Handlers
   handleContentChange: (value: string) => void
-  handleMediasChange: (newMedias: MediaFile[]) => void
+  handleMediasChange: (newMedias: PostMedia[]) => void
   handleMediaUpload: (newFiles: File[]) => void
   handleRemoveMedia: (id: string) => void
   handleEmojiSelect: (emoji: string) => void
@@ -53,7 +51,7 @@ export const useFormModal = (
 
   // Estado local
   const [content, setContent] = useState('')
-  const [medias, setMedias] = useState<MediaFile[]>([])
+  const [medias, setMedias] = useState<PostMedia[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
@@ -66,14 +64,14 @@ export const useFormModal = (
   }, [])
 
   // Handler: Mudança direta de mídias (controle direto do array)
-  const handleMediasChange = useCallback((newMedias: MediaFile[]) => {
+  const handleMediasChange = useCallback((newMedias: PostMedia[]) => {
     setMedias(newMedias)
   }, [])
 
   // Handler: Upload de mídias (funciona para imagem, GIF, vídeo)
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
-      const validMedias: MediaFile[] = []
+      const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
         // Valida antes de adicionar
@@ -103,7 +101,7 @@ export const useFormModal = (
 
       // Libera memória do preview
       if (removed) {
-        URL.revokeObjectURL(removed.preview)
+        URL.revokeObjectURL(removed.url)
       }
 
       return updated
@@ -134,7 +132,7 @@ export const useFormModal = (
 
       // Limpa mídia ao criar poll (regra: poll OU mídia)
       if (medias.length > 0) {
-        medias.forEach((m) => URL.revokeObjectURL(m.preview))
+        medias.forEach((m) => URL.revokeObjectURL(m.url))
         setMedias([])
       }
     },
@@ -172,7 +170,7 @@ export const useFormModal = (
 
       // Cleanup após sucesso
       setContent('')
-      medias.forEach((m) => URL.revokeObjectURL(m.preview))
+      medias.forEach((m) => URL.revokeObjectURL(m.url))
       setMedias([])
       setLocation(null)
       setPoll(null)
@@ -198,7 +196,7 @@ export const useFormModal = (
   // Handler: Fechar modal (cleanup sem submit)
   const handleClose = useCallback(() => {
     setContent('')
-    medias.forEach((m) => URL.revokeObjectURL(m.preview))
+    medias.forEach((m) => URL.revokeObjectURL(m.url))
     setMedias([])
     setLocation(null)
     setPoll(null)

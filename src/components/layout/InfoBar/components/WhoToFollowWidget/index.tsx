@@ -64,18 +64,19 @@ const WhoToFollowWidget = ({
           >
             <Avatar
               src={user.avatar}
-              alt={user.displayName}
+              alt={user.firstName}
               size="small"
               showProfilePopover={true}
               userProfileData={{
                 id: user.id,
                 username: user.username,
-                displayName: user.displayName,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 avatar: user.avatar,
                 bio: user.bio,
                 stats: {
-                  following: 123, // mock
-                  followers: 456 // mock
+                  following: user.stats.following,
+                  followers: user.stats.followers
                 },
                 isFollowing: user.isFollowing
               }}
@@ -83,7 +84,9 @@ const WhoToFollowWidget = ({
             />
 
             <S.UserInfo>
-              <S.DisplayName>{user.displayName}</S.DisplayName>
+              <S.DisplayName>
+                {user.firstName} {user.lastName}
+              </S.DisplayName>
               <S.Username>@{user.username}</S.Username>
             </S.UserInfo>
 

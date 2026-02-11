@@ -12,10 +12,10 @@ import SchedulePreview from '../../Forms/SchedulePreview'
 import { formatDate } from '../../../../utils/formatDate'
 import { useToast } from '../../../../hooks/useToast'
 import { usePost } from '../../../../hooks/usePost'
-import type { MediaFile } from '../../Forms/MediaPreview/types'
 import type { PostCardProps } from './types'
 import { colors } from '../../../../styles/globalStyles'
 import * as S from './styles'
+import type { PostMedia } from '../../../../models'
 
 const PostCard = ({
   post,
@@ -38,13 +38,17 @@ const PostCard = ({
   const [hasVoted, setHasVoted] = useState(false)
 
   // --- LÓGICA DE CONTEÚDO (REPOST) ---
-  const isSimpleRetweet = !!post.retweet_of && !post.retweet_comment
+  // Retweet Simples: is_retweet=true + content vazio
+  const isSimpleRetweet = !!post.retweetOf && !post.content.trim()
+
+  // Quote Tweet: is_retweet=true + content não-vazio
+  const isQuoteTweet = !!post.retweetOf && !!post.content.trim()
 
   const displayPost = useMemo(() => {
     let current = post
 
-    while (current.retweet_of && !current.retweet_comment) {
-      const original = posts.find((p) => p.id === current.retweet_of)
+    while (current.retweetOf && !current.isRetweeted) {
+      const original = posts.find((p) => p.id === current.retweetOf)
       if (!original) break
       current = original
     }
@@ -69,17 +73,17 @@ const PostCard = ({
     navigate(`/${displayPost.author.username}`)
   }
 
-  const handleCommentSubmit = (content: string, medias?: MediaFile[]) => {
+  const handleCommentSubmit = (content: string, medias?: PostMedia[]) => {
     onComment(displayPost.id, content, medias)
   }
 
   const handleRetweetSimple = () => {
     onRetweet(displayPost.id)
     setIsRetweetPopoverOpen(false)
-    if (!displayPost.is_retweeted) showToast('success', 'Retweetado!')
+    if (!displayPost.isRetweeted) showToast('success', 'Retweetado!')
   }
 
-  const handleQuoteTweet = (content: string, medias?: MediaFile[]) => {
+  const handleQuoteTweet = (content: string, medias?: PostMedia[]) => {
     onQuoteTweet(displayPost.id, content, medias)
   }
 
@@ -100,7 +104,9 @@ const PostCard = ({
           }}
         >
           <Repeat2 size={16} strokeWidth={3} />
-          <span>{post.author.first_name} republicou</span>
+          <span>
+            {post.author.firstName} {post.author.lastName} republicou
+          </span>
         </S.RetweetIndicator>
       )}
 
@@ -115,18 +121,22 @@ const PostCard = ({
             {/* Container para Avatar + Content (em linha) */}
             <S.PostMainContent>
               <Avatar
-                src={displayPost.author.profile_image}
-                alt={displayPost.author.first_name}
+                src={displayPost.author.avatar}
+                alt={displayPost.author.firstName}
                 size="small"
                 onClick={handleClickProfile}
                 showProfilePopover={true}
                 userProfileData={{
                   id: displayPost.author.id,
                   username: displayPost.author.username,
-                  displayName: displayPost.author.first_name,
-                  avatar: displayPost.author.profile_image,
+                  firstName: displayPost.author.firstName,
+                  lastName: displayPost.author.lastName,
+                  avatar: displayPost.author.avatar,
                   bio: displayPost.author.bio,
-                  stats: { following: 123, followers: 456 },
+                  stats: {
+                    following: displayPost.author.stats.following,
+                    followers: displayPost.author.stats.followers
+                  },
                   isFollowing: displayPost.author.isFollowing
                 }}
               />
@@ -134,14 +144,14 @@ const PostCard = ({
               <S.PostContent>
                 <S.PostHeader>
                   <S.DisplayName onClick={handleClickProfile}>
-                    {displayPost.author.first_name}
+                    {displayPost.author.firstName} {displayPost.author.lastName}
                   </S.DisplayName>
                   <S.Username onClick={handleClickProfile}>
                     @{displayPost.author.username}
                   </S.Username>
                   <S.Separator>·</S.Separator>
                   <S.PostDate>
-                    {formatDate(displayPost.created_at, 'feed')}
+                    {formatDate(displayPost.createdAt, 'feed')}
                   </S.PostDate>
                 </S.PostHeader>
 
@@ -162,41 +172,31 @@ const PostCard = ({
                 )}
 
                 {/* Renderiza post citado (Quote) */}
-                {displayPost.retweet_comment && displayPost.retweet_of && (
-                  <OriginalPostEmbed
-                    id={displayPost.author.id}
-                    content={displayPost.content}
-                    author={displayPost.author}
-                    created_at={displayPost.created_at}
-                    updated_at={displayPost.updated_at}
-                    is_published={displayPost.is_published}
-                    stats={displayPost.stats}
-                    is_liked={displayPost.is_liked}
-                    is_retweeted={displayPost.is_retweeted}
-                    is_bookmarked={displayPost.is_bookmarked}
-                  />
-                )}
+                {isQuoteTweet && <OriginalPostEmbed post={displayPost} />}
 
                 {/* PollPreview (modo display) */}
                 {displayPost.poll && (
                   <PollPreview
-                    question={displayPost.poll.question}
+                    question={displayPost.poll.question || ''}
                     options={displayPost.poll.options}
                     variant="display"
-                    totalVotes={displayPost.poll.total_votes || 0}
-                    votes={
-                      displayPost.poll.options.find((option) => option.votes) ||
-                      {}
-                    }
+                    totalVotes={displayPost.poll.totalVotes || 0}
+                    votes={displayPost.poll.options.reduce(
+                      (acc, opt) => {
+                        acc[opt.text] = opt.votes
+                        return acc
+                      },
+                      {} as Record<string, number>
+                    )}
                     hasVoted={hasVoted}
                     onVote={handleVote}
                   />
                 )}
 
                 {/* SchedulePreview (modo display) */}
-                {displayPost.scheduled_for && (
+                {displayPost.scheduledFor && (
                   <SchedulePreview
-                    scheduledDate={new Date(displayPost.scheduled_for)}
+                    scheduledDate={new Date(displayPost.scheduledFor)}
                     variant="display"
                   />
                 )}
@@ -230,7 +230,7 @@ const PostCard = ({
                   e.stopPropagation()
                   setIsRetweetPopoverOpen(true)
                 }}
-                $active={displayPost.is_retweeted}
+                $active={displayPost.isRetweeted}
                 $color={colors.success}
               >
                 <Repeat2 size={18} strokeWidth={2} />
@@ -242,13 +242,13 @@ const PostCard = ({
                   e.stopPropagation()
                   onLike(displayPost.id)
                 }}
-                $active={displayPost.is_liked}
+                $active={displayPost.isLiked}
                 $color={colors.like}
               >
                 <Heart
                   size={18}
                   strokeWidth={2}
-                  fill={displayPost.is_liked ? 'currentColor' : 'none'}
+                  fill={displayPost.isLiked ? 'currentColor' : 'none'}
                 />
                 <span>{formatNumber(displayPost.stats.likes)}</span>
               </S.ActionButton>
@@ -264,13 +264,13 @@ const PostCard = ({
           <>
             <S.PostHeaderStacked>
               <Avatar
-                src={displayPost.author.profile_image}
+                src={displayPost.author.avatar}
                 size="small"
                 onClick={handleClickProfile}
               />
               <div>
                 <S.DisplayName onClick={handleClickProfile}>
-                  {displayPost.author.first_name}
+                  {displayPost.author.firstName} {displayPost.author.lastName}
                 </S.DisplayName>
                 <S.Username onClick={handleClickProfile}>
                   @{displayPost.author.username}
@@ -294,41 +294,31 @@ const PostCard = ({
               )}
 
               {/* Renderiza post citado no modo detailed também */}
-              {displayPost.retweet_comment && displayPost.retweet_of && (
-                <OriginalPostEmbed
-                  id={displayPost.author.id}
-                  content={displayPost.content}
-                  author={displayPost.author}
-                  created_at={displayPost.created_at}
-                  updated_at={displayPost.updated_at}
-                  is_published={displayPost.is_published}
-                  stats={displayPost.stats}
-                  is_liked={displayPost.is_liked}
-                  is_retweeted={displayPost.is_retweeted}
-                  is_bookmarked={displayPost.is_bookmarked}
-                />
-              )}
+              {isQuoteTweet && <OriginalPostEmbed post={post} />}
 
               {/* PollPreview (modo display) */}
               {displayPost.poll && (
                 <PollPreview
-                  question={displayPost.poll.question}
+                  question={displayPost.poll.question || ''}
                   options={displayPost.poll.options}
                   variant="display"
-                  totalVotes={displayPost.poll.total_votes || 0}
-                  votes={
-                    displayPost.poll.options.find((option) => option.votes) ||
-                    {}
-                  }
+                  totalVotes={displayPost.poll.totalVotes || 0}
+                  votes={displayPost.poll.options.reduce(
+                    (acc, opt) => {
+                      acc[opt.text] = opt.votes
+                      return acc
+                    },
+                    {} as Record<string, number>
+                  )}
                   hasVoted={hasVoted}
                   onVote={handleVote}
                 />
               )}
 
               {/* SchedulePreview (modo display) */}
-              {displayPost.scheduled_for && (
+              {displayPost.scheduledFor && (
                 <SchedulePreview
-                  scheduledDate={new Date(displayPost.scheduled_for)}
+                  scheduledDate={new Date(displayPost.scheduledFor)}
                   variant="display"
                 />
               )}
@@ -342,7 +332,7 @@ const PostCard = ({
               )}
 
               <S.PostDateDetailed>
-                {formatDate(displayPost.created_at, 'detail')}
+                {formatDate(displayPost.createdAt, 'detail')}
               </S.PostDateDetailed>
             </S.PostContent>
 
@@ -365,7 +355,7 @@ const PostCard = ({
                   e.stopPropagation()
                   setIsRetweetPopoverOpen(true)
                 }}
-                $active={displayPost.is_retweeted}
+                $active={displayPost.isRetweeted}
                 $color={colors.success}
               >
                 <Repeat2 size={18} strokeWidth={2} />
@@ -377,13 +367,13 @@ const PostCard = ({
                   e.stopPropagation()
                   onLike(displayPost.id)
                 }}
-                $active={displayPost.is_liked}
+                $active={displayPost.isLiked}
                 $color={colors.like}
               >
                 <Heart
                   size={18}
                   strokeWidth={2}
-                  fill={displayPost.is_liked ? 'currentColor' : 'none'}
+                  fill={displayPost.isLiked ? 'currentColor' : 'none'}
                 />
                 <span>{formatNumber(displayPost.stats.likes)}</span>
               </S.ActionButton>
@@ -401,19 +391,9 @@ const PostCard = ({
       <CommentModal
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
-        originalPost={{
-          id: displayPost.id,
-          author: {
-            name: displayPost.author.first_name,
-            username: displayPost.author.username,
-            avatar: displayPost.author.profile_image
-          },
-          content: displayPost.content,
-          createdAt: displayPost.created_at,
-          images: displayPost.media
-        }}
+        originalPost={displayPost}
         onSubmit={handleCommentSubmit}
-        userAvatar={displayPost.author.profile_image}
+        userAvatar={displayPost.author.avatar}
         userName={displayPost.author.username}
       />
 
@@ -425,7 +405,7 @@ const PostCard = ({
           setIsRetweetPopoverOpen(false)
           setIsRetweetModalOpen(true)
         }}
-        isRetweeted={displayPost.is_retweeted}
+        isRetweeted={displayPost.isRetweeted}
         triggerRef={retweetButtonRef}
       />
 
@@ -435,7 +415,7 @@ const PostCard = ({
         originalPost={displayPost}
         onSubmit={handleQuoteTweet}
         userName={displayPost.author.username}
-        userAvatar={displayPost.author.profile_image}
+        userAvatar={displayPost.author.avatar}
       />
     </S.Wrapper>
   )

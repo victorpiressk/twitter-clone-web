@@ -110,14 +110,10 @@ const SearchPopover = ({
                   key={user.id}
                   onClick={() => console.log('Ir para perfil:', user.username)}
                 >
-                  <Avatar
-                    src={user.avatar}
-                    alt={user.displayName}
-                    size="small"
-                  />
+                  <Avatar src={user.avatar} alt={user.firstName} size="small" />
 
                   <S.UserResultInfo>
-                    <S.UserResultName>{user.displayName}</S.UserResultName>
+                    <S.UserResultName>{user.firstName}</S.UserResultName>
                     <S.UserResultUsername>
                       @{user.username}
                     </S.UserResultUsername>

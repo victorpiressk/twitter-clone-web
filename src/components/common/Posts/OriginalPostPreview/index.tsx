@@ -24,23 +24,29 @@ const OriginalPostPreview = ({
   return (
     <>
       <S.Container $showConnector={showConnector}>
-        <Avatar src={post.author.avatar} alt={post.author.name} size="small" />
+        <Avatar
+          src={post.author.avatar}
+          alt={post.author.firstName}
+          size="small"
+        />
 
         <S.Content>
           <S.Header>
-            <S.AuthorName>{post.author.name}</S.AuthorName>
+            <S.AuthorName>
+              {post.author.firstName} {post.author.lastName}
+            </S.AuthorName>
             <S.Username>@{post.author.username}</S.Username>
             <S.Timestamp>{formatTimestamp(post.createdAt)}</S.Timestamp>
           </S.Header>
 
           <S.PostContent>{post.content}</S.PostContent>
 
-          {post.images && post.images.length > 0 && (
-            <S.ImagesGrid $count={post.images.length}>
-              {post.images.slice(0, 4).map((image, index) => (
+          {post.media && post.media.length > 0 && (
+            <S.ImagesGrid $count={post.media.length}>
+              {post.media.slice(0, 4).map((media, index) => (
                 <S.PostImage
                   key={index}
-                  src={image}
+                  src={media.url}
                   alt={`Imagem ${index + 1}`}
                 />
               ))}

@@ -4,6 +4,7 @@ import BasePopover from '../../../../../Popovers/BasePopover'
 import { POLL_DURATIONS } from './constants/durations'
 import type { PollCreatorProps } from './types'
 import * as S from './styles'
+import type { Poll, PollOption } from '../../../../../../../models'
 
 const PollCreatorComponent = ({
   isOpen,
@@ -12,47 +13,64 @@ const PollCreatorComponent = ({
   onPollCreate
 }: PollCreatorProps) => {
   const [question, setQuestion] = useState('')
-  const [options, setOptions] = useState(['', '']) // Mínimo 2 opções
-  const [duration, setDuration] = useState(24) // 1 dia por padrão
+  const [optionTexts, setOptionTexts] = useState<string[]>(['', '']) // Mínimo 2 opções
+  const [durationHours, setDurationHours] = useState<number>(24) // 1 dia por padrão
 
   const handleAddOption = () => {
-    if (options.length < 4) {
-      setOptions([...options, ''])
+    if (optionTexts.length < 4) {
+      setOptionTexts([...optionTexts, ''])
     }
   }
 
   const handleRemoveOption = (index: number) => {
-    if (options.length > 2) {
-      setOptions(options.filter((_, i) => i !== index))
+    if (optionTexts.length > 2) {
+      setOptionTexts(optionTexts.filter((_, i) => i !== index))
     }
   }
 
   const handleOptionChange = (index: number, value: string) => {
-    const updated = [...options]
+    const updated = [...optionTexts]
     updated[index] = value
-    setOptions(updated)
+    setOptionTexts(updated)
   }
 
   const handleCreate = () => {
-    const filledOptions = options.filter((opt) => opt.trim())
+    const options: PollOption[] = optionTexts
+      .filter((text) => text.trim()) // Remove vazios
+      .map((text, index) => ({
+        id: Date.now() + index, // ID temporário (backend gera o real)
+        text: text.trim(),
+        votes: 0,
+        percentage: 0
+      }))
 
-    if (question.trim() && filledOptions.length >= 2) {
-      onPollCreate({
-        question: question.trim(),
-        options: filledOptions,
-        duration
-      })
-
-      // Reset
-      setQuestion('')
-      setOptions(['', ''])
-      setDuration(24)
-      onClose()
+    if (options.length < 2) {
+      alert('Adicione pelo menos 2 opções')
+      return
     }
+
+    const now = new Date()
+    const endsAt = new Date(now.getTime() + durationHours * 60 * 60 * 1000)
+
+    const poll: Poll = {
+      id: Date.now(), // ID temporário
+      options,
+      durationHours,
+      endsAt: endsAt.toISOString(),
+      totalVotes: 0
+    }
+
+    onPollCreate(poll)
+
+    // Reset
+    setQuestion('')
+    setOptionTexts(['', ''])
+    setDurationHours(24)
+    onClose()
   }
 
   const isValid =
-    question.trim() && options.filter((opt) => opt.trim()).length >= 2
+    question.trim() && optionTexts.filter((opt) => opt.trim()).length >= 2
 
   return (
     <BasePopover
@@ -79,7 +97,7 @@ const PollCreatorComponent = ({
         />
 
         <S.OptionsContainer>
-          {options.map((option, index) => (
+          {optionTexts.map((option, index) => (
             <S.OptionRow key={index}>
               <S.OptionInput
                 type="text"
@@ -89,7 +107,7 @@ const PollCreatorComponent = ({
                 maxLength={50}
               />
 
-              {options.length > 2 && (
+              {optionTexts.length > 2 && (
                 <S.RemoveOptionButton
                   onClick={() => handleRemoveOption(index)}
                   aria-label="Remover opção"
@@ -100,7 +118,7 @@ const PollCreatorComponent = ({
             </S.OptionRow>
           ))}
 
-          {options.length < 4 && (
+          {optionTexts.length < 4 && (
             <S.AddOptionButton onClick={handleAddOption}>
               <Plus />
               Adicionar opção
@@ -111,8 +129,8 @@ const PollCreatorComponent = ({
         <S.DurationContainer>
           <S.DurationLabel>Duração da enquete</S.DurationLabel>
           <S.DurationSelect
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
+            value={durationHours}
+            onChange={(e) => setDurationHours(Number(e.target.value))}
           >
             {POLL_DURATIONS.map((d) => (
               <option key={d.hours} value={d.hours}>

@@ -1,13 +1,6 @@
-export type MediaType = 'image' | 'gif' | 'video'
-
-export type MediaFile = {
-  file: File
-  preview: string
-  id: string
-  type: MediaType
-}
+import type { PostMedia } from '../../../../models'
 
 export type MediaPreviewProps = {
-  medias: MediaFile[]
+  medias: PostMedia[]
   onRemove: (id: string) => void
 }

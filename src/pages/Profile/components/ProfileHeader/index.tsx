@@ -10,11 +10,12 @@ import * as S from './styles'
 
 const ProfileHeader = ({
   user,
+  isOwnProfile,
   onFollowToggle,
   onEditProfile
 }: ProfileHeaderProps) => {
   const { showToast } = useToast()
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(user.isFollowing)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleFollowClick = async (e: React.MouseEvent) => {
@@ -31,7 +32,7 @@ const ProfileHeader = ({
       await onFollowToggle(user.id) // Simula API call
       setIsFollowing(!isFollowing)
     } catch {
-      if (user.isFollowing) {
+      if (isFollowing) {
         showToast('error', `Erro ao deixar de seguir @${user.username}`)
       } else {
         showToast('error', `Erro ao seguir @${user.username}`)
@@ -48,13 +49,13 @@ const ProfileHeader = ({
       <S.ProfileInfo>
         <S.AvatarSection>
           <S.AvatarWrapper>
-            <Avatar src={user.avatar} alt={user.displayName} size="large" />
+            <Avatar src={user.avatar} alt={user.firstName} size="large" />
           </S.AvatarWrapper>
 
-          {!user.isOwnProfile && (
+          {!isOwnProfile && (
             <Button
               type="button"
-              variant={user.isFollowing ? 'outline' : 'secondary'}
+              variant={isFollowing ? 'outline' : 'secondary'}
               onClick={handleFollowClick}
               loading={isLoading}
             >
@@ -62,7 +63,7 @@ const ProfileHeader = ({
             </Button>
           )}
 
-          {user.isOwnProfile && (
+          {isOwnProfile && (
             <Button type="button" variant="outline" onClick={onEditProfile}>
               Editar perfil
             </Button>
@@ -70,7 +71,9 @@ const ProfileHeader = ({
         </S.AvatarSection>
 
         <S.UserNames>
-          <S.DisplayName>{user.displayName}</S.DisplayName>
+          <S.DisplayName>
+            {user.firstName} {user.lastName}
+          </S.DisplayName>
           <S.Username>@{user.username}</S.Username>
         </S.UserNames>
 
@@ -96,15 +99,17 @@ const ProfileHeader = ({
           )}
 
           {/* Data de nascimento */}
-          <S.MetadataItem>
-            <Cake size={18} strokeWidth={2} />
-            Nascido(a) em {formatDate(user.birthDate, 'full')}
-          </S.MetadataItem>
+          {user.birthDate && (
+            <S.MetadataItem>
+              <Cake size={18} strokeWidth={2} />
+              Nascido(a) em {formatDate(user.birthDate, 'full')}
+            </S.MetadataItem>
+          )}
 
           {/* Data de entrada */}
           <S.MetadataItem>
             <Calendar size={18} strokeWidth={2} />
-            Entrou em {formatDate(user.joinedAt, 'joined')}
+            Entrou em {formatDate(user.createdAt, 'joined')}
           </S.MetadataItem>
         </S.Metadata>
 
