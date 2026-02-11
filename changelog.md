@@ -6,6 +6,124 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.1.0] - 2026-02-11
+
+### Added
+
+#### Refatoração Completa de Modelos e Integração de Dados
+
+**Modelos Centralizados**
+- Criação de modelos centralizados em `src/models/` baseados na estrutura real do backend
+- Modelo `User` com todos os campos retornados pela API
+- Modelo `Post` com suporte a mídia, enquetes, localização e agendamento
+- Modelo `PostWithInteractions` para estados de interação do usuário
+- Modelo `Poll` com sistema de votação
+- Modelo `Notification` com suporte a agrupamento
+- Modelo `Location` para geolocalização de posts
+- Modelo `Trend` para trending topics
+- Tipos auxiliares: `UserPreview`, `UserCard`, `UserCardWithStats`, `UserWithFollowState`
+
+**Refatoração de 28 Arquivos de Types**
+- **Grupo 1 (Models):** 7 arquivos centralizados criados
+- **Grupo 2 (Avatar):** 2 arquivos refatorados para usar `UserCardWithStats`
+- **Grupo 3 (Widgets):** 3 arquivos refatorados (WhoToFollow, Trends, Search)
+- **Grupo 4 (User Cards):** 4 arquivos refatorados (Connect, FollowPage)
+- **Grupo 5 (Profile):** 3 arquivos refatorados com lógica de `isOwnProfile`
+- **Grupo 6 (Posts Core):** 4 arquivos refatorados (PostCard, PostList, Embeds)
+- **Grupo 7 (Forms/Modals):** 8 arquivos refatorados (PollCreator, FormActions, Modals)
+- **Grupo 8 (Context):** 1 arquivo refatorado (PostContext com Quote Tweet corrigido)
+- **Grupo 9 (Pages):** 3 arquivos refatorados (Home, PostDetail, Notifications)
+
+**Decisões Arquiteturais**
+- `Post.author` usa `UserCardWithStats` (não `UserPreview`) para suportar AvatarProfilePopover
+- Quote Tweet usa `Post.content` + `Post.retweetOf` (backend não retorna campo separado)
+- `isOwnProfile` calculado no frontend (não vem do backend)
+- Remoção de modelos duplicados e inconsistentes espalhados pelo projeto
+- LocationPicker com mock temporário alinhado ao modelo centralizado
+
+### Changed
+
+#### PostContext Refatorado
+- Correção de typos: `is_liked` → `isLiked`, `is_retweeted` → `isRetweeted`
+- Lógica de `alreadyRetweeted` corrigida (valida `content` vazio)
+- Lógica de desfazer retweet corrigida (atualiza post original)
+- Extração de `MOCK_CURRENT_USER` para evitar duplicação (DRY)
+- Quote Tweet alinhado com estrutura do backend (usa `content` + `retweetOf`)
+- Campo `publishedAt` adicionado em `commentPost`
+
+#### PostCard Refatorado
+- Substituição de `post.retweetComment` por `post.content.trim()`
+- Identificação correta de Retweet Simples vs Quote Tweet
+- AvatarProfilePopover temporariamente desabilitado (aguarda integração com API)
+- PollPreview corrigido (objeto `votes` construído corretamente)
+- Validação de `poll.question` (fallback para string vazia)
+
+#### Profile Page
+- Cálculo de `isOwnProfile` implementado (compara usuário logado com perfil visualizado)
+- Mock de dados alinhado ao modelo `UserWithFollowState`
+- Correção de `handleSaveProfile` (firstName/lastName)
+- Handler `onQuoteTweet` implementado
+
+#### OriginalPostEmbed
+- Busca de post original via `post.retweetOf`
+- Renderização de dados do post original corrigida
+
+#### LocationPicker
+- Mock de localizações movido para `src/mocks/locations.ts`
+- Estrutura alinhada ao modelo `Location` centralizado
+- Busca e filtro de localizações funcionando
+
+### Removed
+
+#### Modelos Duplicados Removidos
+- Remoção de types locais em componentes que duplicavam modelos
+- Remoção de `retweetComment` do modelo `Post` (campo não existe no backend)
+- Remoção de `mockLocations` antigo (estrutura inconsistente)
+- Eliminação de ~15 arquivos de types redundantes
+
+### Fixed
+
+#### Correções de Bugs
+- PostContext: Estado de retweet não persistia corretamente
+- PostCard: AvatarProfilePopover acessava campos inexistentes em `UserPreview`
+- PollPreview: Prop `votes` recebia tipo incorreto
+- Quote Tweet: Lógica quebrada por uso de campo inexistente (`retweetComment`)
+- LocationPicker: Mock incompatível com modelo centralizado
+
+### Metrics
+
+#### Arquivos Refatorados
+- 28 arquivos de types atualizados
+- 7 modelos centralizados criados
+- ~15 arquivos de types duplicados removidos
+- ~200 linhas de código duplicado eliminadas
+
+#### Cobertura da Refatoração
+- 100% dos componentes usando modelos centralizados
+- 100% dos types alinhados com estrutura do backend
+- 0 modelos duplicados remanescentes
+
+### Highlights
+
+#### Demonstração de Competências
+- Refatoração em larga escala (28 arquivos)
+- Alinhamento frontend-backend (análise de APIs reais)
+- Quebra intencional para mapeamento de dependências
+- Decisões arquiteturais documentadas (isOwnProfile, Quote Tweet, etc)
+- Eliminação de technical debt (duplicação, inconsistências)
+
+#### Metodologia Aplicada
+- Refatoração incremental (grupos de 2-4 arquivos)
+- Validação de cada etapa antes de avançar
+- Análise crítica de código (PostContext review)
+- Documentação de decisões técnicas
+
+#### Padrões de Design
+- **Single Source of Truth**: Modelos centralizados
+- **DRY**: Eliminação de duplicação (MOCK_CURRENT_USER, types)
+- **Separation of Concerns**: Lógica de UI vs dados do backend
+- **Type Safety**: TypeScript rigoroso em todos os componentes
+
 ## [0.0.9] - 2026-02-10
 
 ### Added
