@@ -5,8 +5,10 @@ import Button from '../../../../components/common/Button'
 import Input from '../../../../components/common/Input'
 import BirthDateModal from './components/BirthDateModal'
 import { useToast } from '../../../../hooks/useToast'
-import type { EditProfileModalProps, EditProfileFormData } from './types'
+import type { EditProfileModalProps } from './types'
+import type { User } from '../../../../models'
 import * as S from './styles'
+import { formatDate } from '../../../../utils/formatDate'
 
 const EditProfileModal = ({
   isOpen,
@@ -17,22 +19,14 @@ const EditProfileModal = ({
   const { showToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [formData, setFormData] = useState<EditProfileFormData>({
-    displayName: currentData.displayName,
-    bio: currentData.bio,
-    location: currentData.location,
-    website: currentData.website,
-    birthDate: currentData.birthDate,
-    profileImage: null,
-    bannerImage: null
-  })
+  const [formData, setFormData] = useState<User>(currentData)
 
-  const [profileImagePreview, setProfileImagePreview] = useState<
-    string | undefined
-  >(currentData.avatar)
-  const [bannerImagePreview, setBannerImagePreview] = useState<
-    string | undefined
-  >(currentData.banner)
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    currentData.avatar
+  )
+  const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(
+    currentData.banner
+  )
 
   const [isBirthDateModalOpen, setIsBirthDateModalOpen] = useState(false)
   const [birthDateEditCount, setBirthDateEditCount] = useState(0)
@@ -58,26 +52,12 @@ const EditProfileModal = ({
 
   const handleRemoveBanner = () => {
     setFormData((prev) => ({ ...prev, bannerImage: null }))
-    setBannerImagePreview(undefined)
+    setBannerImagePreview(null)
   }
 
   const handleSaveBirthDate = (newDate: string) => {
     setFormData((prev) => ({ ...prev, birthDate: newDate }))
     setBirthDateEditCount((prev) => prev + 1) // Incrementa contador
-  }
-
-  const formatBirthDate = (dateString?: string): string => {
-    if (!dateString) return 'Não informado'
-
-    // Separa a string sem conversão de timezone
-    const [year, month, day] = dateString.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // Cria data local
-
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,13 +75,14 @@ const EditProfileModal = ({
   }
 
   const hasChanges =
-    formData.displayName !== currentData.displayName ||
+    formData.firstName !== currentData.firstName ||
+    formData.lastName !== currentData.lastName ||
     formData.bio !== currentData.bio ||
     formData.location !== currentData.location ||
     formData.website !== currentData.website ||
     formData.birthDate !== currentData.birthDate ||
-    formData.profileImage !== null ||
-    formData.bannerImage !== null
+    formData.avatar !== null ||
+    formData.banner !== null
 
   // Footer com botão Salvar
   const footer = (
@@ -170,7 +151,7 @@ const EditProfileModal = ({
             <Input
               name="displayName"
               label="Nome"
-              value={formData.displayName}
+              value={formData.firstName}
               onChange={(value) =>
                 setFormData((prev) => ({ ...prev, displayName: value }))
               }
@@ -215,7 +196,7 @@ const EditProfileModal = ({
               <S.BirthDateInfo>
                 <S.BirthDateLabel>Data de nascimento</S.BirthDateLabel>
                 <S.BirthDateValue>
-                  {formatBirthDate(formData.birthDate)}
+                  {formatDate(formData.birthDate, 'detail')}
                 </S.BirthDateValue>
               </S.BirthDateInfo>
               <S.ChevronIcon>

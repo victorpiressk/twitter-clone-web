@@ -6,40 +6,49 @@ import FollowTabs from './components/FollowTabs'
 import FollowUserCard from './components/FollowUserCard'
 import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
-import type { FollowTab, FollowUser } from './types'
+import type { FollowTab } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
+import type { UserCard } from '../../models'
 
 // Mock data
-const mockFollowing: FollowUser[] = [
+const mockFollowing: UserCard[] = [
   {
-    id: '1',
+    id: 1,
     username: 'reactjs',
-    displayName: 'React',
+    firstName: 'React',
+    lastName: 'js',
+    avatar: '',
     bio: 'The library for web and native user interfaces',
     isFollowing: true
   },
   {
-    id: '2',
+    id: 2,
     username: 'typescript',
-    displayName: 'TypeScript',
+    firstName: 'TypeScript',
+    lastName: '',
+    avatar: '',
     bio: 'TypeScript is a strongly typed programming language',
     isFollowing: true
   }
 ]
 
-const mockFollowers: FollowUser[] = [
+const mockFollowers: UserCard[] = [
   {
-    id: '3',
+    id: 3,
     username: 'developer1',
-    displayName: 'Dev One',
+    firstName: 'Dev',
+    lastName: 'One',
+    avatar: '',
     bio: 'Full Stack Developer',
     isFollowing: false
   },
   {
-    id: '4',
+    id: 4,
     username: 'developer2',
-    displayName: 'Dev Two',
+    firstName: 'Dev',
+    lastName: 'Two',
+    avatar: '',
     bio: 'Frontend Engineer',
     isFollowing: true
   }
@@ -73,7 +82,7 @@ const FollowPage = () => {
     navigate(`/${username}/${newTab}`)
   }
 
-  const handleFollowToggle = (userId: string) => {
+  const handleFollowToggle = (userId: number) => {
     if (activeTab === 'following') {
       setFollowing((prev) =>
         prev.map((user) =>

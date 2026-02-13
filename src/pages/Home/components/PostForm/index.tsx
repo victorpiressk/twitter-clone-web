@@ -6,7 +6,6 @@ import LocationPreview from '../../../../components/common/Forms/LocationPreview
 import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
-import { createMediaFile, validateMedia } from '../../../../utils/mediaHelpers'
 import { useToast } from '../../../../hooks/useToast'
 import type { Poll, PostMedia, Location } from '../../../../models'
 import type { PostFormProps } from './types'
@@ -59,17 +58,9 @@ const PostForm = ({
       const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
-        // Valida antes de adicionar
-        const validation = validateMedia(file, [...medias, ...validMedias])
-
-        if (!validation.valid) {
-          showToast('error', validation.error!)
+        if (!file) {
+          showToast('error', 'erro ao carregar mídea!')
           continue
-        }
-
-        const mediaFile = createMediaFile(file)
-        if (mediaFile) {
-          validMedias.push(mediaFile)
         }
       }
 

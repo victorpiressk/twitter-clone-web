@@ -6,6 +6,248 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.1.1] - 2026-02-13
+
+### Added
+
+#### Redux Toolkit + RTK Query Integration
+
+**Redux Setup Completo**
+- Configuração do Redux Toolkit com store centralizado
+- RTK Query para gerenciamento de API e cache automático
+- Typed hooks (`useAppDispatch`, `useAppSelector`) para type-safety
+- Redux Provider integrado no App.tsx
+
+**API Slice (RTK Query)**
+- Configuração base do RTK Query com `createApi`
+- `prepareHeaders` para autenticação automática (token Bearer)
+- `reducerPath: 'api'` para integração no store
+- `tagTypes` para invalidação de cache (`Post`, `User`, `Comment`, `Follow`)
+
+**Endpoints Implementados (25 endpoints)**
+
+*Autenticação:*
+- `register` - Registro de novo usuário
+- `login` - Login com credenciais
+- `logout` - Logout e invalidação de token
+
+*Usuários:*
+- `getUsers` - Listagem paginada de usuários
+- `getUserById` - Detalhes de usuário específico
+- `getCurrentUser` - Dados do usuário autenticado
+- `updateUser` - Atualização de perfil
+- `getUserFollowers` - Lista de seguidores
+- `getUserFollowing` - Lista de seguindo
+
+*Posts:*
+- `getPosts` - Listagem paginada de posts
+- `getPostById` - Detalhes de post específico
+- `createPost` - Criação de novo post
+- `updatePost` - Edição de post
+- `deletePost` - Remoção de post
+- `getFeed` - Feed personalizado do usuário
+
+*Comentários:*
+- `getComments` - Listagem de comentários
+- `createComment` - Criar comentário
+- `updateComment` - Editar comentário
+- `deleteComment` - Remover comentário
+
+*Curtidas:*
+- `getLikes` - Listagem de curtidas
+- `likePost` - Curtir post
+- `unlikePost` - Descurtir post
+
+*Follows:*
+- `getFollows` - Listagem de follows
+- `followUser` - Seguir usuário
+- `unfollowUser` - Deixar de seguir
+
+**Slices Normalizados**
+
+*authSlice:*
+- Gerenciamento de estado de autenticação
+- Armazena: `user`, `token`, `isAuthenticated`
+- Actions: `setCredentials`, `logout`
+- Persist token em localStorage (preparado para implementação)
+
+*postsSlice:*
+- Cache normalizado de posts (`byId`, `allIds`)
+- Estrutura de feed com paginação (`ids`, `cursor`, `hasMore`)
+- Estado de post detail (thread, comments)
+- Actions optimistic: `toggleLike`, `toggleRetweet`, `toggleBookmark`
+- Gerenciamento de loading states
+- Selectors memoizados (`selectFeedPosts`, `selectPostDetail`)
+
+*usersSlice:*
+- Cache normalizado de usuários (`byId`, `byUsername`)
+- Follow state separado para performance
+- Sugestões de usuários (Who to Follow)
+- Estado de profile sendo visualizado
+- Actions: `upsertUser`, `toggleFollow`, `setSuggestions`
+- Selectors memoizados (`selectUserWithFollowState`, `selectSuggestions`)
+
+**Sistema de Transformers**
+
+*Data Transformers (`utils/transformers.ts`):*
+- `transformUser` - BackendUser → User (snake_case → camelCase)
+- `transformUserToCard` - User → UserCard (dados resumidos)
+- `transformUserToCardWithStats` - BackendUser → UserCardWithStats
+- `transformPost` - BackendPost → Post (normalização completa)
+- `transformPostWithInteractions` - BackendPost → PostWithInteractions
+- `transformPoll` - BackendPoll → Poll (enquetes)
+- `transformLocation` - BackendLocation → Location
+- `transformCreatePostRequest` - CreatePostRequest → Backend format
+- Conversão automática: `snake_case` ↔ `camelCase`
+- Tratamento de campos opcionais (fallbacks)
+- Agregação de stats (`posts_count` → `stats.posts`)
+
+*Error Transformers (`utils/errorTransformers.ts`):*
+- Tratamento de erros de API padronizado
+- Mapeamento de códigos HTTP para mensagens user-friendly
+- Extração de erros de validação de campos
+- Fallbacks para erros desconhecidos
+
+**Organização de Types**
+
+Reestruturação completa de types em subpastas por responsabilidade:
+
+*types/api/requests.ts:*
+- `RegisterRequest` - Dados de registro
+- `LoginRequest` - Credenciais de login
+- `CreatePostRequest` - Criação de post
+- `UpdatePostRequest` - Edição de post
+- `CreateCommentRequest` - Criação de comentário
+- `FollowRequest`, `LikeRequest` - Actions de interação
+
+*types/api/responses.ts:*
+- `AuthResponse` - Resposta de autenticação (token + user)
+- `PaginatedResponse<T>` - Padrão de paginação do backend
+
+*types/api/backend.ts:*
+- `BackendUser` - Modelo de usuário do backend (snake_case)
+- `BackendPost` - Modelo de post do backend
+- `BackendPoll` - Modelo de enquete do backend
+- `BackendPollOption` - Opções de enquete
+- `BackendPostMedia` - Mídia de posts
+- `BackendLocation` - Localização geográfica
+- `BackendPaginatedResponse<T>` - Paginação do backend
+
+*types/api/index.ts:*
+- Barrel exports para facilitar imports
+
+### Changed
+
+#### Reorganização de Estrutura
+
+**Transformers Movidos**
+- `store/transformers.ts` → `utils/transformers.ts`
+- Separação de conceitos: transformers são funções puras (utils), não estado (store)
+- Reutilizáveis fora do contexto Redux
+- Testáveis isoladamente
+
+**mediaHelpers Simplificado**
+- Removida validação frontend de mídia
+- Backend assume responsabilidade total de validação (tipo, tamanho, segurança)
+- Frontend apenas cria preview (blob URLs)
+- `createMediaFile` retorna `PostMedia` com referência ao `File` original
+- `validateMedia` sempre retorna válido (mock)
+- `revokeMediaPreviews` para cleanup de memória
+- Decisão: Evitar refatoração em cascata de 20+ arquivos
+
+**Modelos Atualizados**
+- `Post.author` agora usa `UserCardWithStats` (era `UserPreview`)
+- Compatibilidade com AvatarProfilePopover (precisa stats)
+- Todos os modelos alinhados com estrutura real do backend
+
+### Removed
+
+**Types Duplicados**
+- Remoção de types locais que duplicavam modelos centralizados
+- Eliminação de inconsistências entre frontend e backend
+
+### Fixed
+
+**Correções de Build**
+- Resolvidos erros de import após movimentação de transformers
+- Correções de tipagem em componentes após refatoração de modelos
+- ESLint warnings corrigidos (underscore params, ts-expect-error)
+
+### Metrics
+
+#### Arquivos Criados (14):
+- `src/store/index.ts` - Store config
+- `src/store/hooks.ts` - Typed hooks
+- `src/store/slices/api.ts` - RTK Query API
+- `src/store/slices/auth/authSlice.ts` - Auth state
+- `src/store/slices/posts/postsSlice.ts` - Posts cache
+- `src/store/slices/users/usersSlice.ts` - Users cache
+- `src/types/api/index.ts` - Barrel exports
+- `src/types/api/requests.ts` - Request types
+- `src/types/api/responses.ts` - Response types
+- `src/types/api/backend.ts` - Backend DTOs
+- `src/utils/transformers.ts` - Data transformers
+- `src/utils/errorTransformers.ts` - Error handlers
+
+#### Arquivos Modificados (3):
+- `src/App.tsx` - Redux Provider
+- `src/utils/mediaHelpers.ts` - Simplificação
+- `package.json` - Dependências
+
+#### Linhas de Código:
+- Adicionadas: ~1,200 linhas (Redux + types + transformers)
+- Removidas: ~150 linhas (duplicações)
+- Net: ~1,050 linhas
+
+### Dependencies
+
+**Adicionadas:**
+- `@reduxjs/toolkit@^2.x.x` - Redux Toolkit
+- `react-redux@^9.x.x` - React bindings para Redux
+
+### Highlights
+
+#### Decisões Arquiteturais Documentadas
+
+**1. Normalized State Pattern**
+- Estrutura `byId` + `allIds` para evitar duplicação
+- Um post/user existe em um único lugar
+- Atualizações automáticas em toda aplicação
+- Pattern recomendado pela documentação oficial do Redux
+
+**2. Optimistic Updates**
+- Like/Retweet atualizam UI instantaneamente
+- API processa em background
+- Reversão em caso de erro
+- UX responsiva (sem espera)
+
+**3. Backend como Source of Truth**
+- Validação de mídia apenas no backend
+- Frontend valida apenas para UX básica
+- Evita duplicação de lógica
+- Trade-off consciente (simplicidade vs otimização)
+
+**4. Transformers Pattern**
+- Camada de adaptação backend ↔ frontend
+- Conversão automática snake_case → camelCase
+- Facilita mudanças no backend sem quebrar frontend
+- Testável e reutilizável
+
+**5. RTK Query para Cache**
+- Cache automático de dados da API
+- Invalidação inteligente via tags
+- Loading/error states automáticos
+- Menos código boilerplate (vs Redux tradicional)
+
+#### Competências Demonstradas
+- Gerenciamento de estado complexo (Redux Toolkit)
+- Cache e otimização (RTK Query, normalized state)
+- Separação de conceitos (slices, transformers, types)
+- Type safety rigoroso (TypeScript)
+- Decisões de arquitetura com trade-offs conscientes
+- Documentação técnica detalhada
+
+
 ## [0.1.0] - 2026-02-11
 
 ### Added

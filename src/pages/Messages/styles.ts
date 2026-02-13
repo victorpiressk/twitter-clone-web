@@ -41,7 +41,7 @@ export const PlaceholderIcon = styled.div`
 `
 
 export const PlaceholderTitle = styled.h3`
-  font-size: ${fontSizes.xxl};
+  font-size: ${fontSizes['2xl']};
   font-weight: ${fontWeights.bold};
   color: ${(props) => props.theme.colors.text.primary};
   margin: 0 0 12px 0;

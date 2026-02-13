@@ -37,7 +37,7 @@ const ContentForm = ({
       const removed = medias.find((m) => m.id === id)
 
       if (removed) {
-        URL.revokeObjectURL(removed.preview)
+        URL.revokeObjectURL(removed.url)
       }
 
       onMediasChange(updated)
@@ -77,7 +77,7 @@ const ContentForm = ({
             <PollPreview
               question={poll.question}
               options={poll.options}
-              duration={poll.duration}
+              duration={poll.durationHours}
               onRemove={onRemovePoll}
               variant="editable"
             />

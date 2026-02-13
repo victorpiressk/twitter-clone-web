@@ -3,6 +3,7 @@ import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import type { NotificationItemProps } from './types'
 import * as S from './styles'
+import { formatDate } from '../../../../utils/formatDate'
 
 const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
   const navigate = useNavigate()
@@ -56,36 +57,24 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
     }
   }
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-    if (diffInSeconds < 60) return 'agora'
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}min`
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`
-    return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
-  }
-
   const iconData = getNotificationIcon()
 
   // Navega para o perfil do autor
   const handleClickProfile = (e: React.MouseEvent) => {
     e.stopPropagation() // Impede navegação para o post
-    navigate(`/${notification.user.username}`)
+    navigate(`/${notification.actor.username}`)
   }
 
   return (
-    <S.NotificationContainer onClick={onClick} $isRead={notification.isRead}>
+    <S.NotificationContainer onClick={onClick} $isRead={notification.read}>
       <S.IconWrapper $color={iconData.color}>{iconData.icon}</S.IconWrapper>
 
       <S.NotificationContent>
         <S.NotificationHeader>
           <S.AvatarWrapper>
             <Avatar
-              src={notification.user.avatar}
-              alt={notification.user.displayName}
+              src={notification.actor.avatar}
+              alt={notification.actor.username}
               size="small"
               onClick={handleClickProfile}
             />
@@ -93,17 +82,19 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
 
           <S.NotificationText>
             <S.Username onClick={handleClickProfile}>
-              {notification.user.displayName}
+              {notification.actor.username}
             </S.Username>
             <S.ActionText>{getActionText()}</S.ActionText>
           </S.NotificationText>
         </S.NotificationHeader>
 
-        {notification.post && (
-          <S.PostPreview>{notification.post.content}</S.PostPreview>
+        {notification.type === 'retweet' && (
+          <S.PostPreview>{notification.targetCommentId}</S.PostPreview>
         )}
 
-        <S.TimeStamp>{formatDate(notification.createdAt)}</S.TimeStamp>
+        <S.TimeStamp>
+          {formatDate(notification.createdAt, 'detail')}
+        </S.TimeStamp>
       </S.NotificationContent>
     </S.NotificationContainer>
   )

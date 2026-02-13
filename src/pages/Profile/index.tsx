@@ -6,12 +6,11 @@ import PostList from '../../components/common/Posts/PostList'
 import EditProfileModal from './components/EditProfileModal'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import type { ProfileTab } from './types'
-import type { EditProfileFormData } from './components/EditProfileModal/types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import * as S from './styles'
-import type { PostWithInteractions } from '../../models'
+import type { PostWithInteractions, User } from '../../models'
 import { MOCK_CURRENT_USER, MOCK_PROFILE_USER } from '../../mocks/user'
 
 const mockPosts: PostWithInteractions[] = [
@@ -71,13 +70,13 @@ const Profile = () => {
     setIsEditModalOpen(true)
   }
 
-  const handleSaveProfile = (data: EditProfileFormData) => {
+  const handleSaveProfile = (data: User) => {
     console.log('Salvar perfil:', data)
 
     // Atualiza dados do usuário (mock)
     setUser((prev) => ({
       ...prev,
-      displayName: data.displayName,
+      displayName: data.firstName,
       bio: data.bio,
       location: data.location,
       website: data.website,
@@ -225,15 +224,7 @@ const Profile = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveProfile}
-        currentData={{
-          displayName: `${user.firstName} ${user.lastName}`,
-          bio: user.bio || '',
-          location: user.location || '',
-          website: user.website || '',
-          birthDate: user.birthDate,
-          avatar: user.avatar,
-          banner: user.banner
-        }}
+        currentData={user}
       />
     </>
   )

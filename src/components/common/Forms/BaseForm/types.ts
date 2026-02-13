@@ -1,17 +1,15 @@
-import type { MediaFile } from '../MediaPreview/types'
-import type { Poll } from '../FormActions/components/MediaActions/PollCreator/types'
-import type { Location } from '../FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
+import type { Poll, PostMedia, Location } from '../../../../models'
 
 export type BaseFormProps = {
   userName: string
   userAvatar: string | null
   content: string
-  medias: MediaFile[]
+  medias: PostMedia[]
   location?: Location | null
   poll?: Poll | null
   scheduledFor?: Date | null
   onContentChange: (value: string) => void
-  onMediasChange: (medias: MediaFile[]) => void
+  onMediasChange: (medias: PostMedia[]) => void
   onRemoveLocation?: () => void
   onRemovePoll?: () => void
   onRemoveSchedule?: () => void

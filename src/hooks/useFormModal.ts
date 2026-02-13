@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useToast } from './useToast'
 import type { Poll, PostMedia, Location } from '../models'
-import { createMediaFile, validateMedia } from '../utils/mediaHelpers'
 
 export type UseFormModalConfig = {
   successMessage: string
@@ -74,23 +73,15 @@ export const useFormModal = (
       const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
-        // Valida antes de adicionar
-        const validation = validateMedia(file, [...medias, ...validMedias])
-
-        if (!validation.valid) {
-          showToast('error', validation.error!)
+        if (!file) {
+          showToast('error', 'erro ao carregar mídea!')
           continue
-        }
-
-        const mediaFile = createMediaFile(file)
-        if (mediaFile) {
-          validMedias.push(mediaFile)
         }
       }
 
       setMedias((prev) => [...prev, ...validMedias])
     },
-    [medias, showToast]
+    [showToast]
   )
 
   // Handler: Remover mídia
