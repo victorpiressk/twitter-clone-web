@@ -6,6 +6,193 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.1.2] - 2026-02-13
+
+### Added
+
+#### Auth Integration com Redux Toolkit
+
+**Migração Completa de Context API para Redux**
+- Sistema de autenticação completamente refatorado usando Redux Toolkit
+- Remoção de `AuthContext` e `AuthProvider` (Context API legacy)
+- Migração para estado centralizado via `authSlice`
+- Token persistence automática com sincronização Redux ↔ localStorage
+
+**Login Flow**
+- Integração com `useLoginMutation` (RTK Query)
+- Detecção automática de tipo de identificador (email/phone/username via regex)
+- Armazenamento de token no `authSlice` e `localStorage`
+- Error handling centralizado com `transformApiError`
+- Validação de campos com feedback visual
+- Toast de feedback (sucesso/erro)
+- Loading state durante autenticação
+- Redirect automático para `/home` após login bem-sucedido
+
+**Register Flow**
+- Integração com `useRegisterMutation` (RTK Query)
+- Formulário completo: username, email, password, firstName, lastName
+- Error handling com `transformApiError`
+- Validação de campos obrigatórios
+- Password match validation
+- Auto-login após registro
+- Toast de feedback
+- Redirect para `/home`
+
+**Logout Flow**
+- Integração com `useLogoutMutation` (RTK Query)
+- Limpeza completa de token do `authSlice`
+- Remoção de token do `localStorage`
+- Loading state no botão ("Saindo...")
+- Toast de confirmação
+- Redirect automático para `/`
+
+**Sidebar Integration com Redux**
+- Migração de `MOCK_CURRENT_USER` para dados reais do Redux
+- Integração com `useAppSelector(selectCurrentUser)`
+- Exibição de dados reais do usuário autenticado (avatar, nome, username)
+- Botão de logout integrado com `useLogoutMutation`
+- Loading state durante logout
+- Validação automática de usuário autenticado
+
+**Protected Routes**
+- Componente `ProtectedRoute` atualizado para usar Redux
+- Leitura de estado via `useAppSelector(selectIsAuthenticated)`
+- Remoção de dependência de `useAuth` hook (legacy)
+- Verificação de autenticação antes de renderizar rotas protegidas
+- Redirect automático para `/` se não autenticado
+- 10 rotas protegidas: `/home`, `/explore`, `/notifications`, `/connect`, `/messages`, `/:username`, `/:username/status/:postId`, `/:username/following`, `/:username/followers`
+
+**Token Persistence**
+- Token salvo em `localStorage` após login/register
+- Token carregado do `localStorage` ao inicializar aplicação
+- Estado de autenticação persistido entre reloads
+- Sincronização automática: Redux state ↔ localStorage
+
+**Auth Middleware**
+- Middleware customizado para interceptar ações RTK Query
+- Detecção automática de erro 401 (token expirado/inválido)
+- Auto-logout e limpeza de estado em erro 401
+- Remoção de token do `localStorage`
+- Correção de bug crítico que bloqueava atualização de estado
+
+**Error Handling Centralizado**
+- Implementação de `transformApiError` utility
+- Mapeamento de erros HTTP para mensagens user-friendly
+- Extração de erros de validação de campos do backend
+- Integração em Login e Register flows
+- Fallback para erros desconhecidos
+- Suporte a erros de rede e timeout
+
+### Changed
+
+**Auth System - Migração Arquitetural**
+- **Removido:** `AuthContext` (Context API)
+- **Removido:** `AuthProvider` do App.tsx
+- **Removido:** Hook `useAuth` (legacy)
+- **Migrado:** Sistema completo para Redux Toolkit
+- **Vantagens:** Centralização de estado, cache automático (RTK Query), DevTools, melhor escalabilidade
+
+**Login/Register Pages**
+- Formulários integrados com RTK Query
+- Detecção inteligente de tipo de identificador (email/phone/username)
+- Error handling melhorado com feedback por campo
+- Loading states conectados ao Redux
+- Toast notifications mantidas
+- Validações client-side mantidas
+
+**Sidebar**
+- Dados reais do usuário substituem mock (`MOCK_CURRENT_USER`)
+- Integração com Redux para leitura de `currentUser`
+- Logout integrado com RTK Query mutation
+- Loading state visual durante logout
+
+**ProtectedRoute**
+- Leitura de `isAuthenticated` via Redux selector
+- Remoção de Context API
+- Código mais limpo e performático
+
+### Removed
+
+**Context API Legacy**
+- `src/contexts/AuthContext.tsx` - Removido completamente
+- `AuthProvider` - Removido do App.tsx
+- Hook `useAuth` (legacy) - Removido
+- Props drilling de auth - Eliminado (estado global Redux)
+- Mock user em Sidebar - Substituído por dados reais
+
+### Fixed
+
+**Auth Flow**
+- Correção de bug crítico em `authMiddleware` que bloqueava atualização de estado
+- Middleware agora identifica corretamente o estado de autenticação
+- Auto-logout não é mais executado incorretamente
+- Sincronização correta entre localStorage e Redux
+- Token expirado limpa estado corretamente (401 handling)
+- Loading states durante autenticação
+- Feedback visual consistente (toasts)
+
+**Sidebar**
+- Correção de usuário não identificado (user=null)
+- Correção de logout não redirecionando
+- Dados reais do usuário agora exibidos corretamente
+
+### Technical
+
+**authSlice (Redux)**
+- Estado: `user`, `accessToken`, `isAuthenticated`, `loading`, `error`
+- Actions: `setCredentials` (login/register), `logout`, `setUser`, `setLoading`, `setError`, `clearError`
+- Persist logic: sincroniza com localStorage
+- Selectors: `selectCurrentUser`, `selectAccessToken`, `selectIsAuthenticated`, `selectAuthLoading`, `selectAuthError`
+- Initial state carrega token do localStorage
+
+**authMiddleware**
+- Intercepta todas as ações RTK Query
+- Detecta erro 401 em qualquer endpoint
+- Dispatch automático de `logout` action
+- Limpeza completa de estado (Redux + localStorage)
+- Correção de bug que causava logout incorreto
+
+**Login Auto-detection**
+```typescript
+const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
+const isPhone = /^\d{10,11}$/.test(identifier.replace(/\D/g, ''))
+
+const payload = {
+  password: formData.password,
+  ...(isEmail && { email: identifier }),
+  ...(isPhone && { phone: identifier }),
+  ...(!isEmail && !isPhone && { username: identifier })
+}
+```
+
+**Error Transformer**
+```typescript
+transformApiError(err: FetchBaseQueryError | SerializedError): {
+  message: string
+  fields: Record<string, string>
+}
+```
+
+**ProtectedRoute (Refatorado)**
+```typescript
+// Antes (Context):
+const { isAuthenticated } = useAuth()
+
+// Depois (Redux):
+const isAuthenticated = useAppSelector(selectIsAuthenticated)
+```
+
+**Sidebar (Refatorado)**
+```typescript
+// Antes (Mock):
+const [user] = useState(MOCK_CURRENT_USER)
+
+// Depois (Redux):
+const user = useAppSelector(selectCurrentUser)!
+```
+
+---
+
 ## [0.1.1] - 2026-02-13
 
 ### Added

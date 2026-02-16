@@ -1,16 +1,21 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Twitter } from 'lucide-react'
+import { useRegisterMutation } from '../../../../store/slices/api'
+import { setCredentials } from '../../../../store/slices/auth/authSlice'
+import { useAppDispatch } from '../../../../store/hooks'
 import { useToast } from '../../../../hooks/useToast'
-import { useAuth } from '../../../../hooks/useAuth'
-import type { RegisterData } from '../../../../contexts/AuthContext'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
-import { Twitter } from 'lucide-react'
+import { transformApiError } from '../../../../utils/errorTransformers'
 import type {
   RegisterModalProps,
   RegisterStep,
   ContactType,
   RegisterFormData
 } from './types'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
+import type { SerializedError } from '@reduxjs/toolkit'
 import * as S from './styles'
 
 const RegisterModal = ({
@@ -18,8 +23,13 @@ const RegisterModal = ({
   onClose,
   onRegisterSuccess
 }: RegisterModalProps) => {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { showToast } = useToast()
-  const { register } = useAuth()
+
+  // ✅ RTK Query mutation
+  const [register, { isLoading: isSubmitting }] = useRegisterMutation()
+
   const [step, setStep] = useState<RegisterStep>('basic')
   const [contactType, setContactType] = useState<ContactType>('phone')
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -32,9 +42,11 @@ const RegisterModal = ({
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [focusedField, setFocusedField] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Validação Etapa 1
+  // ============================================
+  // VALIDAÇÕES
+  // ============================================
+
   const validateBasicInfo = () => {
     const newErrors: Record<string, string> = {}
 
@@ -67,7 +79,6 @@ const RegisterModal = ({
     return Object.keys(newErrors).length === 0
   }
 
-  // Validação Etapa 2
   const validateCompleteInfo = () => {
     const newErrors: Record<string, string> = {}
 
@@ -91,7 +102,10 @@ const RegisterModal = ({
     return Object.keys(newErrors).length === 0
   }
 
-  // Handler Etapa 1
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -100,46 +114,59 @@ const RegisterModal = ({
     }
   }
 
-  // Handler Etapa 2
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateCompleteInfo()) return
 
-    setIsSubmitting(true)
-
     try {
-      // Simula registro (API futura)
-      const userData: RegisterData = {
-        name: formData.name,
-        contact: formData.contact,
-        birthDate: formData.birthDate,
+      // Separa nome em firstName e lastName
+      const nameParts = formData.name.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName = nameParts.slice(1).join(' ') || ''
+
+      const payload = {
         username: formData.username,
-        password: formData.password
+        email: contactType === 'email' ? formData.contact : '',
+        phone: contactType === 'phone' ? formData.contact : '',
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        firstName,
+        lastName,
+        birthDate: formData.birthDate
       }
 
-      await register(userData)
+      // Chama mutation do RTK Query
+      const result = await register(payload).unwrap()
+
+      // Salva credenciais no Redux (já persiste no localStorage)
+      dispatch(
+        setCredentials({
+          user: result.user,
+          token: result.token
+        })
+      )
 
       showToast('success', 'Conta criada com sucesso!')
-      onRegisterSuccess()
-      onClose()
 
-      // Reset
-      setFormData({
-        name: '',
-        contact: '',
-        birthDate: '',
-        username: '',
-        password: '',
-        confirmPassword: ''
-      })
-      setStep('basic')
-      setContactType('phone')
-      setErrors({})
-    } catch {
-      showToast('error', 'Erro ao criar conta. Tente novamente.')
-    } finally {
-      setIsSubmitting(false)
+      // Callbacks e limpeza
+      onRegisterSuccess?.()
+      handleModalClose()
+
+      // Redireciona para home
+      navigate('/home')
+    } catch (err: unknown) {
+      // O unwrap() do RTK Query lança o erro no formato FetchBaseQueryError | SerializedError
+      // Passamos para o transformer que já sabe lidar com o tipo unknown/any internamente
+      const { message, fields } = transformApiError(
+        err as FetchBaseQueryError | SerializedError
+      )
+
+      showToast('error', message)
+
+      if (Object.keys(fields).length > 0) {
+        setErrors(fields)
+      }
     }
   }
 
@@ -158,6 +185,7 @@ const RegisterModal = ({
 
   const handleModalClose = () => {
     onClose()
+
     // Reset após fechar
     setTimeout(() => {
       setStep('basic')
@@ -174,11 +202,13 @@ const RegisterModal = ({
     }, 300)
   }
 
-  // Verifica se pode avançar (Etapa 1)
+  // ============================================
+  // RENDER
+  // ============================================
+
   const canProceed =
     formData.name.trim() && formData.contact.trim() && formData.birthDate
 
-  // Footer dinâmico
   const footer =
     step === 'basic' ? (
       <S.Footer>
@@ -196,7 +226,7 @@ const RegisterModal = ({
         <Button
           type="submit"
           variant="secondary"
-          loading={isSubmitting}
+          loading={isSubmitting} // ← vem do RTK Query
           onClick={handleSubmit}
         >
           Criar conta

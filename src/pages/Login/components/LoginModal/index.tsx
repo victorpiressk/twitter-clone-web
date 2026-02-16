@@ -1,12 +1,18 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Twitter } from 'lucide-react'
+import { useLoginMutation } from '../../../../store/slices/api'
+import { setCredentials } from '../../../../store/slices/auth/authSlice'
+import { useAppDispatch } from '../../../../store/hooks'
 import { useToast } from '../../../../hooks/useToast'
-import { useAuth } from '../../../../hooks/useAuth'
+import { transformApiError } from '../../../../utils/errorTransformers'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
-import { Twitter } from 'lucide-react'
 import GoogleIcon from '../../../../assets/icons/google-original.svg'
 import AppleIcon from '../../../../assets/icons/apple-original.svg'
 import type { LoginModalProps, LoginStep } from './types'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
+import type { SerializedError } from '@reduxjs/toolkit'
 import * as S from './styles'
 
 const LoginModal = ({
@@ -15,8 +21,12 @@ const LoginModal = ({
   onLoginSuccess,
   onOpenRegister
 }: LoginModalProps) => {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { showToast } = useToast()
-  const { login } = useAuth()
+
+  const [login, { isLoading: isSubmitting }] = useLoginMutation()
+
   const [step, setStep] = useState<LoginStep>('identifier')
   const [formData, setFormData] = useState({
     identifier: '',
@@ -24,7 +34,10 @@ const LoginModal = ({
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [focusedField, setFocusedField] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // ============================================
+  // VALIDAÇÕES
+  // ============================================
 
   const validateIdentifier = () => {
     const newErrors: Record<string, string> = {}
@@ -48,6 +61,10 @@ const LoginModal = ({
     return Object.keys(newErrors).length === 0
   }
 
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -63,22 +80,50 @@ const LoginModal = ({
 
     if (!validatePassword()) return
 
-    setIsSubmitting(true)
-
     try {
-      await login(formData.identifier, formData.password)
+      // Detecta tipo de identificador (email, phone ou username)
+      const identifier = formData.identifier.trim()
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
+      const isPhone = /^\d{10,11}$/.test(identifier.replace(/\D/g, ''))
+
+      // Monta payload baseado no tipo
+      const payload = {
+        password: formData.password,
+        ...(isEmail && { email: identifier }),
+        ...(isPhone && { phone: identifier }),
+        ...(!isEmail && !isPhone && { username: identifier })
+      }
+
+      // Chama API via RTK Query
+      const result = await login(payload).unwrap()
+
+      // Salva credenciais no Redux (já persiste no localStorage)
+      dispatch(
+        setCredentials({
+          user: result.user,
+          token: result.token
+        })
+      )
 
       showToast('success', 'Bem-vindo de volta!')
-      onLoginSuccess()
-      onClose()
 
-      setFormData({ identifier: '', password: '' })
-      setStep('identifier')
-      setErrors({})
-    } catch {
-      showToast('error', 'E-mail ou senha incorretos')
-    } finally {
-      setIsSubmitting(false)
+      // Callbacks e limpeza
+      onLoginSuccess?.()
+      handleModalClose()
+
+      // Redireciona para home
+      navigate('/home', { replace: true })
+    } catch (err: unknown) {
+      // Usa o errorTransformers
+      const { message, fields } = transformApiError(
+        err as FetchBaseQueryError | SerializedError
+      )
+
+      showToast('error', message)
+
+      if (Object.keys(fields).length > 0) {
+        setErrors(fields)
+      }
     }
   }
 
@@ -114,7 +159,10 @@ const LoginModal = ({
     onOpenRegister()
   }
 
-  // Footer dinâmico
+  // ============================================
+  // RENDER
+  // ============================================
+
   const footer = step === 'password' && (
     <S.Footer>
       <Button
@@ -284,7 +332,7 @@ const LoginModal = ({
           </>
         )}
 
-        {/* ETAPA 3: Signup (mesma tela da página de Login) */}
+        {/* ETAPA 3: Signup */}
         {step === 'signup' && (
           <>
             <S.Header>

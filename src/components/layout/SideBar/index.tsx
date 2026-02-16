@@ -7,23 +7,28 @@ import Popover from '../../common/Popovers/BasePopover'
 import CreatePostModal from './components/CreatePostModal'
 import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
 import { useToast } from '../../../hooks/useToast'
-import { useAuth } from '../../../hooks/useAuth'
+import { useAppSelector } from '../../../store/hooks'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
+import { useLogoutMutation } from '../../../store/slices/api'
 import type { SidebarProps } from './types'
 import * as S from './styles'
-import { MOCK_CURRENT_USER } from '../../../mocks/user'
 
 const SideBar = ({ onCreatePost }: SidebarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { logout } = useAuth()
+
+  // Usar usuário do Redux
+  const user = useAppSelector(selectCurrentUser)
+
+  // Logout mutation
+  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
+
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
-
-  const [user] = useState(MOCK_CURRENT_USER)
 
   const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
     switch (item.action) {
@@ -40,15 +45,28 @@ const SideBar = ({ onCreatePost }: SidebarProps) => {
     setIsMoreOpen(false)
   }
 
-  const handleProfileMenuClick = (itemId: string) => {
+  const handleProfileMenuClick = async (itemId: string) => {
     switch (itemId) {
       case 'add-account':
         console.log('Adicionar conta')
         break
       case 'logout':
-        logout()
-        showToast('success', 'Você saiu da sua conta')
-        break
+        try {
+          // 1. Chama API de logout
+          await logoutMutation().unwrap()
+
+          // 2. Redux limpa automaticamente (authSlice já faz)
+
+          // 3. Toast de sucesso
+          showToast('success', 'Você saiu da sua conta')
+
+          // 4. Redirect automático (ProtectedRoute detecta user=null)
+        } catch {
+          // Se API falhar, Redux limpa do mesmo jeito (via error handling)
+          showToast('info', 'Você foi desconectado')
+        }
+        setIsProfileMenuOpen(false)
+        return
     }
     setIsProfileMenuOpen(false)
   }
@@ -113,17 +131,22 @@ const SideBar = ({ onCreatePost }: SidebarProps) => {
             type="button"
             $variant="ghost"
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            disabled={isLoggingOut}
           >
-            <Avatar src={user.avatar} alt={user.username} size="small" />
-            <S.UserNames>
-              <S.DisplayName>
-                {user.firstName} {user.lastName}
-              </S.DisplayName>
-              <S.Username>@{user.username}</S.Username>
-            </S.UserNames>
-            <S.MoreIcon>
-              <MoreHorizontal size={18} strokeWidth={2} />
-            </S.MoreIcon>
+            {user && (
+              <>
+                <Avatar src={user.avatar} alt={user.username} size="small" />
+                <S.UserNames>
+                  <S.DisplayName>
+                    {user.firstName} {user.lastName}
+                  </S.DisplayName>
+                  <S.Username>@{user.username}</S.Username>
+                </S.UserNames>
+                <S.MoreIcon>
+                  <MoreHorizontal size={18} strokeWidth={2} />
+                </S.MoreIcon>
+              </>
+            )}
           </S.FooterButton>
         </S.Nav>
       </S.Aside>
@@ -166,22 +189,27 @@ const SideBar = ({ onCreatePost }: SidebarProps) => {
             key={item.id}
             onClick={() => handleProfileMenuClick(item.id)}
             $variant="profile"
+            disabled={item.id === 'logout' && isLoggingOut}
           >
-            {item.id === 'logout'
-              ? `${item.label} de @${user.username}`
-              : item.label}
+            {item.id === 'logout' && isLoggingOut
+              ? 'Saindo...'
+              : item.id === 'logout' && user
+                ? `Sair de @${user.username}`
+                : item.label}
           </S.PopoverItem>
         ))}
       </Popover>
 
       {/* Modal Criar Post */}
-      <CreatePostModal
-        isOpen={isCreatePostModalOpen}
-        onClose={() => setIsCreatePostModalOpen(false)}
-        onSubmit={onCreatePost}
-        userName={user.username}
-        userAvatar={user.avatar}
-      />
+      {user && (
+        <CreatePostModal
+          isOpen={isCreatePostModalOpen}
+          onClose={() => setIsCreatePostModalOpen(false)}
+          onSubmit={onCreatePost}
+          userName={user.username}
+          userAvatar={user.avatar}
+        />
+      )}
     </>
   )
 }
