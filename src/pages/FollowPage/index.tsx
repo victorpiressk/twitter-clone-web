@@ -9,7 +9,7 @@ import ScrollToTop from '../../hooks/useScrollToTop'
 import type { FollowTab } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
-import type { UserCard } from '../../models'
+import type { UserCard } from '../../types/domain/models'
 
 // Mock data
 const mockFollowing: UserCard[] = [

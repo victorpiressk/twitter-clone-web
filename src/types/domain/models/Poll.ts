@@ -12,8 +12,9 @@ export type Poll = {
   durationHours: number // duração em horas (ex: 24, 168)
   endsAt: string // quando termina
   totalVotes: number
+  isActive: boolean
 }
 
 export type PollWithUserVote = Poll & {
-  userVotedOptionId?: number | null // qual opção o usuário votou
+  userVote?: number | null // qual opção o usuário votou
 }

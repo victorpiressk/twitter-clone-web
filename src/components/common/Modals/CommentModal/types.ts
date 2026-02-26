@@ -1,4 +1,4 @@
-import type { Post, PostMedia } from '../../../../models'
+import type { Post, PostMedia } from '../../../../types/domain/models'
 
 export type CommentModalProps = {
   isOpen: boolean

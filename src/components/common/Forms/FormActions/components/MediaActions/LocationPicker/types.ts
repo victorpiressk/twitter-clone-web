@@ -1,4 +1,4 @@
-import type { Location } from '../../../../../../../models'
+import type { Location } from '../../../../../../../types/domain/models'
 
 export type LocationPickerProps = {
   isOpen: boolean

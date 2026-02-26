@@ -1,17 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
+import { useCreatePostMutation } from '../store/slices/api/posts'
+import { upsertPost } from '../store/slices/posts/postsSlice'
+import { useAppDispatch } from '../store/hooks'
 import { useToast } from './useToast'
-import type { Poll, PostMedia, Location } from '../models'
+import type { Poll, PostMedia, Location } from '../types/domain/models'
 
 export type UseFormModalConfig = {
   successMessage: string
   errorMessage: string
-  onSubmit: (
-    content: string,
-    medias?: PostMedia[],
-    location?: Location,
-    poll?: Poll,
-    scheduledFor?: Date
-  ) => Promise<void> | void
 }
 
 export type UseFormModalReturn = {
@@ -45,10 +41,14 @@ export type UseFormModalReturn = {
 export const useFormModal = (
   config: UseFormModalConfig
 ): UseFormModalReturn => {
+  const dispatch = useAppDispatch()
   const { showToast } = useToast()
-  const { successMessage, errorMessage, onSubmit } = config
+  const { successMessage, errorMessage } = config
 
-  // Estado local
+  // ✅ RTK Query mutation
+  const [createPost] = useCreatePostMutation()
+
+  // Estado local do formulário
   const [content, setContent] = useState('')
   const [medias, setMedias] = useState<PostMedia[]>([])
   const [location, setLocation] = useState<Location | null>(null)
@@ -62,24 +62,28 @@ export const useFormModal = (
     setContent(value)
   }, [])
 
-  // Handler: Mudança direta de mídias (controle direto do array)
+  // Handler: Mudança direta de mídias
   const handleMediasChange = useCallback((newMedias: PostMedia[]) => {
     setMedias(newMedias)
   }, [])
 
-  // Handler: Upload de mídias (funciona para imagem, GIF, vídeo)
+  // Handler: Upload de mídias
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
       const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
         if (!file) {
-          showToast('error', 'erro ao carregar mídea!')
+          showToast('error', 'Erro ao carregar mídia!')
           continue
         }
+        // TODO: Processar arquivo e criar PostMedia
+        // Por enquanto, apenas valida
       }
 
-      setMedias((prev) => [...prev, ...validMedias])
+      if (validMedias.length > 0) {
+        setMedias((prev) => [...prev, ...validMedias])
+      }
     },
     [showToast]
   )
@@ -90,7 +94,6 @@ export const useFormModal = (
       const updated = prev.filter((m) => m.id !== id)
       const removed = prev.find((m) => m.id === id)
 
-      // Libera memória do preview
       if (removed) {
         URL.revokeObjectURL(removed.url)
       }
@@ -116,12 +119,12 @@ export const useFormModal = (
     setLocation(null)
   }, [])
 
-  // Handlers de Poll
+  // Handlers: Poll
   const handlePollCreate = useCallback(
     (pollData: Poll) => {
       setPoll(pollData)
 
-      // Limpa mídia ao criar poll (regra: poll OU mídia)
+      // Limpa mídia ao criar poll
       if (medias.length > 0) {
         medias.forEach((m) => URL.revokeObjectURL(m.url))
         setMedias([])
@@ -134,7 +137,7 @@ export const useFormModal = (
     setPoll(null)
   }, [])
 
-  // Handlers de Schedule
+  // Handlers: Schedule
   const handleSchedule = useCallback((scheduledDate: Date) => {
     setScheduledFor(scheduledDate)
   }, [])
@@ -143,20 +146,38 @@ export const useFormModal = (
     setScheduledFor(null)
   }, [])
 
-  // Handler: Submit do formulário
+  // ✅ Handler: Submit (integrado com Redux)
   const handleSubmit = useCallback(async () => {
     if (!content.trim() && medias.length === 0) return
 
     setIsSubmitting(true)
 
     try {
-      await onSubmit(
-        content.trim(),
-        medias || undefined,
-        location || undefined,
-        poll || undefined,
-        scheduledFor || undefined
+      // ✅ Chama API via RTK Query
+      const result = await createPost({
+        content: content.trim(),
+        media: medias,
+        location: location || undefined,
+        poll: poll
+          ? {
+              question: poll.question,
+              options: poll.options.map((opt) => opt.text),
+              durationHours: poll.durationHours
+            }
+          : undefined,
+        scheduledFor: scheduledFor?.toISOString()
+      }).unwrap()
+
+      // ✅ Adiciona post ao feed local (otimista)
+      dispatch(
+        upsertPost({
+          ...result,
+          isLiked: false,
+          isRetweeted: false,
+          isBookmarked: false
+        })
       )
+
       showToast('success', successMessage)
 
       // Cleanup após sucesso
@@ -168,7 +189,7 @@ export const useFormModal = (
       setScheduledFor(null)
     } catch (error) {
       showToast('error', errorMessage)
-      console.error('Erro ao enviar formulário:', error)
+      console.error('Erro ao criar post:', error)
     } finally {
       setIsSubmitting(false)
     }
@@ -178,7 +199,8 @@ export const useFormModal = (
     location,
     poll,
     scheduledFor,
-    onSubmit,
+    createPost,
+    dispatch,
     successMessage,
     errorMessage,
     showToast

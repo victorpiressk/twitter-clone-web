@@ -1,10 +1,13 @@
-// src/store/slices/users/usersSlice.ts
 import {
   createSlice,
   type PayloadAction,
   createSelector
 } from '@reduxjs/toolkit'
-import type { User, UserCard, UserWithFollowState } from '../../../models'
+import type {
+  User,
+  UserCard,
+  UserWithFollowState
+} from '../../../types/domain/models'
 import type { RootState } from '../..'
 
 // ============================================
@@ -187,15 +190,16 @@ export const selectIsFollowing = (state: RootState, userId: number) =>
 export const selectUserWithFollowState = createSelector(
   [
     (state: RootState) => state.users.byId,
+    (state: RootState) => state.users.followState,
     (_state: RootState, userId: number) => userId
   ],
-  (usersById, userId) => {
+  (usersById, followState, userId) => {
     const user = usersById[userId]
     if (!user) return undefined
 
     return {
       ...user,
-      isFollowing: false // Seria pego do followState na real
+      isFollowing: followState[userId] || false
     } as UserWithFollowState
   }
 )

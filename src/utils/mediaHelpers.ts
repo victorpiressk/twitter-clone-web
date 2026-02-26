@@ -1,10 +1,12 @@
-import type { PostMedia } from '../models'
+import type { PostMedia } from '../types/domain/models'
+
+export type PostMediaWithFile = PostMedia & { _file?: File }
 
 /**
  * Cria objeto de mídia a partir de arquivo
  * (sem validação - backend valida)
  */
-export const createMediaFile = (file: File): PostMedia => {
+export const createMediaFile = (file: File): PostMediaWithFile => {
   const id = Math.random().toString(36).substring(7)
   const preview = URL.createObjectURL(file)
 
@@ -20,7 +22,6 @@ export const createMediaFile = (file: File): PostMedia => {
     type,
     url: preview, // Preview temporário (Data URL)
     order: 0,
-    // @ts-expect-error - file será anexado no FormData depois
     _file: file // Guardar referência ao File original
   }
 }

@@ -15,7 +15,7 @@ import { usePost } from '../../../../hooks/usePost'
 import type { PostCardProps } from './types'
 import { colors } from '../../../../styles/globalStyles'
 import * as S from './styles'
-import type { PostMedia } from '../../../../models'
+import type { PostMedia } from '../../../../types/domain/models'
 
 const PostCard = ({
   post,

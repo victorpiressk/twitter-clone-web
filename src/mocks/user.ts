@@ -1,4 +1,4 @@
-import type { UserWithFollowState } from '../models'
+import type { UserWithFollowState } from '../types/domain/models'
 
 export const MOCK_CURRENT_USER: UserWithFollowState = {
   id: 1,

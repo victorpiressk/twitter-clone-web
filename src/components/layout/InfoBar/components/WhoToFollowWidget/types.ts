@@ -1,4 +1,4 @@
-import type { UserCardWithStats } from '../../../../../models'
+import type { UserCardWithStats } from '../../../../../types/domain/models'
 
 export type WhoToFollowWidgetProps = {
   user: UserCardWithStats // ← Usuário logado

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import type { PostMedia } from '../../../../models'
+import type { PostMedia } from '../../../../types/domain/models'
 import type { MediaPreviewProps } from './types'
 import * as S from './styles'
 

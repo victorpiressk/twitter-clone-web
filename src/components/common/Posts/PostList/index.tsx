@@ -10,12 +10,6 @@ const PostList = ({
   onComment,
   variant
 }: PostListProps) => {
-  if (posts.length === 0) {
-    return (
-      <S.EmptyState>Nenhum post ainda. Seja o primeiro a postar!</S.EmptyState>
-    )
-  }
-
   return (
     <S.PostListContainer>
       {posts.map((post) => (

@@ -11,7 +11,7 @@ import ScrollToTop from '../../hooks/useScrollToTop'
 import type { ExploreTab } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
-import type { PostWithInteractions, Trend } from '../../models'
+import type { PostWithInteractions, Trend } from '../../types/domain/models'
 
 // Mock data - Posts sugeridos
 const mockPosts: PostWithInteractions[] = [

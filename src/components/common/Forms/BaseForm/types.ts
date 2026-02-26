@@ -1,4 +1,4 @@
-import type { Poll, PostMedia, Location } from '../../../../models'
+import type { Poll, PostMedia, Location } from '../../../../types/domain/models'
 
 export type BaseFormProps = {
   userName: string

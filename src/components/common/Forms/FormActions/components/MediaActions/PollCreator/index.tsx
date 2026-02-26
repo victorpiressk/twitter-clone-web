@@ -4,7 +4,7 @@ import BasePopover from '../../../../../Popovers/BasePopover'
 import { POLL_DURATIONS } from './constants/durations'
 import type { PollCreatorProps } from './types'
 import * as S from './styles'
-import type { Poll, PollOption } from '../../../../../../../models'
+import type { Poll, PollOption } from '../../../../../../../types/domain/models'
 
 const PollCreatorComponent = ({
   isOpen,

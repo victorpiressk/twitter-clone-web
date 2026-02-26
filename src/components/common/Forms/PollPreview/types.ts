@@ -1,4 +1,4 @@
-import type { PollOption } from '../../../../models'
+import type { PollOption } from '../../../../types/domain/models'
 
 export type PollPreviewProps = {
   question?: string

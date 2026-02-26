@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
 import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
-import type { UserCard } from '../../../models'
+import type { UserCard } from '../../../types/domain/models'
 import type {
   SearchPopoverState,
   SearchHistoryItem,

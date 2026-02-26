@@ -8,7 +8,7 @@ import UserCardListSkeleton from '../../components/common/Skeleton/components/Us
 import ScrollToTop from '../../hooks/useScrollToTop'
 import type { ConnectTab } from './types'
 import * as S from './styles'
-import type { UserCard } from '../../models'
+import type { UserCard } from '../../types/domain/models'
 
 // Mock data - Sugestões
 const mockSuggestions: UserCard[] = [

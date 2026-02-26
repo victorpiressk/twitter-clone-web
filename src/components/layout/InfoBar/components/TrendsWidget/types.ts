@@ -1,6 +1,6 @@
-import type { Trend } from '../../../../../models'
+import type { TrendingHashtag } from '../../../../../types/domain/models'
 
 export type TrendsWidgetProps = {
-  trends: Trend[] // ← Array de trends
+  trends: TrendingHashtag[]
   showAll?: boolean
 }

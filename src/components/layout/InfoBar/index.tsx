@@ -4,7 +4,7 @@ import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
 import Footer from './components/Footer'
 import { PopoverProvider } from '../../../contexts/PopoverContext'
-import type { UserCardWithStats, Trend } from '../../../models'
+import type { UserCardWithStats, Trend } from '../../../types/domain/models'
 import type { InfoBarProps } from './types'
 import * as S from './styles'
 

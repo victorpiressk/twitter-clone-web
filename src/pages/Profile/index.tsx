@@ -10,7 +10,7 @@ import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
 import * as S from './styles'
-import type { PostWithInteractions, User } from '../../models'
+import type { PostWithInteractions, User } from '../../types/domain/models'
 import { MOCK_CURRENT_USER, MOCK_PROFILE_USER } from '../../mocks/user'
 
 const mockPosts: PostWithInteractions[] = [

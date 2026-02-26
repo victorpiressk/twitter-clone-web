@@ -6,7 +6,7 @@ import InfoBar from '../../components/Layout/InfoBar'
 import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
 import ScrollToTop from '../../hooks/useScrollToTop'
 import type { NotificationTab } from './types'
-import type { Notification } from '../../models'
+import type { Notification } from '../../types/domain/models'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 

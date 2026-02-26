@@ -1,4 +1,4 @@
-import type { Notification } from '../../../../models'
+import type { Notification } from '../../../../types/domain/models'
 
 export type NotificationItemProps = {
   notification: Notification

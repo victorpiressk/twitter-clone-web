@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Twitter } from 'lucide-react'
-import { useRegisterMutation } from '../../../../store/slices/api'
 import { setCredentials } from '../../../../store/slices/auth/authSlice'
 import { useAppDispatch } from '../../../../store/hooks'
 import { useToast } from '../../../../hooks/useToast'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
-import { transformApiError } from '../../../../utils/errorTransformers'
+import { transformApiError } from '../../../../utils/transformers/error'
 import type {
   RegisterModalProps,
   RegisterStep,
@@ -17,6 +16,7 @@ import type {
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import type { SerializedError } from '@reduxjs/toolkit'
 import * as S from './styles'
+import { useRegisterMutation } from '../../../../store/slices/api/auth.api'
 
 const RegisterModal = ({
   isOpen,

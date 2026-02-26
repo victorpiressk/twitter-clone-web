@@ -1,8 +1,7 @@
-// src/store/slices/auth/authSlice.ts
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { User } from '../../../models'
+import type { User } from '../../../types/domain/models'
 import type { RootState } from '../..'
-import api from '../api'
+import { authApi } from '../api/auth.api'
 
 type AuthState = {
   user: User | null
@@ -69,14 +68,14 @@ const authSlice = createSlice({
     builder
       // Quando getCurrentUser retorna sucesso
       .addMatcher(
-        api.endpoints.getCurrentUser.matchFulfilled,
+        authApi.endpoints.getCurrentUser.matchFulfilled,
         (state, action) => {
           state.user = action.payload
           state.loading = false
         }
       )
       // Quando getCurrentUser falha (token inválido)
-      .addMatcher(api.endpoints.getCurrentUser.matchRejected, (state) => {
+      .addMatcher(authApi.endpoints.getCurrentUser.matchRejected, (state) => {
         state.user = null
         state.accessToken = null
         state.isAuthenticated = false

@@ -1,4 +1,4 @@
-import type { PostMedia } from '../../../../models'
+import type { PostMedia } from '../../../../types/domain/models'
 
 export type MediaPreviewProps = {
   medias: PostMedia[]

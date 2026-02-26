@@ -1,4 +1,4 @@
-import type { Poll } from '../../../../../../../models'
+import type { Poll } from '../../../../../../../types/domain/models'
 
 export type PollCreatorProps = {
   isOpen: boolean

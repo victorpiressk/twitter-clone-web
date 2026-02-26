@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Twitter } from 'lucide-react'
-import { useLoginMutation } from '../../../../store/slices/api'
 import { setCredentials } from '../../../../store/slices/auth/authSlice'
 import { useAppDispatch } from '../../../../store/hooks'
 import { useToast } from '../../../../hooks/useToast'
-import { transformApiError } from '../../../../utils/errorTransformers'
+import { transformApiError } from '../../../../utils/transformers/error'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
 import GoogleIcon from '../../../../assets/icons/google-original.svg'
@@ -14,6 +13,7 @@ import type { LoginModalProps, LoginStep } from './types'
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import type { SerializedError } from '@reduxjs/toolkit'
 import * as S from './styles'
+import { useLoginMutation } from '../../../../store/slices/api/auth.api'
 
 const LoginModal = ({
   isOpen,

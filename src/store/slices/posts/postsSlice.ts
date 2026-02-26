@@ -1,10 +1,9 @@
-// src/store/slices/posts/postsSlice.ts
 import {
   createSlice,
   type PayloadAction,
   createSelector
 } from '@reduxjs/toolkit'
-import type { PostWithInteractions } from '../../../models'
+import type { PostWithInteractions } from '../../../types/domain/models'
 import type { RootState } from '../..'
 
 // ============================================
@@ -65,13 +64,18 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    // ✅ Adiciona/atualiza um post
+    // ✅ Adiciona/atualiza um post E adiciona ao feed
     upsertPost: (state, action: PayloadAction<PostWithInteractions>) => {
       const post = action.payload
       state.byId[post.id] = post
 
       if (!state.allIds.includes(post.id)) {
         state.allIds.push(post.id)
+      }
+
+      // ✅ NOVO: Adiciona ao topo do feed (posts novos aparecem primeiro)
+      if (!state.feed.ids.includes(post.id)) {
+        state.feed.ids.unshift(post.id)
       }
     },
 
@@ -139,7 +143,7 @@ const postsSlice = createSlice({
         .filter((id) => !state.feed.ids.includes(id))
       state.feed.ids = [...state.feed.ids, ...newIds]
       state.feed.cursor = cursor
-      state.feed.hasMore = hasMore
+      state.feed.hasMore = cursor !== null && hasMore
       state.feed.loading = false
     },
 

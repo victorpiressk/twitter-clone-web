@@ -6,7 +6,7 @@ import Input from '../../../../components/common/Input'
 import BirthDateModal from './components/BirthDateModal'
 import { useToast } from '../../../../hooks/useToast'
 import type { EditProfileModalProps } from './types'
-import type { User } from '../../../../models'
+import type { User } from '../../../../types/domain/models'
 import * as S from './styles'
 import { formatDate } from '../../../../utils/formatDate'
 

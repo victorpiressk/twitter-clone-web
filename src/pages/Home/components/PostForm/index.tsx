@@ -1,4 +1,7 @@
 import { useRef, useState, useCallback } from 'react'
+import { useCreatePostMutation } from '../../../../store/slices/api/posts'
+import { upsertPost } from '../../../../store/slices/posts/postsSlice'
+import { useAppDispatch } from '../../../../store/hooks'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
 import MediaPreview from '../../../../components/common/Forms/MediaPreview'
@@ -7,9 +10,10 @@ import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
 import { useToast } from '../../../../hooks/useToast'
-import type { Poll, PostMedia, Location } from '../../../../models'
+import type { Poll, PostMedia, Location } from '../../../../types/domain/models'
 import type { PostFormProps } from './types'
 import * as S from './styles'
+import { store } from '../../../../store'
 
 const PostForm = ({
   userName,
@@ -21,14 +25,15 @@ const PostForm = ({
   onContentChange,
   onMediasChange,
 
-  // Props não-controladas (Home usa)
-  onSubmit,
-
   isModal = false,
   showActions = true
 }: PostFormProps) => {
+  const dispatch = useAppDispatch()
   const { showToast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // RTK Query mutation
+  const [createPost, { isLoading: isSubmitting }] = useCreatePostMutation()
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   // Estado interno (usado quando NÃO é controlado - Home)
@@ -52,16 +57,17 @@ const PostForm = ({
     }
   }
 
-  // Handler: Upload de mídias (valida e cria MediaFile)
+  // Handler: Upload de mídias
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
       const validMedias: PostMedia[] = []
 
       for (const file of newFiles) {
         if (!file) {
-          showToast('error', 'erro ao carregar mídea!')
+          showToast('error', 'Erro ao carregar mídia!')
           continue
         }
+        // TODO: Processar arquivo e criar PostMedia
       }
 
       if (validMedias.length > 0) {
@@ -139,31 +145,54 @@ const PostForm = ({
     setScheduledFor(null)
   }
 
-  // Handler: Submit
+  // Handler: Submit (integrado com Redux)
   const handleSubmit = async () => {
     if (!content.trim() && medias.length === 0) return
 
-    setIsSubmitting(true)
-
     try {
-      if (onSubmit) {
-        await onSubmit(content, medias)
-        showToast('success', 'Post criado com sucesso!')
+      // Chama API via RTK Query
+      const result = await createPost({
+        content: content.trim(),
+        media: medias,
+        location: location || undefined,
+        poll: poll
+          ? {
+              question: poll.question,
+              options: poll.options.map((opt) => opt.text),
+              durationHours: poll.durationHours
+            }
+          : undefined,
+        scheduledFor: scheduledFor?.toISOString()
+      }).unwrap()
 
-        // Cleanup (apenas no modo não-controlado)
-        if (!isControlled) {
-          setInternalContent('')
-          medias.forEach((m) => URL.revokeObjectURL(m.url))
-          setInternalMedias([])
-          setLocation(null)
-          setPoll(null)
-          setScheduledFor(null)
-        }
+      console.log('📥 Post criado - resposta:', result)
+
+      // Adiciona post ao feed local
+      dispatch(
+        upsertPost({
+          ...result,
+          isLiked: false,
+          isRetweeted: false,
+          isBookmarked: false
+        })
+      )
+
+      console.log('📊 Redux state:', store.getState().posts)
+
+      showToast('success', 'Post criado com sucesso!')
+
+      // Cleanup (apenas no modo não-controlado)
+      if (!isControlled) {
+        setInternalContent('')
+        medias.forEach((m) => URL.revokeObjectURL(m.url))
+        setInternalMedias([])
+        setLocation(null)
+        setPoll(null)
+        setScheduledFor(null)
       }
-    } catch {
+    } catch (error) {
+      console.error('Erro ao criar post:', error)
       showToast('error', 'Erro ao criar post. Tente novamente.')
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -184,12 +213,12 @@ const PostForm = ({
           rows={1}
         />
 
-        {/* Componente unificado de preview de medias*/}
+        {/* Preview de mídias */}
         {medias.length > 0 && (
           <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
         )}
 
-        {/* Renderizar preview de enquete */}
+        {/* Preview de enquete */}
         {poll && (
           <PollPreview
             question={poll.question}
@@ -200,7 +229,7 @@ const PostForm = ({
           />
         )}
 
-        {/* Renderizar preview de Schedule */}
+        {/* Preview de Schedule */}
         {scheduledFor && (
           <SchedulePreview
             scheduledDate={scheduledFor}
@@ -209,7 +238,7 @@ const PostForm = ({
           />
         )}
 
-        {/* Renderizar preview de location */}
+        {/* Preview de location */}
         {location && (
           <LocationPreview
             locationName={location.name}
@@ -218,7 +247,7 @@ const PostForm = ({
           />
         )}
 
-        {/* Renderiza actions apenas se showActions=true */}
+        {/* Actions */}
         {showActions && (
           <PostFormActions
             content={content}

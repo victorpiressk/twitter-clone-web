@@ -17,29 +17,26 @@ const FormModal = ({
   errorMessage,
   extraContent,
   mode,
-  onSubmit,
   maxLength = 280,
   modalSize = 'medium'
 }: FormModalProps) => {
-  // Hook centralizado com toda a lógica
+  // Hook centralizado (com Redux integrado)
   const formState = useFormModal({
     successMessage,
-    errorMessage,
-    onSubmit
+    errorMessage
   })
 
-  // Handler de fechamento (limpa estado + fecha modal)
+  // Handler de fechamento
   const handleClose = useCallback(() => {
     formState.handleClose()
     onClose()
   }, [formState, onClose])
 
-  // Handler de submit bem-sucedido (fecha modal)
+  // Handler de submit
   const handleSubmitSuccess = useCallback(async () => {
     await formState.handleSubmit()
 
-    // Só fecha se o submit foi bem-sucedido
-    // (formState.handleSubmit já gerencia erro internamente)
+    // Fecha modal após sucesso
     if (!formState.isSubmitting) {
       onClose()
     }

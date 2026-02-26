@@ -1,4 +1,7 @@
-import type { PostMedia, PostWithInteractions } from '../../../../models'
+import type {
+  PostMedia,
+  PostWithInteractions
+} from '../../../../types/domain/models'
 
 export type PostCardVariant = 'default' | 'detailed'
 

@@ -1,4 +1,4 @@
-import type { User } from '../../../../models'
+import type { User } from '../../../../types/domain/models'
 
 export type EditProfileModalProps = {
   isOpen: boolean

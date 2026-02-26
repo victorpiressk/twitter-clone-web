@@ -1,4 +1,4 @@
-import type { PostWithInteractions } from '../../models'
+import type { PostWithInteractions } from '../../types/domain/models'
 
 export type PostWithComments = {
   comments: PostWithInteractions[]

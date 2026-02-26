@@ -1,4 +1,4 @@
-import type { UserCard } from '../../../../models'
+import type { UserCard } from '../../../../types/domain/models'
 
 export type UserSuggestionCardProps = {
   user: UserCard
