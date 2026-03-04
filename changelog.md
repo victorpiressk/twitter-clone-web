@@ -6,6 +6,77 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## [0.1.3] - 2025-03-02
+
+### Added
+
+#### Hooks Especializados
+- **usePostActions**: Hook para ações em posts individuais (like, retweet, delete, bookmark) com optimistic updates e rollback automático
+- **useCreatePost**: Hook unificado para criação e edição de posts com suporte a posts normais, quotes, replies e updates
+- **usePosts**: Hook unificado para gerenciamento de feeds com suporte a três tipos ('forYou', 'following', 'replies') e infinite scroll
+
+#### Funcionalidades
+- Infinite scroll implementado na Home (feed principal) e PostDetail (comentários)
+- Pull to refresh nos feeds
+- Loading states (skeleton inicial, loading ao buscar mais)
+- Empty states e end messages
+- Detecção inteligente de múltiplos retweets (simple e quotes separados)
+- Preview de imagens nos formulários com createObjectURL
+- Renderização de quote tweets com OriginalPostEmbed
+
+### Changed
+
+#### Componentes
+- **PostCard**: Migrado para usePostActions, removida dependência de array de posts, adicionados modais integrados
+- **PostCardActions**: Adicionado stopPropagation para prevenir navegação indesejada
+- **PostCardContent**: Busca originalPost do Redux para renderizar quote tweets
+- **PostForm**: Migrado para useCreatePost, código reduzido em 80%
+- **HomeLayout**: Migrado para usePosts, código reduzido em 60% (150 → 60 linhas)
+- **PostDetail**: Implementado infinite scroll de comentários com usePosts
+
+#### Modais e Formulários
+- **useFormModal**: Refatorado para usar useCreatePost com suporte a 4 tipos (create, comment, quote, edit)
+- **BaseForm**: Corrigida renderização de extraContent para mode 'quote'
+- **CreatePostModal**: Integrado com useFormModal tipo 'create'
+- **CommentModal**: Integrado com useFormModal tipo 'comment'
+- **RetweetModal**: Integrado com useFormModal tipo 'quote'
+- **EditPostModal**: Integrado com useFormModal tipo 'edit'
+
+### Fixed
+
+#### Bugs Críticos
+- **Transforms em fetch manual**: Nome de usuário e data sumiam após o 5º post devido à falta de transformação de snake_case para camelCase no loadMore
+- **Renderização de imagens**: Imagens não apareciam no PostCard por falta de transforms
+- **Renderização de quote tweets**: OriginalPostEmbed não renderizava devido a props incorretas e condição de mode errada
+- **Preview de imagens**: handleMediaUpload não criava preview por não usar createMediaFile
+- **Crash em posts com comentários**: Componentes crashavam quando post era undefined
+- **Navegação indesejada**: Clicar em botões de comment/retweet navegava para detail
+- **Contador de comments**: Contador não atualizava ao criar reply
+- **Detecção de retweets**: find() pegava apenas primeiro retweet, agora usa filter() e separa simple de quotes
+- **Re-renders desnecessários**: Adicionada memoização com useMemo para evitar warnings de selector
+
+### Removido
+- **usePost**: Hook genérico removido, funcionalidade migrada para hooks especializados
+- **useFeed**: Hook removido, substituído por usePosts com suporte a múltiplos tipos
+
+### Técnico
+- Aplicação de transformers (transformPost) em todos os fetch manuais do loadMore
+- Safety checks (if (!post) return null) adicionados em componentes críticos
+- Optimistic updates com rollback automático em ações de posts
+- Memoização de selectors com useMemo para otimização de performance
+- Redux sync automático via upsertPost e removePost
+- Extração correta de Files para upload com cleanup de Blobs
+- scrollableTarget="window" para compatibilidade com Sidebar
+
+### Impacto
+- 3 hooks criados (usePostActions, useCreatePost, usePosts)
+- 2 hooks removidos (usePost, useFeed)
+- 8 componentes atualizados
+- 2 páginas atualizadas (Home, PostDetail)
+- 7 bugs críticos resolvidos
+- 60% de redução de código na Home
+- Infinite scroll em 2 contextos (feed principal e comentários)
+
 ## [0.1.2] - 2026-02-13
 
 ### Added

@@ -1,8 +1,9 @@
-import type { Poll, PostMedia, Location } from '../../../../types/domain/models'
+import type { Poll, Location } from '../../../../types/domain/models'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 
 export type PostFormActionsProps = {
   content: string
-  medias: PostMedia[]
+  medias: PostMediaWithFile[] | File[]
   poll?: Poll | null
   maxMedias?: number
   isDisabled: boolean

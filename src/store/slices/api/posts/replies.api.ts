@@ -1,7 +1,16 @@
 import { baseApi } from '../base.api'
-import { transformPost } from '../../../../utils/transformers/entities'
-import type { Post } from '../../../../types/domain/models'
-import type { BackendPost } from '../../../../types/contracts/dtos'
+import {
+  transformPost,
+  transformPostWithInteractions
+} from '../../../../utils/transformers/entities'
+import type {
+  Post,
+  PostWithInteractions
+} from '../../../../types/domain/models'
+import type {
+  BackendPost,
+  BackendPostWithInteractions
+} from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
 import type { PaginatedResponse } from '../../../../types/domain/responses'
 import type { ReplyRequest } from '../../../../types/domain/requests'
@@ -18,7 +27,7 @@ export const repliesApi = baseApi.injectEndpoints({
     // ============================================
 
     getPostReplies: builder.query<
-      PaginatedResponse<Post>,
+      PaginatedResponse<PostWithInteractions>,
       { postId: number; params?: PaginationParams }
     >({
       query: ({ postId, params }) => ({
@@ -26,13 +35,36 @@ export const repliesApi = baseApi.injectEndpoints({
         params: params || {}
       }),
       transformResponse: (
-        response: BackendPaginatedResponse<BackendPost>
-      ): PaginatedResponse<Post> => ({
-        count: response.count,
-        next: response.next,
-        previous: response.previous,
-        results: response.results.map(transformPost)
-      }),
+        response: BackendPaginatedResponse<BackendPostWithInteractions>
+      ): PaginatedResponse<PostWithInteractions> => {
+        // ✅ Se API retorna array direto
+        if (Array.isArray(response)) {
+          return {
+            count: response.length,
+            next: null,
+            previous: null,
+            results: response.map(transformPostWithInteractions)
+          }
+        }
+
+        // ✅ Se API retorna objeto paginado
+        if (response && Array.isArray(response.results)) {
+          return {
+            count: response.count || 0,
+            next: response.next || null,
+            previous: response.previous || null,
+            results: response.results.map(transformPostWithInteractions)
+          }
+        }
+
+        // ✅ Fallback: retorna vazio
+        return {
+          count: 0,
+          next: null,
+          previous: null,
+          results: []
+        }
+      },
       providesTags: (_result, _error, { postId }) => [
         { type: 'Post', id: postId },
         'Comment'

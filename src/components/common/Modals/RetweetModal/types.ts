@@ -1,13 +1,9 @@
-import type {
-  PostMedia,
-  PostWithInteractions
-} from '../../../../types/domain/models'
+import type { PostWithInteractions } from '../../../../types/domain/models'
 
 export type RetweetModalProps = {
   isOpen: boolean
   onClose: () => void
   originalPost: PostWithInteractions
-  onSubmit: (content: string, medias?: PostMedia[]) => Promise<void> | void
   userName: string
   userAvatar: string | null
 }

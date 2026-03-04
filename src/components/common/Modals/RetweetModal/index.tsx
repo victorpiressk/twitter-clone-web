@@ -6,7 +6,6 @@ const RetweetModal = ({
   isOpen,
   onClose,
   originalPost,
-  onSubmit,
   userName,
   userAvatar
 }: RetweetModalProps) => {
@@ -21,10 +20,10 @@ const RetweetModal = ({
       successMessage="Retweet enviado com sucesso!"
       errorMessage="Erro ao enviar Retweet. Tente novamente."
       extraContent={<OriginalPostEmbed post={originalPost} />}
-      onSubmit={onSubmit}
       maxLength={280}
       modalSize="medium"
-      mode="retweet"
+      mode="quote"
+      originalPostId={originalPost.id}
     />
   )
 }

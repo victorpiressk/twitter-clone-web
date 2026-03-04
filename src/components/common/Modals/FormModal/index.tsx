@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import Modal from '../BaseModal'
-import ContentForm from '../../Forms/BaseForm'
+import BaseForm from '../../Forms/BaseForm'
 import PostFormActions from '../../Forms/FormActions'
 import { useFormModal } from '../../../../hooks/useFormModal'
 import type { FormModalProps } from './types'
@@ -13,17 +13,16 @@ const FormModal = ({
   userAvatar,
   placeholder = 'O que está acontecendo?',
   submitLabel = 'Postar',
-  successMessage,
-  errorMessage,
   extraContent,
   mode,
+  originalPostId,
   maxLength = 280,
   modalSize = 'medium'
 }: FormModalProps) => {
   // Hook centralizado (com Redux integrado)
   const formState = useFormModal({
-    successMessage,
-    errorMessage
+    type: mode,
+    targetPostId: originalPostId
   })
 
   // Handler de fechamento
@@ -75,7 +74,7 @@ const FormModal = ({
     >
       <S.ModalContent>
         <S.FormContainer>
-          <ContentForm
+          <BaseForm
             userName={userName}
             userAvatar={userAvatar}
             content={formState.content}

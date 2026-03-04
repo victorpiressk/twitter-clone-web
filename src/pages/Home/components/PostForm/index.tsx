@@ -1,7 +1,6 @@
+// src/components/common/Forms/PostForm/PostForm.tsx
 import { useRef, useState, useCallback } from 'react'
-import { useCreatePostMutation } from '../../../../store/slices/api/posts'
-import { upsertPost } from '../../../../store/slices/posts/postsSlice'
-import { useAppDispatch } from '../../../../store/hooks'
+import { useCreatePost } from '../../../../hooks'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
 import MediaPreview from '../../../../components/common/Forms/MediaPreview'
@@ -9,16 +8,15 @@ import LocationPreview from '../../../../components/common/Forms/LocationPreview
 import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
-import { useToast } from '../../../../hooks/useToast'
-import type { Poll, PostMedia, Location } from '../../../../types/domain/models'
+import { useAppSelector } from '../../../../store/hooks'
+import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
+import { createMediaFile } from '../../../../utils/mediaHelpers'
+import type { Poll, Location } from '../../../../types/domain/models'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 import type { PostFormProps } from './types'
 import * as S from './styles'
-import { store } from '../../../../store'
 
 const PostForm = ({
-  userName,
-  userAvatar,
-
   // Props controladas (FormModal usa via useFormModal)
   content: controlledContent,
   medias: controlledMedias,
@@ -28,17 +26,17 @@ const PostForm = ({
   isModal = false,
   showActions = true
 }: PostFormProps) => {
-  const dispatch = useAppDispatch()
-  const { showToast } = useToast()
+  // Usar usuário do Redux
+  const user = useAppSelector(selectCurrentUser)
 
-  // RTK Query mutation
-  const [createPost, { isLoading: isSubmitting }] = useCreatePostMutation()
+  // ✅ Usa useCreatePost
+  const { createPost, isCreating } = useCreatePost()
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   // Estado interno (usado quando NÃO é controlado - Home)
   const [internalContent, setInternalContent] = useState('')
-  const [internalMedias, setInternalMedias] = useState<PostMedia[]>([])
+  const [internalMedias, setInternalMedias] = useState<PostMediaWithFile[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
@@ -57,18 +55,13 @@ const PostForm = ({
     }
   }
 
-  // Handler: Upload de mídias
+  // ✅ Handler: Upload de mídias CORRIGIDO
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
-      const validMedias: PostMedia[] = []
-
-      for (const file of newFiles) {
-        if (!file) {
-          showToast('error', 'Erro ao carregar mídia!')
-          continue
-        }
-        // TODO: Processar arquivo e criar PostMedia
-      }
+      // ✅ Usa createMediaFile do mediaHelpers
+      const validMedias: PostMediaWithFile[] = newFiles.map((file) =>
+        createMediaFile(file)
+      )
 
       if (validMedias.length > 0) {
         if (isControlled) {
@@ -78,7 +71,7 @@ const PostForm = ({
         }
       }
     },
-    [medias, isControlled, onMediasChange, showToast]
+    [medias, isControlled, onMediasChange]
   )
 
   // Handler: Remover mídia
@@ -86,14 +79,14 @@ const PostForm = ({
     const updated = medias.filter((m) => m.id !== id)
     const removed = medias.find((m) => m.id === id)
 
-    if (removed) {
+    if (removed && 'url' in removed) {
       URL.revokeObjectURL(removed.url)
     }
 
     if (isControlled) {
       onMediasChange?.(updated)
     } else {
-      setInternalMedias(updated)
+      setInternalMedias(updated as PostMediaWithFile[])
     }
   }
 
@@ -121,7 +114,11 @@ const PostForm = ({
 
     // Limpa mídia
     if (medias.length > 0) {
-      medias.forEach((m) => URL.revokeObjectURL(m.url))
+      medias.forEach((m) => {
+        if ('url' in m) {
+          URL.revokeObjectURL(m.url)
+        }
+      })
       if (isControlled) {
         onMediasChange?.([])
       } else {
@@ -145,54 +142,30 @@ const PostForm = ({
     setScheduledFor(null)
   }
 
-  // Handler: Submit (integrado com Redux)
+  // ✅ Handler: Submit (usando useCreatePost)
   const handleSubmit = async () => {
     if (!content.trim() && medias.length === 0) return
 
     try {
-      // Chama API via RTK Query
-      const result = await createPost({
-        content: content.trim(),
-        media: medias,
-        location: location || undefined,
-        poll: poll
-          ? {
-              question: poll.question,
-              options: poll.options.map((opt) => opt.text),
-              durationHours: poll.durationHours
-            }
-          : undefined,
-        scheduledFor: scheduledFor?.toISOString()
-      }).unwrap()
-
-      console.log('📥 Post criado - resposta:', result)
-
-      // Adiciona post ao feed local
-      dispatch(
-        upsertPost({
-          ...result,
-          isLiked: false,
-          isRetweeted: false,
-          isBookmarked: false
-        })
-      )
-
-      console.log('📊 Redux state:', store.getState().posts)
-
-      showToast('success', 'Post criado com sucesso!')
+      // ✅ Chama createPost do useCreatePost
+      await createPost(content.trim(), medias.length > 0 ? medias : undefined)
 
       // Cleanup (apenas no modo não-controlado)
       if (!isControlled) {
         setInternalContent('')
-        medias.forEach((m) => URL.revokeObjectURL(m.url))
+        medias.forEach((m) => {
+          if ('url' in m) {
+            URL.revokeObjectURL(m.url)
+          }
+        })
         setInternalMedias([])
         setLocation(null)
         setPoll(null)
         setScheduledFor(null)
       }
     } catch (error) {
+      // Erro já tratado no useCreatePost (toast)
       console.error('Erro ao criar post:', error)
-      showToast('error', 'Erro ao criar post. Tente novamente.')
     }
   }
 
@@ -202,7 +175,7 @@ const PostForm = ({
 
   return (
     <S.PostFormContainer $isModal={isModal}>
-      <Avatar src={userAvatar} alt={userName} size="small" />
+      <Avatar src={user?.avatar} alt={user?.username} size="small" />
 
       <S.PostFormContent>
         <Textarea
@@ -257,7 +230,7 @@ const PostForm = ({
             maxLength={280}
             onMediaUpload={handleMediaUpload}
             onSubmit={handleSubmit}
-            loading={isSubmitting}
+            loading={isCreating}
             submitLabel="Postar"
             onEmojiSelect={handleEmojiSelect}
             onLocationSelect={handleLocationSelect}

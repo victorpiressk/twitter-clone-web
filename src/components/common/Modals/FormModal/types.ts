@@ -1,4 +1,4 @@
-import type { PostMedia } from '../../../../types/domain/models'
+import type { FormModalType } from '../../../../hooks'
 
 export type FormModalProps = {
   // Controle do modal
@@ -17,10 +17,8 @@ export type FormModalProps = {
 
   // Conteúdo extra (para Comment/Retweet)
   extraContent?: React.ReactNode
-  mode?: 'comment' | 'retweet'
-
-  // Callback de submit
-  onSubmit: (content: string, medias?: PostMedia[]) => Promise<void> | void
+  mode: FormModalType
+  originalPostId?: number
 
   // Customização (opcional)
   maxLength?: number

@@ -67,13 +67,16 @@ const postsSlice = createSlice({
     // ✅ Adiciona/atualiza um post E adiciona ao feed
     upsertPost: (state, action: PayloadAction<PostWithInteractions>) => {
       const post = action.payload
-      state.byId[post.id] = post
+      state.byId[post.id] = {
+        ...state.byId[post.id],
+        ...post
+      }
 
       if (!state.allIds.includes(post.id)) {
         state.allIds.push(post.id)
       }
 
-      // ✅ NOVO: Adiciona ao topo do feed (posts novos aparecem primeiro)
+      // Adiciona ao topo do feed (posts novos aparecem primeiro)
       if (!state.feed.ids.includes(post.id)) {
         state.feed.ids.unshift(post.id)
       }
@@ -82,7 +85,10 @@ const postsSlice = createSlice({
     // ✅ Adiciona múltiplos posts
     upsertPosts: (state, action: PayloadAction<PostWithInteractions[]>) => {
       action.payload.forEach((post) => {
-        state.byId[post.id] = post
+        state.byId[post.id] = {
+          ...state.byId[post.id],
+          ...post
+        }
 
         if (!state.allIds.includes(post.id)) {
           state.allIds.push(post.id)
@@ -103,7 +109,10 @@ const postsSlice = createSlice({
 
       // Adiciona posts ao cache normalizado
       posts.forEach((post) => {
-        state.byId[post.id] = post
+        state.byId[post.id] = {
+          ...state.byId[post.id],
+          ...post
+        }
 
         if (!state.allIds.includes(post.id)) {
           state.allIds.push(post.id)
@@ -128,22 +137,37 @@ const postsSlice = createSlice({
     ) => {
       const { posts, cursor, hasMore } = action.payload
 
-      // Adiciona ao cache
+      // ✅ 1. Proteção: Se não vierem posts, apenas atualiza o cursor e hasMore
+      if (!posts || posts.length === 0) {
+        state.feed.cursor = cursor
+        state.feed.hasMore = false // Se veio vazio, não tem mais nada
+        state.feed.loading = false
+        return
+      }
+
+      // 2. Adiciona ao cache (byId) usando o merge seguro que discutimos
       posts.forEach((post) => {
-        state.byId[post.id] = post
+        const existing = state.byId[post.id]
+        state.byId[post.id] = {
+          ...existing,
+          ...post,
+          // Garante que o autor não suma se o merge for parcial
+          author: post.author || existing?.author,
+          stats: post.stats || existing?.stats
+        }
 
         if (!state.allIds.includes(post.id)) {
           state.allIds.push(post.id)
         }
       })
 
-      // Append ao feed (sem duplicar)
-      const newIds = posts
-        .map((p) => p.id)
-        .filter((id) => !state.feed.ids.includes(id))
-      state.feed.ids = [...state.feed.ids, ...newIds]
+      // ✅ 3. Append ao feed SEM DUPLICAR e sem limpar o que já existe
+      const currentIds = new Set(state.feed.ids)
+      posts.forEach((p) => currentIds.add(p.id))
+
+      state.feed.ids = Array.from(currentIds)
       state.feed.cursor = cursor
-      state.feed.hasMore = cursor !== null && hasMore
+      state.feed.hasMore = hasMore && cursor !== null
       state.feed.loading = false
     },
 
@@ -181,6 +205,14 @@ const postsSlice = createSlice({
       }
     },
 
+    // ✅ Incrementa retweets
+    incrementRetweets: (state, action: PayloadAction<number>) => {
+      const post = state.byId[action.payload]
+      if (post) {
+        post.stats.retweets += 1
+      }
+    },
+
     // ✅ Remove post
     removePost: (state, action: PayloadAction<number>) => {
       const id = action.payload
@@ -206,7 +238,10 @@ const postsSlice = createSlice({
       const { post, threadIds, commentIds } = action.payload
 
       // Adiciona ao cache
-      state.byId[post.id] = post
+      state.byId[post.id] = {
+        ...state.byId[post.id],
+        ...post
+      }
 
       // Define detail
       state.detail.postId = post.id
@@ -251,6 +286,7 @@ export const {
   toggleRetweet,
   toggleBookmark,
   incrementComments,
+  incrementRetweets,
   removePost,
   setFeedLoading,
   setPostDetail,
@@ -277,10 +313,24 @@ export const selectFeedHasMore = (state: RootState) => state.posts.feed.hasMore
 export const selectFeedLoading = (state: RootState) => state.posts.feed.loading
 export const selectFeedCursor = (state: RootState) => state.posts.feed.cursor
 
-// Selector memoizado: posts do feed com dados completos
+// Selector para o Feed
 export const selectFeedPosts = createSelector(
-  [selectAllPosts, selectFeedPostIds],
-  (postsById, feedIds) => feedIds.map((id) => postsById[id]).filter(Boolean)
+  [selectAllPosts, (state: RootState) => state.posts.feed.ids],
+  (postsById, feedIds) => {
+    return feedIds
+      .map((id) => postsById[id])
+      .filter((post): post is PostWithInteractions => !!post && !post.inReplyTo)
+  }
+)
+
+// Selector para Replies
+export const selectRawFeedPosts = createSelector(
+  [selectAllPosts, (state: RootState) => state.posts.feed.ids],
+  (postsById, feedIds) => {
+    return feedIds
+      .map((id) => postsById[id])
+      .filter((post): post is PostWithInteractions => !!post)
+  }
 )
 
 // Detail selectors

@@ -9,7 +9,7 @@ const OriginalPostEmbed = ({ post }: OriginalPostEmbedProps) => {
       <S.Header>
         <Avatar
           src={post.author.avatar}
-          alt={post.author.firstName}
+          alt={post.author.username}
           size="small"
         />
 

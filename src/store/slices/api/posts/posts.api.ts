@@ -41,43 +41,46 @@ export const postsApi = baseApi.injectEndpoints({
       transformResponse: (
         response: BackendPaginatedResponse<BackendPostWithInteractions>
       ): PaginatedResponse<PostWithInteractions> => ({
-        count: response.count,
-        next: response.next,
-        previous: response.previous,
+        ...response,
         results: response.results.map(transformPostWithInteractions)
       }),
-      providesTags: ['Post']
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.results.map(({ id }) => ({
+                type: 'Post' as const,
+                id
+              })),
+              { type: 'Post', id: 'LIST' }
+            ]
+          : [{ type: 'Post', id: 'LIST' }]
     }),
 
     getFeed: builder.query<PaginatedResponse<PostWithInteractions>, void>({
       query: () => '/api/posts/feed/',
       transformResponse: (
         response: BackendPaginatedResponse<BackendPostWithInteractions>
-      ): PaginatedResponse<PostWithInteractions> => {
-        // ✅ Safe check
-        if (!response || !response.results) {
-          return {
-            count: 0,
-            next: null,
-            previous: null,
-            results: []
-          }
-        }
-
-        return {
-          count: response.count,
-          next: response.next,
-          previous: response.previous,
-          results: response.results.map(transformPostWithInteractions)
-        }
-      },
-      providesTags: ['Post']
+      ): PaginatedResponse<PostWithInteractions> => ({
+        ...response,
+        results: (response.results || []).map(transformPostWithInteractions)
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.results.map(({ id }) => ({
+                type: 'Post' as const,
+                id
+              })),
+              { type: 'Post', id: 'FEED' }
+            ]
+          : [{ type: 'Post', id: 'FEED' }]
     }),
 
-    getPostById: builder.query<Post, number>({
+    getPostById: builder.query<PostWithInteractions, number>({
       query: (id) => `/api/posts/${id}/`,
-      transformResponse: (response: BackendPost): Post =>
-        transformPost(response),
+      transformResponse: (
+        response: BackendPostWithInteractions
+      ): PostWithInteractions => transformPostWithInteractions(response),
       providesTags: (_result, _error, id) => [{ type: 'Post', id }]
     }),
 
@@ -106,12 +109,23 @@ export const postsApi = baseApi.injectEndpoints({
           formData.append('scheduled_for', transformed.scheduled_for)
         }
 
-        if (transformed.in_reply_to) {
-          formData.append('in_reply_to', transformed.in_reply_to.toString())
+        // Verificação rigorosa: aceita o número 0, mas pula null/undefined
+        if (
+          transformed.in_reply_to !== undefined &&
+          transformed.in_reply_to !== null
+        ) {
+          formData.append('in_reply_to', String(transformed.in_reply_to))
         }
 
-        if (transformed.retweet_of) {
-          formData.append('retweet_of', transformed.retweet_of.toString())
+        if (
+          transformed.retweet_of !== undefined &&
+          transformed.retweet_of !== null
+        ) {
+          console.log(
+            '🔍 Adicionando retweet_of ao FormData:',
+            transformed.retweet_of
+          )
+          formData.append('retweet_of', String(transformed.retweet_of))
         }
 
         return {
@@ -122,7 +136,13 @@ export const postsApi = baseApi.injectEndpoints({
       },
       transformResponse: (response: BackendPost): Post =>
         transformPost(response),
-      invalidatesTags: ['Post']
+      invalidatesTags: (_result, _error, arg) => [
+        { type: 'Post' as const, id: 'LIST' },
+        // Se o post tiver um in_reply_to, invalidamos as replies daquele post pai
+        ...(arg.inReplyTo
+          ? [{ type: 'Comment' as const, id: arg.inReplyTo }]
+          : [])
+      ]
     }),
 
     updatePost: builder.mutation<Post, { id: number; data: UpdatePostRequest }>(
@@ -132,8 +152,8 @@ export const postsApi = baseApi.injectEndpoints({
           method: 'PATCH',
           body: data
         }),
-        transformResponse: (response: BackendPost): Post =>
-          transformPost(response),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transformResponse: (response: any) => response,
         invalidatesTags: (_result, _error, { id }) => [{ type: 'Post', id }]
       }
     ),
@@ -143,7 +163,10 @@ export const postsApi = baseApi.injectEndpoints({
         url: `/api/posts/${id}/`,
         method: 'DELETE'
       }),
-      invalidatesTags: ['Post']
+      invalidatesTags: [
+        { type: 'Post', id: 'LIST' },
+        { type: 'Post', id: 'FEED' }
+      ]
     })
   })
 })

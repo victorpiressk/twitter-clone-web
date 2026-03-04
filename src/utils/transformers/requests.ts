@@ -82,27 +82,35 @@ export const transformUpdateUserRequest = (
 
 export const transformCreatePostRequest = (
   postRequest: CreatePostRequest
-): BackendCreatePostRequest => ({
-  content: postRequest.content,
-  media_files: postRequest.mediaFiles,
-  poll: postRequest.poll
-    ? {
-        question: postRequest.poll.question,
-        duration_hours: postRequest.poll.durationHours,
-        options: postRequest.poll.options
-      }
-    : undefined,
-  location: postRequest.location
-    ? {
-        name: postRequest.location.name,
-        latitude: postRequest.location.latitude,
-        longitude: postRequest.location.longitude
-      }
-    : undefined,
-  scheduled_for: postRequest.scheduledFor,
-  in_reply_to: postRequest.inReplyTo,
-  retweet_of: postRequest.retweetOf
-})
+): BackendCreatePostRequest => {
+  console.log('🔍 transformCreatePostRequest INPUT:', postRequest)
+
+  const result = {
+    content: postRequest.content,
+    media_files: postRequest.mediaFiles,
+    poll: postRequest.poll
+      ? {
+          question: postRequest.poll.question,
+          duration_hours: postRequest.poll.durationHours,
+          options: postRequest.poll.options
+        }
+      : undefined,
+    location: postRequest.location
+      ? {
+          name: postRequest.location.name,
+          latitude: postRequest.location.latitude,
+          longitude: postRequest.location.longitude
+        }
+      : undefined,
+    scheduled_for: postRequest.scheduledFor,
+    in_reply_to: postRequest.inReplyTo,
+    retweet_of: postRequest.retweetOf
+  }
+
+  console.log('🔍 transformCreatePostRequest OUTPUT:', result)
+
+  return result
+}
 
 // ============================================
 // COMMENT REQUEST

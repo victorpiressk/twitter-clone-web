@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { ProfileStatsProps } from './types'
-import ScrollToTop from '../../../../hooks/useScrollToTop'
+import { ScrollToTop } from '../../../../hooks/useScrollToTop'
 import * as S from './styles'
 
 const ProfileStats = ({ user }: ProfileStatsProps) => {

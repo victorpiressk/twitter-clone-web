@@ -1,125 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { useAppDispatch, useAppSelector } from '../../store/hooks'
-import { useGetPostsQuery, useGetFeedQuery } from '../../store/slices/api/posts'
-import {
-  setFeedPosts,
-  appendFeedPosts,
-  clearFeed
-} from '../../store/slices/posts/postsSlice'
-import {
-  selectFeedPosts,
-  selectFeedHasMore,
-  selectFeedCursor
-} from '../../store/slices/posts/postsSlice'
+import { usePosts } from '../../hooks/usePosts'
 import InforBar from '../../components/Layout/InfoBar'
 import PostForm from './components/PostForm'
 import PostCard from '../../components/common/Posts/PostCard'
 import HomeTabs from './components/HomeTabs'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-import ScrollToTop from '../../hooks/useScrollToTop'
-import { usePost } from '../../hooks/usePost'
+import { ScrollToTop } from '../../hooks'
 import type { ActiveTab } from './components/HomeTabs/types'
-import type { HomeProps } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
-const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
-  const dispatch = useAppDispatch()
-
+const HomeLayout = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('forYou')
-  const [isFetching, setIsFetching] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Queries separadas por aba
-  const {
-    data: allPostsData,
-    isLoading: isLoadingAll,
-    refetch: refetchAll
-  } = useGetPostsQuery(undefined, {
-    skip: activeTab !== 'forYou'
+  // ✅ Usa usePosts com type
+  const { posts, isLoading, hasMore, loadMore, refresh } = usePosts({
+    type: activeTab // 'forYou' ou 'following'
   })
 
-  const {
-    data: followingPostsData,
-    isLoading: isLoadingFollowing,
-    refetch: refetchFollowing
-  } = useGetFeedQuery(undefined, {
-    skip: activeTab !== 'following'
-  })
-
-  // Seleciona dados baseado na aba
-  const postsData = activeTab === 'forYou' ? allPostsData : followingPostsData
-  const isLoading = activeTab === 'forYou' ? isLoadingAll : isLoadingFollowing
-  const refetch = activeTab === 'forYou' ? refetchAll : refetchFollowing
-
-  // Redux selectors
-  const posts = useAppSelector(selectFeedPosts)
-  const hasMore = useAppSelector(selectFeedHasMore)
-  const cursor = useAppSelector(selectFeedCursor)
-
-  const { likePost, retweetPost, quoteTweet, commentPost } = usePost()
-
-  // Sincroniza primeira página
-  useEffect(() => {
-    if (postsData && !isInitialized && posts.length === 0) {
-      console.log('🔄 Sincronizando primeira página (Apenas uma vez)...')
-
-      dispatch(
-        setFeedPosts({
-          posts: postsData.results,
-          cursor: postsData.next,
-          hasMore: !!postsData.next
-        })
-      )
-
-      setIsInitialized(true)
-    }
-  }, [postsData, isInitialized, posts.length, dispatch])
-
-  // ✅ NOVO: Limpa feed ao trocar de aba
-  useEffect(() => {
-    dispatch(clearFeed())
-    setIsInitialized(false)
-  }, [activeTab, dispatch])
-
-  // ✅ Carrega próxima página
-  const loadMore = async () => {
-    if (isFetching || !cursor || !hasMore) {
-      return
-    }
-
-    setIsFetching(true)
-
-    try {
-      const response = await fetch(cursor)
-      const data = await response.json()
-
-      dispatch(
-        appendFeedPosts({
-          posts: data.results || [],
-          cursor: data.next,
-          hasMore: !!data.next
-        })
-      )
-    } catch (error) {
-      console.error('Erro ao carregar mais posts:', error)
-    } finally {
-      setIsFetching(false)
-    }
-  }
-
-  // ✅ Pull to refresh
   const handleRefresh = async () => {
-    dispatch(clearFeed())
-    setIsInitialized(false)
-    await refetch()
+    await refresh()
   }
 
-  // ✅ REMOVIDO: useMemo para filtrar (agora vem do backend)
-  const filteredPosts = posts
-
-  const isEmpty = !isLoading && filteredPosts.length === 0
+  const isEmpty = !isLoading && posts.length === 0
 
   return (
     <>
@@ -128,7 +32,7 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
         <S.HomeContainer>
           <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <PostForm userName={userName} userAvatar={userAvatar} />
+          <PostForm />
 
           {isLoading ? (
             <PostListSkeleton count={5} />
@@ -147,9 +51,9 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
             </S.EmptyState>
           ) : (
             <InfiniteScroll
-              dataLength={filteredPosts.length}
+              dataLength={posts.length}
               next={loadMore}
-              hasMore={hasMore && cursor !== null}
+              hasMore={hasMore}
               loader={
                 <S.LoadingMore>
                   <S.LoadingText>Carregando mais posts...</S.LoadingText>
@@ -166,16 +70,8 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
                 <S.ReleaseMessage>↻ Solte para atualizar</S.ReleaseMessage>
               }
             >
-              {filteredPosts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onLike={likePost}
-                  onRetweet={retweetPost}
-                  onQuoteTweet={quoteTweet}
-                  onComment={commentPost}
-                  variant="default"
-                />
+              {posts.map((post) => (
+                <PostCard key={post.id} postId={post.id} variant="default" />
               ))}
             </InfiniteScroll>
           )}

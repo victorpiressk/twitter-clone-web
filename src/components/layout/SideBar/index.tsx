@@ -9,11 +9,10 @@ import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
 import { useToast } from '../../../hooks/useToast'
 import { useAppSelector } from '../../../store/hooks'
 import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
-import type { SidebarProps } from './types'
 import * as S from './styles'
 import { useLogoutMutation } from '../../../store/slices/api/auth.api'
 
-const SideBar = ({ onCreatePost }: SidebarProps) => {
+const SideBar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { showToast } = useToast()
@@ -205,7 +204,6 @@ const SideBar = ({ onCreatePost }: SidebarProps) => {
         <CreatePostModal
           isOpen={isCreatePostModalOpen}
           onClose={() => setIsCreatePostModalOpen(false)}
-          onSubmit={onCreatePost}
           userName={user.username}
           userAvatar={user.avatar}
         />
