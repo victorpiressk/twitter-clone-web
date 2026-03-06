@@ -40,3 +40,20 @@ export const PostCount = styled.p`
 export const TabContent = styled.div`
   /* Conteúdo das tabs */
 `
+
+export const ComingSoon = styled.div`
+  padding: 40px 20px;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 0.938rem;
+`
+
+export const EmptyState = styled.div`
+  padding: 60px 20px;
+  text-align: center;
+`
+
+export const EmptyStateText = styled.p`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 0.938rem;
+`

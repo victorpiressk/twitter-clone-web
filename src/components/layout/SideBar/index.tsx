@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react'
+// src/components/Layout/SideBar/index.tsx
+
+import { useState, useRef, useMemo } from 'react' // ← Adicionar useMemo
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal } from 'lucide-react'
 import Button from '../../common/Button'
@@ -17,10 +19,7 @@ const SideBar = () => {
   const navigate = useNavigate()
   const { showToast } = useToast()
 
-  // Usar usuário do Redux
   const user = useAppSelector(selectCurrentUser)
-
-  // Logout mutation
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
 
   const [isMoreOpen, setIsMoreOpen] = useState(false)
@@ -28,6 +27,19 @@ const SideBar = () => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
+
+  // ✅ CORREÇÃO: Atualiza path do perfil dinamicamente
+  const navItems = useMemo(() => {
+    return NAV_ITEMS.map((item) => {
+      if (item.path === '/profile' && user) {
+        return {
+          ...item,
+          path: `/${user.username}` // ✅ Path dinâmico
+        }
+      }
+      return item
+    })
+  }, [user])
 
   const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
     switch (item.action) {
@@ -51,17 +63,9 @@ const SideBar = () => {
         break
       case 'logout':
         try {
-          // 1. Chama API de logout
           await logoutMutation().unwrap()
-
-          // 2. Redux limpa automaticamente (authSlice já faz)
-
-          // 3. Toast de sucesso
           showToast('success', 'Você saiu da sua conta')
-
-          // 4. Redirect automático (ProtectedRoute detecta user=null)
         } catch {
-          // Se API falhar, Redux limpa do mesmo jeito (via error handling)
           showToast('info', 'Você foi desconectado')
         }
         setIsProfileMenuOpen(false)
@@ -81,8 +85,8 @@ const SideBar = () => {
               </S.Logo>
             </li>
 
-            {/* Navegação principal */}
-            {NAV_ITEMS.map((item) => {
+            {/* ✅ CORREÇÃO: Usa navItems dinâmico */}
+            {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <li key={item.path}>

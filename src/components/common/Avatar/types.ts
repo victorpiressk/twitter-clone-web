@@ -7,5 +7,5 @@ export type AvatarProps = {
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
   showProfilePopover?: boolean
   userProfileData?: UserCardWithStats
-  onFollowToggle?: (userId: number) => void
+  onFollowToggle?: () => void
 }

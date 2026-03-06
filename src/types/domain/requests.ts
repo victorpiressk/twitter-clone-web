@@ -28,8 +28,8 @@ export type UpdateUserRequest = {
   firstName?: string
   lastName?: string
   bio?: string
-  avatar?: string
-  banner?: string
+  avatar?: File | string | null
+  banner?: File | string | null
   location?: string
   website?: string
   birthDate?: string
@@ -75,7 +75,7 @@ export type LikeRequest = {
 // ============================================
 
 export type FollowRequest = {
-  user: number
+  following: number
 }
 
 // ============================================

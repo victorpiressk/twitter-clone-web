@@ -1,4 +1,14 @@
 import { useEffect, useState } from 'react'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import {
+  selectSuggestions,
+  selectSuggestionsLoading,
+  setSuggestions,
+  setSuggestionsLoading,
+  selectFollowState
+} from '../../store/slices/users/usersSlice'
+import { selectCurrentUser } from '../../store/slices/auth/authSlice'
+import { useGetUsersQuery } from '../../store/slices/api/users.api'
 import ConnectTabs from './components/ConnectTabs'
 import UserSuggestionCard from './components/UserSuggestionCard'
 import { ContentWrapper } from '../../styles/globalStyles'
@@ -8,117 +18,50 @@ import UserCardListSkeleton from '../../components/common/Skeleton/components/Us
 import { ScrollToTop } from '../../hooks/useScrollToTop'
 import type { ConnectTab } from './types'
 import * as S from './styles'
-import type { UserCard } from '../../types/domain/models'
-
-// Mock data - Sugestões
-const mockSuggestions: UserCard[] = [
-  {
-    id: 1,
-    avatar: '',
-    username: 'joaosilva',
-    firstName: 'João',
-    lastName: 'Silva',
-    bio: 'Desenvolvedor Full Stack | React + Node.js',
-    isFollowing: false
-  },
-  {
-    id: 2,
-    avatar: '',
-    username: 'mariacosta',
-    firstName: 'Maria',
-    lastName: 'Costa',
-    bio: 'Designer UX/UI | Criando experiências incríveis',
-    isFollowing: false
-  },
-  {
-    id: 3,
-    avatar: '',
-    username: 'pedrosantos',
-    firstName: 'Pedro',
-    lastName: 'Santos',
-    bio: 'Product Manager | Apaixonado por tecnologia',
-    isFollowing: true
-  },
-  {
-    id: 4,
-    avatar: '',
-    username: 'anaoliveira',
-    firstName: 'Ana',
-    lastName: 'Oliveira',
-    bio: 'Engenheira de Software | Python & Django',
-    isFollowing: false
-  }
-]
-
-// Mock data - Criadores
-const mockCreators: UserCard[] = [
-  {
-    id: 5,
-    avatar: '',
-    username: 'techbr',
-    firstName: 'Tech',
-    lastName: 'Brasil',
-    bio: 'Canal de tecnologia e programação 🚀',
-    isFollowing: false
-  },
-  {
-    id: 6,
-    avatar: '',
-    username: 'devbrasil',
-    firstName: 'Dev',
-    lastName: 'Brasil',
-    bio: 'Dicas diárias de desenvolvimento web',
-    isFollowing: false
-  },
-  {
-    id: 7,
-    avatar: '',
-    username: 'designtips',
-    firstName: 'Design',
-    lastName: 'Tips',
-    bio: 'Inspiração e tutoriais de design',
-    isFollowing: true
-  },
-  {
-    id: 8,
-    avatar: '',
-    username: 'codenews',
-    firstName: 'Code',
-    lastName: 'News',
-    bio: 'Notícias do mundo da programação',
-    isFollowing: false
-  }
-]
 
 const Connect = () => {
+  const dispatch = useAppDispatch()
   const [activeTab, setActiveTab] = useState<ConnectTab>('suggestions')
-  const [suggestions, setSuggestions] = useState(mockSuggestions)
-  const [creators, setCreators] = useState(mockCreators)
-  const [isLoading, setIsLoading] = useState(true)
 
+  // ✅ Current user
+  const currentUser = useAppSelector(selectCurrentUser)
+
+  // ✅ RTK Query
+  const { data: suggestionsData, isLoading: isFetchingSuggestions } =
+    useGetUsersQuery(undefined, {
+      skip: activeTab !== 'suggestions'
+    })
+
+  // ✅ Redux state
+  const suggestions = useAppSelector(selectSuggestions)
+  const isLoading = useAppSelector(selectSuggestionsLoading)
+  const followState = useAppSelector(selectFollowState)
+
+  // ✅ Sync loading state
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1500)
-  }, [])
+    dispatch(setSuggestionsLoading(isFetchingSuggestions))
+  }, [isFetchingSuggestions, dispatch])
 
-  const handleFollowToggle = (userId: number) => {
-    if (activeTab === 'suggestions') {
-      setSuggestions((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, isFollowing: !user.isFollowing }
-            : user
-        )
-      )
-    } else {
-      setCreators((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, isFollowing: !user.isFollowing }
-            : user
-        )
-      )
+  // ✅ Sync suggestions (filtrando usuário logado)
+  useEffect(() => {
+    if (suggestionsData && currentUser) {
+      const users = Array.isArray(suggestionsData)
+        ? suggestionsData
+        : suggestionsData.results
+
+      // ✅ Filtrar usuário logado
+      const filteredUsers = users.filter((user) => user.id !== currentUser.id)
+
+      dispatch(setSuggestions(filteredUsers))
     }
-  }
+  }, [suggestionsData, currentUser, dispatch])
+
+  // ✅ NOVO: Filtrar usuários que já está seguindo
+  const filteredSuggestions = suggestions.filter(
+    (user): user is NonNullable<typeof user> =>
+      user !== null && !followState[user.id]
+    //                ↑ Remove quem já está seguindo
+  )
 
   return (
     <>
@@ -140,14 +83,25 @@ const Connect = () => {
                   <UserCardListSkeleton count={3} />
                 ) : (
                   <>
-                    {suggestions.map((user) => (
-                      <UserSuggestionCard
-                        key={user.id}
-                        user={user}
-                        onFollowToggle={handleFollowToggle}
-                        showSubscribe={false}
-                      />
-                    ))}
+                    {/* ✅ Usa filteredSuggestions em vez de suggestions */}
+                    {filteredSuggestions.length > 0 ? (
+                      filteredSuggestions.map((user) => (
+                        <UserSuggestionCard
+                          key={user.id}
+                          user={user}
+                          showSubscribe={false}
+                        />
+                      ))
+                    ) : (
+                      <S.EmptyState>
+                        <S.EmptyStateText>
+                          {/* ✅ Mensagem diferente se segue todos */}
+                          {suggestions.length > 0
+                            ? 'Você já segue todos! 🎉'
+                            : 'Nenhuma sugestão disponível no momento.'}
+                        </S.EmptyStateText>
+                      </S.EmptyState>
+                    )}
                   </>
                 )}
               </S.UsersList>
@@ -156,20 +110,10 @@ const Connect = () => {
 
           {activeTab === 'creators' && (
             <S.UsersList>
-              {isLoading ? (
-                <UserCardListSkeleton count={3} />
-              ) : (
-                <>
-                  {creators.map((user) => (
-                    <UserSuggestionCard
-                      key={user.id}
-                      user={user}
-                      onFollowToggle={handleFollowToggle}
-                      showSubscribe={true}
-                    />
-                  ))}
-                </>
-              )}
+              <S.EmptyState>
+                <S.EmptyStateTitle>Criadores em breve...</S.EmptyStateTitle>
+                <S.EmptyStateText>Estamos trabalhando nisso!</S.EmptyStateText>
+              </S.EmptyState>
             </S.UsersList>
           )}
         </S.ConnectContainer>

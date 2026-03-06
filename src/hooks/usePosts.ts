@@ -14,6 +14,7 @@ import {
   selectFeedHasMore,
   selectFeedLoading,
   selectFeedCursor,
+  selectFollowingFeedPosts,
   selectRawFeedPosts
 } from '../store/slices/posts/postsSlice'
 import { transformPostWithInteractions } from '../utils/transformers/entities'
@@ -49,9 +50,11 @@ export const usePosts = (options: UsePostsOptions) => {
   const dispatch = useAppDispatch()
 
   // ✅ Selectors do Redux
-  const feedPosts = useAppSelector((state) =>
-    type === 'replies' ? selectRawFeedPosts(state) : selectFeedPosts(state)
-  )
+  const feedPosts = useAppSelector((state) => {
+    if (type === 'replies') return selectRawFeedPosts(state)
+    if (type === 'following') return selectFollowingFeedPosts(state)
+    return selectFeedPosts(state)
+  })
   const hasMore = useAppSelector(selectFeedHasMore)
   const cursor = useAppSelector(selectFeedCursor)
   const isLoadingRedux = useAppSelector(selectFeedLoading)
@@ -59,6 +62,7 @@ export const usePosts = (options: UsePostsOptions) => {
   // ✅ Refs para controle
   const isInitializedRef = useRef(false)
   const isFetchingRef = useRef(false)
+  const activeTypeRef = useRef<string | undefined>(undefined)
 
   // ✅ Queries condicionais
   const {
@@ -134,28 +138,46 @@ export const usePosts = (options: UsePostsOptions) => {
 
   // ✅ Limpa feed ao trocar de tipo
   useEffect(() => {
+    const key = type === 'replies' ? `replies-${postId}` : type
+    activeTypeRef.current = key
     dispatch(clearFeed())
     isInitializedRef.current = false
   }, [type, postId, dispatch])
 
   // ✅ Sincroniza com Redux
   useEffect(() => {
-    if (data && !isInitializedRef.current && feedPosts.length === 0) {
-      // Para replies, inverte a ordem (mais novos primeiro)
+    const key = type === 'replies' ? `replies-${postId}` : type
+
+    console.log('[usePosts] sync effect:', {
+      type,
+      key,
+      activeKey: activeTypeRef.current,
+      hasData: !!data,
+      resultsLength: data?.results?.length,
+      isInitialized: isInitializedRef.current,
+      isFetching,
+      isLoadingQuery,
+      keysMatch: activeTypeRef.current === key
+    })
+
+    if (
+      data &&
+      !isInitializedRef.current &&
+      !isFetching &&
+      !isLoadingQuery &&
+      activeTypeRef.current === key // 👈 garante que o dado é do tipo atual
+    ) {
+      console.log(
+        '[usePosts] dispatching setFeedPosts com',
+        data.results.length,
+        'posts'
+      )
       const posts =
         type === 'replies' ? [...data.results].reverse() : data.results
-
-      dispatch(
-        setFeedPosts({
-          posts,
-          cursor: data.next,
-          hasMore: !!data.next
-        })
-      )
-
+      dispatch(setFeedPosts({ posts, cursor: data.next, hasMore: !!data.next }))
       isInitializedRef.current = true
     }
-  }, [data, feedPosts.length, type, dispatch])
+  }, [data, type, postId, isFetching, isLoadingQuery, dispatch])
 
   // ============================================
   // LOAD MORE - ✅ CORRIGIDO COM TRANSFORM

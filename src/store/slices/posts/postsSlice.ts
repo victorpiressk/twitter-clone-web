@@ -323,6 +323,16 @@ export const selectFeedPosts = createSelector(
   }
 )
 
+// Selector para o 'following' — sem filtro de inReplyTo
+export const selectFollowingFeedPosts = createSelector(
+  [selectAllPosts, (state: RootState) => state.posts.feed.ids],
+  (postsById, feedIds) => {
+    return feedIds
+      .map((id) => postsById[id])
+      .filter((post): post is PostWithInteractions => !!post)
+  }
+)
+
 // Selector para Replies
 export const selectRawFeedPosts = createSelector(
   [selectAllPosts, (state: RootState) => state.posts.feed.ids],

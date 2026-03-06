@@ -20,6 +20,12 @@ import {
 import { transformCreatePostRequest } from '../../../../utils/transformers/requests'
 import type { PaginationParams } from '../../../../types/contracts/shared'
 
+export type GetPostsParams = PaginationParams & {
+  author?: number
+  has_media?: boolean
+  has_reply?: boolean
+}
+
 // ============================================
 // API
 // ============================================
@@ -32,7 +38,7 @@ export const postsApi = baseApi.injectEndpoints({
 
     getPosts: builder.query<
       PaginatedResponse<PostWithInteractions>,
-      PaginationParams | void
+      GetPostsParams | void
     >({
       query: (params) => ({
         url: '/api/posts/',
@@ -40,10 +46,23 @@ export const postsApi = baseApi.injectEndpoints({
       }),
       transformResponse: (
         response: BackendPaginatedResponse<BackendPostWithInteractions>
-      ): PaginatedResponse<PostWithInteractions> => ({
-        ...response,
-        results: response.results.map(transformPostWithInteractions)
-      }),
+      ): PaginatedResponse<PostWithInteractions> => {
+        if (!response || !response.results) {
+          return {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+          }
+        }
+
+        return {
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+          results: response.results.map(transformPostWithInteractions)
+        }
+      },
       providesTags: (result) =>
         result
           ? [
@@ -59,11 +78,17 @@ export const postsApi = baseApi.injectEndpoints({
     getFeed: builder.query<PaginatedResponse<PostWithInteractions>, void>({
       query: () => '/api/posts/feed/',
       transformResponse: (
-        response: BackendPaginatedResponse<BackendPostWithInteractions>
-      ): PaginatedResponse<PostWithInteractions> => ({
-        ...response,
-        results: (response.results || []).map(transformPostWithInteractions)
-      }),
+        response: BackendPostWithInteractions[]
+      ): PaginatedResponse<PostWithInteractions> => {
+        const results = Array.isArray(response) ? response : []
+
+        return {
+          count: results.length,
+          next: null,
+          previous: null,
+          results: results.map(transformPostWithInteractions)
+        }
+      },
       providesTags: (result) =>
         result
           ? [

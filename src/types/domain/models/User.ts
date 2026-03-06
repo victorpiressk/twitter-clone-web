@@ -9,7 +9,7 @@ export type User = {
   bio: string
   location: string
   website: string
-  birthDate: string | null
+  birthDate?: string
   createdAt: string
   stats: {
     posts: number
@@ -39,4 +39,13 @@ export type UserCardWithStats = UserCard & {
     following: number
     followers: number
   }
+}
+
+export type Follow = {
+  id: number
+  follower: number
+  following: number
+  followerUsername: string
+  followingUsername: string
+  createdAt: string
 }

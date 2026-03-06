@@ -24,8 +24,10 @@ import { useAppSelector, useAppDispatch } from '../../../../store/hooks'
 import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
 import {
   removePost,
+  // selectPostById,
   upsertPost
 } from '../../../../store/slices/posts/postsSlice'
+// import OriginalPostPreview from '../OriginalPostPreview'
 
 const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const navigate = useNavigate()
@@ -46,6 +48,11 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
 
   // ✅ Busca TODOS os posts do byId (selector simples)
   const allPosts = useAppSelector((state) => state.posts.byId)
+
+  // ✅ Busca post original do Redux (hook incondicionalmente)
+  // const originalPost = useAppSelector((state) =>
+  //   post.inReplyTo ? selectPostById(state, post.inReplyTo) : null
+  // )
 
   // ✅ MEMOIZADO: Só recalcula quando allPosts, currentUser ou postId mudam
   const userRetweets = useMemo(() => {
@@ -185,6 +192,10 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
           </>
         ) : (
           <>
+            {/* {post.inReplyTo && originalPost && (
+              <OriginalPostPreview post={originalPost} showConnector />
+            )} */}
+
             <S.PostHeaderStacked>
               <Avatar
                 src={post.author.avatar}

@@ -6,6 +6,139 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [0.1.4] - 2026-03-06
+
+### Added
+
+#### **Follow/Unfollow System**
+- Hook `useUserActions` para gerenciar follow/unfollow com optimistic updates
+- Hook `useSyncFollows` para sincronizar follows ao login
+- Armazenamento de `followIds` no Redux para gerenciar unfollows
+- Sincronização automática de follows ao login via `getMyFollows` endpoint
+- Reset completo de state ao logout (Redux + RTK Query cache)
+- Toast de sucesso/erro em ações de follow/unfollow
+- Rollback automático em caso de erro
+
+#### **User Suggestions (Who to Follow)**
+- Widget `WhoToFollowWidget` na sidebar com fetch automático
+- Lista de 3 sugestões de usuários
+- Filtro automático de usuário logado e usuários já seguidos
+- Widget não renderiza se lista vazia (return null)
+- Integração com `useGetUsersQuery` para buscar sugestões
+- Link "Mostrar mais" → `/connect`
+
+#### **Connect Page**
+- Página `/connect` com tabs (Sugestões, Criadores)
+- Componente `UserSuggestionCard` com botão de follow
+- Filtros de usuário logado e usuários seguidos
+- Memoização com `useMemo` para evitar re-renders
+- Loading skeleton e empty states personalizados
+- Avatar com `ProfilePopover` interativo
+
+#### **Profile Page**
+- Hook `useViewingUser` para lógica compartilhada (Profile + FollowPage)
+- Busca de usuário por username (lista → detalhes)
+- Redirect 404 se usuário não existe
+- Cleanup automático ao desmontar (`clearViewing`)
+- Tabs: Posts, Replies, Media, Likes
+- Componentes: `ProfileStats`, `ProfileTabs`, `ProfileHeaderSkeleton`
+- Integração com queries filtradas:
+  - Posts: `useGetPostsQuery({ author })`
+  - Replies: `useGetPostsQuery({ author, has_reply: true })`
+  - Media: `useGetPostsQuery({ author, has_media: true })`
+  - Likes: `useGetLikesQuery()` (privado, só próprio perfil)
+- Empty states customizados por tab
+- Conditional queries (skip baseado em activeTab)
+- Mensagem "Curtidas não disponíveis" para outros perfis
+
+#### **Followers/Following Lists**
+- Páginas `/:username/followers` e `/:username/following`
+- Componente `FollowUserCard` com `useUserActions`
+- Tabs de navegação (Followers, Following)
+- Loading skeleton e empty states personalizados
+- Redirect 404 se usuário não existe
+
+#### **Edit Profile**
+- Modal `EditProfileModal` completa
+- Upload de avatar e banner (FormData)
+- Edição de bio, location, website, birthDate
+- Split automático de displayName → firstName/lastName
+- Preview de imagens antes do upload
+- Validação de campos
+- Auto-adicionar `https://` no website
+- Modal `BirthDateModal` (com limite de 3 edições)
+- Helper `ensureProtocol` (adiciona https:// automaticamente)
+- Helper `splitFullName` (divide displayName)
+- Helper `getFullName` (combina firstName + lastName)
+- Flag `removeBanner` para detectar remoção de banner
+- `hasChanges` com `useMemo` para detectar mudanças
+- Tipagem correta (UpdateUserRequest com File | string)
+
+#### **Sidebar Integration**
+- Botão de perfil dinâmico (path: `/${user.username}`)
+- Navigation funcional (navega para próprio perfil)
+- `useMemo` para navItems (recalcula quando user muda)
+
+#### **Redux State (Users)**
+- Campo `followIds` no state
+- Reducers: `setFollowId`, `removeFollowId`, `clearFollows`
+- Reducer: `resetUsersState` (reset completo)
+- ExtraReducer: auto-reset ao `logout`
+
+#### **API Integration**
+- Endpoint `getMyFollows` (sincronização de follows)
+- Transformers: `transformFollow`, `transformFollowRequest`
+- Type `GetPostsParams` (author, has_reply, has_media)
+- `getPosts` aceita query params para filtros
+
+### Changed
+
+#### **Components**
+- `UserSuggestionCard` - Migrado para `useUserActions`, removido `onFollowToggle` prop
+- `WhoToFollowWidget` - Fetch automático, sem props, filtros integrados
+- `FollowUserCard` - Migrado para `useUserActions`, removido `onFollowToggle` prop
+- `ProfileHeader` - Botão de follow com `useUserActions`
+- `Connect` - Filtros de users, Redux integration
+- `Profile` - Migrado para `useViewingUser`, refatoração completa
+- `FollowPage` - Migrado para `useViewingUser`, refatoração completa
+
+#### **API Endpoints**
+- `getUserFollowers` - Aceita array direto (não só paginado)
+- `getUserFollowing` - Aceita array direto (não só paginado)
+- `providesTags` - Mudado de 'Follow' → 'User' (followers/following)
+
+### Fixed
+
+1. **Follow state persistia após logout** - Reset completo implementado
+2. **Backend retornava todos follows** - Filtro por usuário logado no frontend
+3. **Transform crashava com array direto** - Safe checks adicionados
+4. **UserSuggestionCard mostrava próprio user** - Filtro de usuário logado
+5. **WhoToFollowWidget não carregava** - Fetch automático implementado
+6. **Código duplicado** - Profile + FollowPage → `useViewingUser`
+7. **Warnings de selector** - Removido `useMemo` incorreto
+8. **Author undefined em transformPost** - Safe check adicionado
+9. **Likes tab crashava** - Safe check em `transformPost`
+10. **Conditional rendering de Likes** - Só busca se `isOwnProfile`
+
+### Optimizations
+
+- **Memoização de selectors** - Evita re-renders desnecessários
+- **Filtros centralizados** - Connect, WhoToFollow compartilham lógica
+- **Lógica de follow centralizada** - Nenhum componente gerencia estado local
+- **Safe checks em transformResponse** - Previne crashes
+- **Refatoração DRY** - 80% menos código duplicado (Profile + FollowPage)
+- **Conditional queries** - Só busca dados da tab ativa
+
+### Removed
+
+- Props `onFollowToggle` de componentes (hook cuida de tudo)
+- Estado local de follow (substituído por Redux)
+- `useMemo` incorreto em selectors (causava warnings)
+- Código duplicado em Profile/FollowPage (substituído por hook)
+
+---
+
 ## [0.1.3] - 2025-03-02
 
 ### Added

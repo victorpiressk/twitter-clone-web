@@ -35,11 +35,11 @@ const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
         {displayTrends.map((trend) => (
           <S.TrendItem
             key={trend.id}
-            onClick={() => handleTrendClick(trend.name)}
+            onClick={() => handleTrendClick(trend.tag)}
           >
-            <S.TrendCategory>{trend.category}</S.TrendCategory>
-            <S.TrendName>{trend.name}</S.TrendName>
-            <S.TrendCount>{formatCount(trend.tweetCount)} posts</S.TrendCount>
+            <S.TrendCategory>{trend.tag}</S.TrendCategory>
+            <S.TrendName>{trend.tag}</S.TrendName>
+            <S.TrendCount>{formatCount(trend.postsCount)} posts</S.TrendCount>
           </S.TrendItem>
         ))}
       </S.TrendsList>

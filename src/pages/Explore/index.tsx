@@ -175,53 +175,6 @@ const Explore = () => {
     }
   }
 
-  const handleLike = (postId: number) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              stats: {
-                ...post.stats,
-                likes: post.isLiked
-                  ? post.stats.likes - 1
-                  : post.stats.likes + 1
-              }
-            }
-          : post
-      )
-    )
-  }
-
-  const handleRetweet = (postId: number) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isRetweeted: !post.isRetweeted,
-              stats: {
-                ...post.stats,
-                retweets: post.isRetweeted
-                  ? post.stats.retweets - 1
-                  : post.stats.retweets + 1
-              }
-            }
-          : post
-      )
-    )
-  }
-
-  const handleQuoteTweet = (postId: number) => {
-    console.log('Quote Tweet do post:', postId)
-    // TODO: Abrir modal de Quote Tweet
-  }
-
-  const handleComment = (postId: number) => {
-    console.log('Comentar no post:', postId)
-  }
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'for-you':
@@ -230,13 +183,7 @@ const Explore = () => {
             {isLoading ? (
               <PostListSkeleton count={5} />
             ) : (
-              <PostList
-                posts={posts}
-                onLike={handleLike}
-                onRetweet={handleRetweet}
-                onComment={handleComment}
-                onQuoteTweet={handleQuoteTweet}
-              />
+              <PostList posts={posts} />
             )}
           </>
         )
@@ -251,13 +198,7 @@ const Explore = () => {
                 <div style={{ padding: '16px' }}>
                   <TrendsWidget trends={mockTrends} showAll />
                 </div>
-                <PostList
-                  posts={posts}
-                  onLike={handleLike}
-                  onRetweet={handleRetweet}
-                  onComment={handleComment}
-                  onQuoteTweet={handleQuoteTweet}
-                />
+                <PostList posts={posts} />
               </>
             )}
           </>

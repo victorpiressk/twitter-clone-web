@@ -140,7 +140,7 @@ export const transformLikeRequest = (
 export const transformFollowRequest = (
   followRequest: FollowRequest
 ): BackendFollowRequest => ({
-  user: followRequest.user
+  following: followRequest.following
 })
 
 // ============================================

@@ -1,13 +1,16 @@
 // src/store/slices/api/users.api.ts
 
 import { baseApi } from './base.api'
-import { transformUser } from '../../../utils/transformers/entities'
+import {
+  transformFollow,
+  transformUser
+} from '../../../utils/transformers/entities'
 import {
   transformFollowRequest,
   transformUpdateUserRequest
 } from '../../../utils/transformers/requests'
-import type { User } from '../../../types/domain/models'
-import type { BackendUser } from '../../../types/contracts/dtos'
+import type { Follow, User } from '../../../types/domain/models'
+import type { BackendFollow, BackendUser } from '../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../types/contracts/responses.backend'
 import type { PaginatedResponse } from '../../../types/domain/responses'
 import type {
@@ -49,18 +52,31 @@ export const usersApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'User', id }]
     }),
 
-    updateUser: builder.mutation<User, { id: number; data: UpdateUserRequest }>(
-      {
-        query: ({ id, data }) => ({
+    updateUser: builder.mutation<
+      User,
+      { id: number; data: UpdateUserRequest | FormData } // ✅ Aceita ambos
+    >({
+      query: ({ id, data }) => {
+        // ✅ Se for FormData, usa direto
+        // ✅ Se for UpdateUserRequest, transforma
+        const body =
+          data instanceof FormData ? data : transformUpdateUserRequest(data)
+
+        return {
           url: `/api/users/${id}/`,
           method: 'PATCH',
-          body: transformUpdateUserRequest(data)
-        }),
-        transformResponse: (response: BackendUser): User =>
-          transformUser(response),
-        invalidatesTags: (_result, _error, { id }) => [{ type: 'User', id }]
-      }
-    ),
+          body
+          // ⚠️ NÃO adicionar headers: { 'Content-Type': 'multipart/form-data' }
+          // O fetch detecta automaticamente quando é FormData
+        }
+      },
+      transformResponse: (response: BackendUser): User =>
+        transformUser(response),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'User', id },
+        'User' // Invalida lista também
+      ]
+    }),
 
     getUserFollowers: builder.query<
       PaginatedResponse<User>,
@@ -72,13 +88,33 @@ export const usersApi = baseApi.injectEndpoints({
       }),
       transformResponse: (
         response: BackendPaginatedResponse<BackendUser>
-      ): PaginatedResponse<User> => ({
-        count: response.count,
-        next: response.next,
-        previous: response.previous,
-        results: response.results.map(transformUser)
-      }),
-      providesTags: ['Follow']
+      ): PaginatedResponse<User> => {
+        if (Array.isArray(response)) {
+          return {
+            count: response.length,
+            next: null,
+            previous: null,
+            results: response.map(transformUser)
+          }
+        }
+
+        if (!response || !response.results) {
+          return {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+          }
+        }
+
+        return {
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+          results: response.results.map(transformUser)
+        }
+      },
+      providesTags: ['User']
     }),
 
     getUserFollowing: builder.query<
@@ -91,12 +127,50 @@ export const usersApi = baseApi.injectEndpoints({
       }),
       transformResponse: (
         response: BackendPaginatedResponse<BackendUser>
-      ): PaginatedResponse<User> => ({
-        count: response.count,
-        next: response.next,
-        previous: response.previous,
-        results: response.results.map(transformUser)
-      }),
+      ): PaginatedResponse<User> => {
+        if (Array.isArray(response)) {
+          return {
+            count: response.length,
+            next: null,
+            previous: null,
+            results: response.map(transformUser)
+          }
+        }
+
+        if (!response || !response.results) {
+          return {
+            count: 0,
+            next: null,
+            previous: null,
+            results: []
+          }
+        }
+
+        return {
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+          results: response.results.map(transformUser)
+        }
+      },
+      providesTags: ['User']
+    }),
+
+    // ============================================
+    // GET MY FOLLOWS
+    // ============================================
+    getMyFollows: builder.query<Follow[], void>({
+      query: () => '/api/follows/',
+      transformResponse: (
+        response: BackendPaginatedResponse<BackendFollow>
+      ): Follow[] => {
+        // ✅ Backend retorna objeto paginado
+        if (!response || !response.results) {
+          return []
+        }
+
+        return response.results.map(transformFollow)
+      },
       providesTags: ['Follow']
     }),
 
@@ -122,18 +196,20 @@ export const usersApi = baseApi.injectEndpoints({
       }
     ),
 
-    followUser: builder.mutation<void, FollowRequest>({
+    followUser: builder.mutation<Follow, FollowRequest>({
       query: (body) => ({
         url: '/api/follows/',
         method: 'POST',
         body: transformFollowRequest(body)
       }),
+      transformResponse: (response: BackendFollow): Follow =>
+        transformFollow(response),
       invalidatesTags: ['Follow', 'User']
     }),
 
     unfollowUser: builder.mutation<void, number>({
-      query: (id) => ({
-        url: `/api/follows/${id}/`,
+      query: (followId) => ({
+        url: `/api/follows/${followId}/`,
         method: 'DELETE'
       }),
       invalidatesTags: ['Follow', 'User']
@@ -151,6 +227,7 @@ export const {
   useUpdateUserMutation,
   useGetUserFollowersQuery,
   useGetUserFollowingQuery,
+  useGetMyFollowsQuery,
   useGetFollowsQuery,
   useFollowUserMutation,
   useUnfollowUserMutation

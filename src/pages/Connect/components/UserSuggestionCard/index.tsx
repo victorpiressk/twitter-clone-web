@@ -1,61 +1,54 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
-import { useToast } from '../../../../hooks/useToast'
+import { useUserActions } from '../../../../hooks/useUserActions'
 import type { UserSuggestionCardProps } from './types'
 import * as S from './styles'
 
 const UserSuggestionCard = ({
   user,
-  onFollowToggle,
   showSubscribe = false
 }: UserSuggestionCardProps) => {
   const navigate = useNavigate()
-  const { showToast } = useToast()
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+
+  // ✅ Hook centraliza TODA a lógica de follow
+  const { isFollowing, isLoading, followUser, unfollowUser } = useUserActions(
+    user.id
+  )
 
   const handleUserClick = () => {
     navigate(`/${user.username}`)
   }
 
-  const handleFollowClick = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsLoading(true)
+  const handleFollowClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
 
-    try {
-      if (user.isFollowing) {
-        showToast('info', `Você deixou de seguir @${user.username}`)
-      } else {
-        showToast('success', `Você agora segue @${user.username}`)
-      }
-
-      await onFollowToggle(user.id)
-      setIsFollowing(!isFollowing)
-    } catch {
-      if (user.isFollowing) {
-        showToast('error', `Erro ao deixar de seguir @${user.username}`)
-      } else {
-        showToast('error', `Erro ao seguir @${user.username}`)
-      }
-    } finally {
-      setIsLoading(false)
+    if (isFollowing) {
+      unfollowUser()
+    } else {
+      followUser()
     }
   }
 
   const buttonText = showSubscribe
-    ? user.isFollowing
+    ? isFollowing
       ? 'Inscrito'
       : 'Inscrever-se'
-    : user.isFollowing
+    : isFollowing
       ? 'Seguindo'
       : 'Seguir'
 
   return (
     <S.CardContainer>
       <S.AvatarWrapper onClick={handleUserClick}>
-        <Avatar src={user.avatar} alt={user.firstName} size="small" />
+        <Avatar
+          src={user.avatar}
+          alt={user.firstName}
+          size="small"
+          showProfilePopover={true}
+          userProfileData={user}
+          onFollowToggle={handleFollowClick}
+        />
       </S.AvatarWrapper>
 
       <S.UserInfo onClick={handleUserClick}>
@@ -69,7 +62,7 @@ const UserSuggestionCard = ({
       <S.ButtonWrapper>
         <Button
           type="button"
-          variant={user.isFollowing ? 'outline' : 'secondary'}
+          variant={isFollowing ? 'outline' : 'secondary'}
           onClick={handleFollowClick}
           loading={isLoading}
         >

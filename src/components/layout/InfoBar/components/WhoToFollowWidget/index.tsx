@@ -1,53 +1,64 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../../../../store/hooks'
+import {
+  selectSuggestions,
+  setSuggestions,
+  setSuggestionsLoading
+} from '../../../../../store/slices/users/usersSlice'
+import { selectCurrentUser } from '../../../../../store/slices/auth/authSlice'
+import { selectFollowState } from '../../../../../store/slices/users/usersSlice'
+import { useGetUsersQuery } from '../../../../../store/slices/api/users.api'
 import Avatar from '../../../../common/Avatar'
 import Button from '../../../../common/Button'
-import { useToast } from '../../../../../hooks/useToast'
-import type { WhoToFollowWidgetProps } from './types'
+import { useUserActions } from '../../../../../hooks/useUserActions'
 import * as S from './styles'
+import { useEffect } from 'react'
 
-const WhoToFollowWidget = ({
-  user,
-  suggestions,
-  onFollowToggle
-}: WhoToFollowWidgetProps) => {
+const WhoToFollowWidget = () => {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const { showToast } = useToast()
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const currentUser = useAppSelector(selectCurrentUser)
+  const allSuggestions = useAppSelector(selectSuggestions)
+  const followState = useAppSelector(selectFollowState)
 
-  // ✅ Handler para clicar no card (exceto no botão)
+  // ✅ NOVO: Busca users automaticamente
+  const { data: usersData, isLoading } = useGetUsersQuery()
+
+  // ✅ NOVO: Sincroniza com Redux quando recebe dados
+  useEffect(() => {
+    dispatch(setSuggestionsLoading(isLoading))
+  }, [isLoading, dispatch])
+
+  useEffect(() => {
+    if (usersData && currentUser) {
+      const users = Array.isArray(usersData) ? usersData : usersData.results
+
+      // Filtrar usuário logado
+      const filteredUsers = users.filter((user) => user.id !== currentUser.id)
+
+      dispatch(setSuggestions(filteredUsers))
+    }
+  }, [usersData, currentUser, dispatch])
+
+  // ✅ Filtrar: remover usuário logado + quem já está seguindo
+  const suggestions = allSuggestions
+    .filter((user) => user !== null && user.id !== currentUser?.id)
+    .filter(
+      (user): user is NonNullable<typeof user> =>
+        user !== null && !followState[user.id]
+    )
+    .slice(0, 3) // Mostrar apenas 3 sugestões
+
+  // ✅ Não renderizar se lista vazia
+  if (suggestions.length === 0) {
+    return null
+  }
+
   const handleUserClick = (username: string, e: React.MouseEvent) => {
-    // Se clicou no botão, não navega
     if ((e.target as HTMLElement).closest('button')) {
       return
     }
     navigate(`/${username}`)
-  }
-
-  // ✅ Handler para o botão de seguir (previne navegação)
-  const handleFollowClick = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsLoading(true)
-
-    try {
-      if (user.isFollowing) {
-        showToast('info', `Você deixou de seguir @${user.username}`)
-      } else {
-        showToast('success', `Você agora segue @${user.username}`)
-      }
-
-      await onFollowToggle(user.id) // Simula API call
-      setIsFollowing(!isFollowing)
-    } catch {
-      if (isFollowing) {
-        showToast('error', `Erro ao deixar de seguir @${user.username}`)
-      } else {
-        showToast('error', `Erro ao seguir @${user.username}`)
-      }
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   return (
@@ -58,47 +69,11 @@ const WhoToFollowWidget = ({
 
       <S.SuggestionsList>
         {suggestions.map((user) => (
-          <S.SuggestionItem
+          <SuggestionItem
             key={user.id}
-            onClick={(e) => handleUserClick(user.username, e)}
-          >
-            <Avatar
-              src={user.avatar}
-              alt={user.firstName}
-              size="small"
-              showProfilePopover={true}
-              userProfileData={{
-                id: user.id,
-                username: user.username,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                avatar: user.avatar,
-                bio: user.bio,
-                stats: {
-                  following: user.stats.following,
-                  followers: user.stats.followers
-                },
-                isFollowing: user.isFollowing
-              }}
-              onFollowToggle={(userId) => console.log('Follow toggle:', userId)}
-            />
-
-            <S.UserInfo>
-              <S.DisplayName>
-                {user.firstName} {user.lastName}
-              </S.DisplayName>
-              <S.Username>@{user.username}</S.Username>
-            </S.UserInfo>
-
-            <Button
-              type="button"
-              variant={user.isFollowing ? 'outline' : 'secondary'}
-              onClick={handleFollowClick}
-              loading={isLoading}
-            >
-              {user.isFollowing ? 'Seguindo' : 'Seguir'}
-            </Button>
-          </S.SuggestionItem>
+            user={user}
+            onUserClick={handleUserClick}
+          />
         ))}
       </S.SuggestionsList>
 
@@ -108,6 +83,61 @@ const WhoToFollowWidget = ({
         </Button>
       </S.ShowMore>
     </S.Widget>
+  )
+}
+
+// ============================================
+// SUB-COMPONENTE: SuggestionItem
+// ============================================
+
+type SuggestionItemProps = {
+  user: NonNullable<ReturnType<typeof selectSuggestions>[number]>
+  onUserClick: (username: string, e: React.MouseEvent) => void
+}
+
+const SuggestionItem = ({ user, onUserClick }: SuggestionItemProps) => {
+  // ✅ Hook cuida de toda lógica de follow
+  const { isFollowing, isLoading, followUser, unfollowUser } = useUserActions(
+    user.id
+  )
+
+  const handleFollowClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+
+    if (isFollowing) {
+      unfollowUser()
+    } else {
+      followUser()
+    }
+  }
+
+  return (
+    <S.SuggestionItem onClick={(e) => onUserClick(user.username, e)}>
+      <Avatar
+        src={user.avatar}
+        alt={user.firstName}
+        size="small"
+        showProfilePopover={true}
+        userProfileData={user}
+        onFollowToggle={handleFollowClick}
+      />
+
+      <S.UserInfo>
+        <S.DisplayName>
+          {user.firstName} {user.lastName}
+        </S.DisplayName>
+        <S.Username>@{user.username}</S.Username>
+      </S.UserInfo>
+
+      <Button
+        type="button"
+        variant={isFollowing ? 'outline' : 'secondary'}
+        onClick={handleFollowClick}
+        loading={isLoading}
+      >
+        {isFollowing ? 'Seguindo' : 'Seguir'}
+      </Button>
+    </S.SuggestionItem>
   )
 }
 

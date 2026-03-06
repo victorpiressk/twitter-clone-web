@@ -40,6 +40,10 @@ export const Aside = styled.aside`
   overflow-y: auto;
   overscroll-behavior-y: none;
   color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
+
+  @media (max-width: 1280px) {
+    width: 88px;
+  }
 `
 
 export const Nav = styled.nav`
@@ -67,6 +71,17 @@ export const NavList = styled.ul`
 
     span {
       margin: 0 16px 0 20px;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    li {
+      display: flex;
+      justify-content: center;
+    }
+
+    span {
+      display: none;
     }
   }
 `
@@ -105,12 +120,22 @@ export const SideButton = styled(ButtonContainer)<SideButtonProps>`
     span {
       margin: 0 16px 0 20px;
     }
+
+    @media (max-width: 1280px) {
+      span {
+        display: none;
+      }
+    }
   `}
 `
 
 export const FooterButton = styled(ButtonContainer)`
   justify-content: space-between;
   margin-top: 12px;
+
+  @media (max-width: 1280px) {
+    justify-content: center;
+  }
 `
 
 export const UserNames = styled.div`
@@ -119,6 +144,10 @@ export const UserNames = styled.div`
   justify-content: flex-start;
 
   padding: 0 11px;
+
+  @media (max-width: 1280px) {
+    display: none;
+  }
 `
 
 export const DisplayName = styled.span`
@@ -139,6 +168,10 @@ export const MoreIcon = styled.div`
   display: flex;
   justify-content: flex-end;
   width: 100%;
+
+  @media (max-width: 1280px) {
+    display: none;
+  }
 `
 
 export const PopoverItem = styled.button<PopoverItemProps>`

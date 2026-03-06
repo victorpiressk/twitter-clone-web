@@ -28,8 +28,8 @@ export type BackendUpdateUserRequest = {
   first_name?: string
   last_name?: string
   bio?: string
-  profile_image?: string
-  banner?: string
+  profile_image?: File | string | null
+  banner?: File | string | null
   location?: string
   website?: string
   birth_date?: string
@@ -75,7 +75,7 @@ export type BackendLikeRequest = {
 // ============================================
 
 export type BackendFollowRequest = {
-  user: number
+  following: number
 }
 
 // ============================================

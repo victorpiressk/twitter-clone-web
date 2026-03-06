@@ -3,14 +3,16 @@ import type {
   BackendUserCard,
   BackendUserCardWithStats,
   BackendUserPreview,
-  BackendUserWithFollowState
+  BackendUserWithFollowState,
+  BackendFollow
 } from '../../../types/contracts/dtos'
 import type {
   User,
   UserCard,
   UserCardWithStats,
   UserPreview,
-  UserWithFollowState
+  UserWithFollowState,
+  Follow
 } from '../../../types/domain/models'
 
 export const transformUser = (backendUser: BackendUser): User => ({
@@ -103,4 +105,13 @@ export const transformUserToBackend = (user: User): BackendUser => ({
     following: user.stats.following,
     followers: user.stats.followers
   }
+})
+
+export const transformFollow = (backend: BackendFollow): Follow => ({
+  id: backend.id,
+  follower: backend.follower,
+  following: backend.following,
+  followerUsername: backend.follower_username,
+  followingUsername: backend.following_username,
+  createdAt: backend.created_at
 })

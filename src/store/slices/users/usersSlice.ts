@@ -9,6 +9,7 @@ import type {
   UserWithFollowState
 } from '../../../types/domain/models'
 import type { RootState } from '../..'
+import { logout } from '../auth/authSlice'
 
 // ============================================
 // STATE TYPE (Normalizado - Cache de Usuários)
@@ -20,6 +21,9 @@ type UsersState = {
 
   // Follow state (separado para otimização)
   followState: Record<number, boolean> // userId → isFollowing
+
+  // Armazena o ID da relação de follow
+  followIds: Record<number, number> // userId → followId
 
   // Suggestions
   suggestions: {
@@ -44,6 +48,7 @@ const initialState: UsersState = {
   byId: {},
   byUsername: {},
   followState: {},
+  followIds: {},
   suggestions: {
     ids: [],
     loading: false
@@ -105,6 +110,27 @@ const usersSlice = createSlice({
       }
     },
 
+    // ✅ Salva followId ao seguir
+    setFollowId: (
+      state,
+      action: PayloadAction<{ userId: number; followId: number }>
+    ) => {
+      const { userId, followId } = action.payload
+      state.followIds[userId] = followId
+    },
+
+    // ✅ Remove followId ao deixar de seguir
+    removeFollowId: (state, action: PayloadAction<number>) => {
+      const userId = action.payload
+      delete state.followIds[userId]
+    },
+
+    // Limpa todos os follows ao fazer logout
+    clearFollows: (state) => {
+      state.followState = {}
+      state.followIds = {}
+    },
+
     // ✅ Define sugestões
     setSuggestions: (state, action: PayloadAction<User[]>) => {
       action.payload.forEach((user) => {
@@ -144,7 +170,17 @@ const usersSlice = createSlice({
     // ✅ Define erro
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload
-    }
+    },
+
+    resetUsersState: () => initialState
+  },
+
+  extraReducers: (builder) => {
+    // Reset automático quando faz logout
+    builder.addCase(logout, () => {
+      console.log('🧹 Auto-reset users state (logout detectado)')
+      return initialState
+    })
   }
 })
 
@@ -155,13 +191,17 @@ export const {
   upsertUser,
   upsertUsers,
   setFollowState,
+  setFollowId,
+  removeFollowId,
+  clearFollows,
   toggleFollow,
   setSuggestions,
   setSuggestionsLoading,
   setViewingUser,
   setViewingLoading,
   clearViewing,
-  setError
+  setError,
+  resetUsersState
 } = usersSlice.actions
 
 // ============================================
@@ -203,6 +243,10 @@ export const selectUserWithFollowState = createSelector(
     } as UserWithFollowState
   }
 )
+
+// ✅ Pega followId
+export const selectFollowId = (state: RootState, userId: number) =>
+  state.users.followIds[userId]
 
 // Suggestions
 export const selectSuggestionIds = (state: RootState) =>

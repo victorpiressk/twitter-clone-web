@@ -2,6 +2,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAppSelector } from '../../../store/hooks'
 import { selectIsAuthenticated } from '../../../store/slices/auth/authSlice'
+import { useSyncFollows } from '../../../hooks/useSyncFollows'
 
 /**
  * Componente de rota protegida
@@ -9,6 +10,8 @@ import { selectIsAuthenticated } from '../../../store/slices/auth/authSlice'
  */
 const ProtectedRoute = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+
+  useSyncFollows()
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />

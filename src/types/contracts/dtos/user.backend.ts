@@ -40,3 +40,12 @@ export type BackendUserCardWithStats = BackendUserCard & {
     followers: number
   }
 }
+
+export type BackendFollow = {
+  id: number
+  follower: number
+  following: number
+  follower_username: string
+  following_username: string
+  created_at: string
+}

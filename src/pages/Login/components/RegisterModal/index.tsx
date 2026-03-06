@@ -38,7 +38,7 @@ const RegisterModal = ({
     birthDate: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    passwordConfirm: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -94,8 +94,8 @@ const RegisterModal = ({
       newErrors.password = 'Senha deve ter no mínimo 6 caracteres'
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'As senhas não coincidem'
+    if (formData.password !== formData.passwordConfirm) {
+      newErrors.passwordConfirm = 'As senhas não coincidem'
     }
 
     setErrors(newErrors)
@@ -130,7 +130,7 @@ const RegisterModal = ({
         email: contactType === 'email' ? formData.contact : '',
         phone: contactType === 'phone' ? formData.contact : '',
         password: formData.password,
-        confirmPassword: formData.confirmPassword,
+        passwordConfirm: formData.passwordConfirm,
         firstName,
         lastName,
         birthDate: formData.birthDate
@@ -196,7 +196,7 @@ const RegisterModal = ({
         birthDate: '',
         username: '',
         password: '',
-        confirmPassword: ''
+        passwordConfirm: ''
       })
       setErrors({})
     }, 300)
@@ -377,25 +377,25 @@ const RegisterModal = ({
             {/* Confirmar Senha */}
             <S.FloatingInputContainer>
               <S.FloatingLabel
-                $hasValue={!!formData.confirmPassword}
-                $isFocused={focusedField === 'confirmPassword'}
+                $hasValue={!!formData.passwordConfirm}
+                $isFocused={focusedField === 'passwordConfirm'}
               >
                 Confirmar senha
               </S.FloatingLabel>
               <S.FloatingInput
                 type="password"
-                value={formData.confirmPassword}
+                value={formData.passwordConfirm}
                 onChange={(e) =>
-                  handleChange('confirmPassword', e.target.value)
+                  handleChange('passwordConfirm', e.target.value)
                 }
-                onFocus={() => setFocusedField('confirmPassword')}
+                onFocus={() => setFocusedField('passwordConfirm')}
                 onBlur={() => setFocusedField(null)}
-                $hasValue={!!formData.confirmPassword}
-                $isFocused={focusedField === 'confirmPassword'}
-                $hasError={!!errors.confirmPassword}
+                $hasValue={!!formData.passwordConfirm}
+                $isFocused={focusedField === 'passwordConfirm'}
+                $hasError={!!errors.passwordConfirm}
               />
-              {errors.confirmPassword && (
-                <S.InputError>{errors.confirmPassword}</S.InputError>
+              {errors.passwordConfirm && (
+                <S.InputError>{errors.passwordConfirm}</S.InputError>
               )}
             </S.FloatingInputContainer>
           </S.Form>
