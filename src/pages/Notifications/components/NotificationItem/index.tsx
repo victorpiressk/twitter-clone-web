@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
+import { formatDate } from '../../../../utils/formatDate'
 import type { NotificationItemProps } from './types'
 import * as S from './styles'
-import { formatDate } from '../../../../utils/formatDate'
 
 const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
   const navigate = useNavigate()
@@ -59,14 +59,13 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
 
   const iconData = getNotificationIcon()
 
-  // Navega para o perfil do autor
   const handleClickProfile = (e: React.MouseEvent) => {
-    e.stopPropagation() // Impede navegação para o post
+    e.stopPropagation()
     navigate(`/${notification.actor.username}`)
   }
 
   return (
-    <S.NotificationContainer onClick={onClick} $isRead={notification.read}>
+    <S.NotificationContainer onClick={onClick} $isRead={notification.isRead}>
       <S.IconWrapper $color={iconData.color}>{iconData.icon}</S.IconWrapper>
 
       <S.NotificationContent>
@@ -88,8 +87,8 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
           </S.NotificationText>
         </S.NotificationHeader>
 
-        {notification.type === 'retweet' && (
-          <S.PostPreview>{notification.targetCommentId}</S.PostPreview>
+        {notification.postPreview && (
+          <S.PostPreview>{notification.postPreview.content}</S.PostPreview>
         )}
 
         <S.TimeStamp>

@@ -4,27 +4,8 @@ import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
 import Footer from './components/Footer'
 import { PopoverProvider } from '../../../contexts/PopoverContext'
-import type { TrendingHashtag } from '../../../types/domain/models'
 import type { InfoBarProps } from './types'
 import * as S from './styles'
-
-// ✅ Mock data tipado corretamente
-const mockTrends: TrendingHashtag[] = [
-  {
-    id: 1,
-    isTrending: true,
-    postsCount: 20,
-    tag: 'technology',
-    rank: 1
-  },
-  {
-    id: 2,
-    isTrending: true,
-    postsCount: 10,
-    tag: 'technology',
-    rank: 2
-  }
-]
 
 const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
   const sidebarRef = useRef<HTMLElement>(null)
@@ -71,7 +52,7 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
             <S.Separator />
           )}
 
-          {variant === 'default' && <TrendsWidget trends={mockTrends} />}
+          {variant === 'default' && <TrendsWidget />}
 
           <WhoToFollowWidget />
 

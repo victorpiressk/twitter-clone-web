@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '../../../../../../store/hooks'
 import { selectPostById } from '../../../../../../store/slices/posts/postsSlice'
+import { useRenderHashtags } from '../../../../../../hooks/useRenderHashtags'
 import LocationPreview from '../../../../Forms/LocationPreview'
 import PollPreview from '../../../../Forms/PollPreview'
 import SchedulePreview from '../../../../Forms/SchedulePreview'
@@ -21,6 +22,9 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
   const originalPost = useAppSelector((state) =>
     retweetOfId ? selectPostById(state, retweetOfId) : null
   )
+
+  // ✅ NOVO: Renderizar hashtags clicáveis
+  const contentWithHashtags = useRenderHashtags({ content: post.content })
 
   // ✅ Safety check
   if (!post) return null
@@ -68,7 +72,8 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
         </S.PostHeader>
       )}
 
-      <S.PostText $variant={variant}>{post.content}</S.PostText>
+      {/* Usa contentWithHashtags em vez de post.content */}
+      <S.PostText $variant={variant}>{contentWithHashtags}</S.PostText>
 
       {/* Mídias */}
       {post.media && post.media.length > 0 && (

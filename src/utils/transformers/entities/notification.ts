@@ -1,7 +1,8 @@
+// src/utils/transformers/entities/notification.ts
+
 import type { BackendNotification } from '../../../types/contracts/dtos'
 import type { Notification } from '../../../types/domain/models'
-import { transformUserPreview } from './user'
-import { transformPost } from './post'
+import { transformUser } from './user'
 
 // ============================================
 // BACKEND → FRONTEND
@@ -11,11 +12,19 @@ export const transformNotification = (
   backendNotification: BackendNotification
 ): Notification => ({
   id: backendNotification.id,
-  type: backendNotification.type,
-  actor: transformUserPreview(backendNotification.actor),
-  post: backendNotification.post
-    ? transformPost(backendNotification.post)
-    : null,
+  type: backendNotification.notification_type,
+  actor: transformUser(backendNotification.actor),
+  post: backendNotification.post, // ✅ Mantém o ID (ou null)
+  postPreview: backendNotification.post_preview
+    ? {
+        id: backendNotification.post_preview.id,
+        content: backendNotification.post_preview.content,
+        author: {
+          id: backendNotification.post_preview.author.id,
+          username: backendNotification.post_preview.author.username
+        }
+      }
+    : null, // ✅ Pode ser null se tipo for 'follow'
   isRead: backendNotification.is_read,
   createdAt: backendNotification.created_at
 })
@@ -37,7 +46,7 @@ export const groupNotifications = (
 
   // Agrupa por: tipo + postId (se existir)
   notifications.forEach((notif) => {
-    const key = `${notif.type}-${notif.post?.id || 'none'}`
+    const key = `${notif.type}-${notif.post || 'none'}`
 
     if (!groups.has(key)) {
       groups.set(key, [])
@@ -54,7 +63,7 @@ export const groupNotifications = (
       type: latest.type,
       actors: notifGroup.map((n) => n.actor),
       actorCount: notifGroup.length,
-      post: latest.post,
+      post: latest.postPreview, // ✅ Usa post_preview (não post ID)
       latestCreatedAt: latest.createdAt,
       allRead: notifGroup.every((n) => n.isRead),
       notifications: notifGroup

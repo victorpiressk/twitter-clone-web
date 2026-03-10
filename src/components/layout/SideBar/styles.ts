@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { fontSizes, fontWeights } from '../../../styles/globalStyles'
+import { colors, fontSizes, fontWeights } from '../../../styles/globalStyles'
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
 import { light } from '../../../styles/themes/light'
@@ -80,7 +80,7 @@ export const NavList = styled.ul`
       justify-content: center;
     }
 
-    span {
+    ${ButtonLink} > span {
       display: none;
     }
   }
@@ -190,5 +190,53 @@ export const PopoverItem = styled.button<PopoverItemProps>`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+`
+
+export const IconWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const NotificationBadge = styled.span`
+  position: absolute;
+  top: -4px;
+  right: -8px;
+
+  background: ${colors.primary};
+  color: ${colors.white};
+
+  border-radius: 10px;
+  padding: 2px 6px;
+
+  font-size: 11px;
+  font-weight: ${fontWeights.bold};
+  line-height: 1;
+
+  min-width: 18px;
+  height: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Border branco para destacar do fundo */
+  box-shadow: 0 0 0 2px ${(props) => props.theme.colors.background.primary};
+
+  /* Animação suave ao aparecer */
+  animation: badgePulse 0.3s ease-in-out;
+
+  @keyframes badgePulse {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 `

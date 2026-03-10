@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import {
   fontSizes,
+  fontWeights,
   transitions
 } from '../../../../../../../styles/globalStyles'
 
@@ -146,4 +147,28 @@ export const InfoText = styled.p`
   color: ${(props) => props.theme.colors.text.secondary};
   margin: 0;
   text-align: center;
+`
+
+export const DisabledMessage = styled.div`
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+`
+
+export const DisabledTitle = styled.h3`
+  font-size: ${fontSizes.lg};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.primary};
+  margin: 0;
+`
+
+export const DisabledText = styled.p`
+  font-size: ${fontSizes.md};
+  color: ${(props) => props.theme.colors.text.secondary};
+  line-height: 1.5;
+  margin: 0;
+  max-width: 400px;
 `

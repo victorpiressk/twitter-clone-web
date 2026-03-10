@@ -1,5 +1,4 @@
-import type { UserPreview } from './User'
-import type { Post } from './Post'
+import type { User } from './User'
 
 export type NotificationType =
   | 'like'
@@ -8,11 +7,21 @@ export type NotificationType =
   | 'mention'
   | 'reply'
 
+export type PostPreview = {
+  id: number
+  content: string
+  author: {
+    id: number
+    username: string
+  }
+}
+
 export type Notification = {
   id: number
   type: NotificationType
-  actor: UserPreview
-  post?: Post | null
+  actor: User
+  post: number | null
+  postPreview: PostPreview | null
   isRead: boolean
   createdAt: string
 }
@@ -24,9 +33,9 @@ export type Notification = {
 // Para agrupamento na UI (calculado no frontend)
 export type NotificationGroup = {
   type: NotificationType
-  actors: UserPreview[]
+  actors: User[]
   actorCount: number
-  post?: Post | null
+  post?: PostPreview | null
   latestCreatedAt: string
   allRead: boolean
   notifications: Notification[]

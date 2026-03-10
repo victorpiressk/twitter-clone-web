@@ -1,15 +1,21 @@
+// src/store/slices/api/hashtags.api.ts
+
 import { baseApi } from './base.api'
 import {
   transformHashtag,
   transformTrendingHashtag,
-  transformPost
+  transformPostWithInteractions
 } from '../../../utils/transformers/entities'
 import type {
   Hashtag,
   TrendingHashtag,
-  Post
+  PostWithInteractions
 } from '../../../types/domain/models'
-import type { BackendHashtag, BackendPost } from '../../../types/contracts/dtos'
+import type {
+  BackendHashtag,
+  BackendPostWithInteractions,
+  BackendTrendingHashtag
+} from '../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../types/contracts/responses.backend'
 import type { PaginatedResponse } from '../../../types/domain/responses'
 import type {
@@ -27,6 +33,7 @@ export const hashtagsApi = baseApi.injectEndpoints({
     // HASHTAGS
     // ============================================
 
+    // Endpoint 35: Listar todas hashtags
     getHashtags: builder.query<
       PaginatedResponse<Hashtag>,
       PaginationParams | void
@@ -46,35 +53,47 @@ export const hashtagsApi = baseApi.injectEndpoints({
       providesTags: ['Hashtag']
     }),
 
-    getHashtagByName: builder.query<Hashtag, string>({
-      query: (tag) => `/api/hashtags/${tag}/`,
+    // ✅ Endpoint 36: Detalhes por ID (numérico)
+    getHashtagById: builder.query<Hashtag, number>({
+      query: (id) => `/api/hashtags/${id}/`,
       transformResponse: (response: BackendHashtag): Hashtag =>
         transformHashtag(response),
-      providesTags: (_result, _error, tag) => [{ type: 'Hashtag', id: tag }]
+      providesTags: (_result, _error, id) => [{ type: 'Hashtag', id }]
     }),
 
+    // ✅ Endpoint 38: Buscar por NOME (retorna array)
+    searchHashtags: builder.query<Hashtag[], string>({
+      query: (q) => ({
+        url: '/api/hashtags/search/',
+        params: { q }
+      }),
+      transformResponse: (response: BackendHashtag[]): Hashtag[] =>
+        response.map(transformHashtag),
+      providesTags: ['Hashtag']
+    }),
+
+    // ✅ Endpoint 37: Posts por ID (numérico)
     getHashtagPosts: builder.query<
-      PaginatedResponse<Post>,
-      { tag: string; params?: PaginationParams }
+      PostWithInteractions[], // ✅ Retorna array direto
+      { id: number; params?: PaginationParams }
     >({
-      query: ({ tag, params }) => ({
-        url: `/api/hashtags/${tag}/posts/`,
+      query: ({ id, params }) => ({
+        url: `/api/hashtags/${id}/posts/`,
         params: params || {}
       }),
+      // ✅ Backend retorna array direto, não objeto paginado
       transformResponse: (
-        response: BackendPaginatedResponse<BackendPost>
-      ): PaginatedResponse<Post> => ({
-        count: response.count,
-        next: response.next,
-        previous: response.previous,
-        results: response.results.map(transformPost)
-      }),
-      providesTags: (_result, _error, { tag }) => [
-        { type: 'Hashtag', id: tag },
+        response: BackendPostWithInteractions[] // ✅ Array
+      ): PostWithInteractions[] => {
+        return response.map(transformPostWithInteractions)
+      },
+      providesTags: (_result, _error, { id }) => [
+        { type: 'Hashtag', id },
         'Post'
       ]
     }),
 
+    // Endpoint 39: Trending
     getTrendingHashtags: builder.query<
       TrendingHashtag[],
       PeriodLimitParams | void
@@ -84,21 +103,21 @@ export const hashtagsApi = baseApi.injectEndpoints({
         params: params || { period: 'day', limit: 10 }
       }),
       transformResponse: (
-        response: BackendPaginatedResponse<BackendHashtag>
+        response: BackendPaginatedResponse<BackendTrendingHashtag>
       ): TrendingHashtag[] => {
         return response.results.map(transformTrendingHashtag)
       },
       providesTags: ['Hashtag']
     }),
 
-    followHashtag: builder.mutation<void, string>({
-      query: (tag) => ({
-        url: `/api/hashtags/${tag}/follow/`,
+    // Follow hashtag (usa ID)
+    followHashtag: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/api/hashtags/${id}/follow/`,
         method: 'POST'
-        // Body vazio
       }),
-      invalidatesTags: (_result, _error, tag) => [
-        { type: 'Hashtag', id: tag },
+      invalidatesTags: (_result, _error, id) => [
+        { type: 'Hashtag', id },
         'Hashtag'
       ]
     })
@@ -111,7 +130,8 @@ export const hashtagsApi = baseApi.injectEndpoints({
 
 export const {
   useGetHashtagsQuery,
-  useGetHashtagByNameQuery,
+  useGetHashtagByIdQuery,
+  useSearchHashtagsQuery,
   useGetHashtagPostsQuery,
   useGetTrendingHashtagsQuery,
   useFollowHashtagMutation

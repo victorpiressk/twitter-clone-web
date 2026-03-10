@@ -7,6 +7,136 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.1.5] - 2026-03-09
+
+### Added
+
+#### **Notificações**
+- Integração completa do sistema de notificações com RTK Query
+- Badge de notificações não lidas no Sidebar (desktop e mobile)
+- Polling automático a cada 30s para atualizar count
+- Refetch automático ao focar na tab de notificações
+- Suporte a count > 99 (mostra "99+")
+- Animação suave ao aparecer/desaparecer badge
+- Type `PostPreview` para preview simplificado de posts
+- Transformer `transformNotification` corrigido para usar `post_preview`
+- Navegação correta usando ID do post em vez de objeto completo
+
+#### **Busca Global**
+- SearchBar com variantes (small/large) e estados (empty/history/searching)
+- SearchPopover com debounce de 500ms
+- Histórico de buscas em localStorage
+- Modal de confirmação para limpar histórico completo
+- Busca simultânea de usuários, posts e hashtags
+- Renderização de resultados com avatar, bio e stats
+- Navegação para perfil, post ou hashtag ao clicar
+- Workaround para busca com espaços (nome + sobrenome separados)
+- Loading e empty states em todos os cenários
+- Integração completa com endpoints da API
+
+#### **Hashtags**
+- Sistema completo de hashtags com busca, trending e posts
+- Hook `useHashtags` com 3 modes: 'all', 'trending', 'search'
+- Hook `useHashtagPosts` para buscar posts por hashtag (nome → ID → posts)
+- Hook `useRenderHashtags` para renderizar hashtags clicáveis em posts
+- Feed separado para hashtags no Redux (`hashtagFeed`)
+- Actions e selectors dedicados para hashtag feed
+- Página Explore com tabs "For You" e "Trending"
+- Tab Trending com dois modos: lista (top 30) e filtrado (posts da hashtag)
+- Componente `TrendingHashtagsList` com rank e contador
+- TrendsWidget atualizado com top 3 hashtags (sidebar)
+- Navegação consistente: click → `/explore?q={name}&tab=trending`
+- Suporte a hashtags numéricas (#3, #123)
+- Limpeza automática de cache ao trocar hashtag
+- Busca exata de hashtag (case-insensitive)
+- BackButton no SearchBar para voltar à lista trending
+
+#### **Feature Flags (Nice to Have)**
+- Componentes com mensagens de "Funcionalidade em desenvolvimento"
+- PollCreator com flag `FEATURE_ENABLED = false`
+- PostScheduler com flag `FEATURE_ENABLED = false`
+- LocationPicker com flag `FEATURE_ENABLED = false`
+- Código original preservado e pronto para ativação futura
+- Estilos para mensagens disabled (`DisabledMessage`, `DisabledTitle`, `DisabledText`)
+
+### Fixed
+
+#### **Notificações**
+- Type `BackendNotification.post` corrigido (ID numérico, não objeto)
+- Transformer agora usa `post_preview.content` em vez de `post.content`
+- Navegação usa `notification.post` (ID) corretamente
+- RTK Query cache invalidation funcionando
+- Endpoint `read` individual usa método POST (não PATCH)
+- URL do endpoint `unread_count` usa underscore (não hífen)
+
+#### **Busca**
+- Backend não suporta busca combinada `first_name + last_name`
+- Workaround: queries separadas por nome e sobrenome
+- Renderização de hashtags no padrão Trending (sem ícone Hash)
+- Navegação de hashtag corrigida (agora usa `/explore?q=...&tab=trending`)
+
+#### **Hashtags**
+- Endpoints corrigidos para usar ID numérico (não nome)
+- Endpoint `searchHashtags` criado para busca por nome
+- Endpoint `getHashtagPosts` retorna array direto (não objeto paginado)
+- Models `BackendHashtag` e `Hashtag` corrigidos (campo `name`, não `tag`)
+- Transformers corrigidos para mapear campos corretos
+- Feed separado para evitar conflito com ForYou/Following
+- Busca exata de hashtag (não pega primeira do array)
+- Cache limpo imediatamente ao trocar hashtag
+- Regex de hashtags suporta números e acentos
+
+### Changed
+
+#### **Notificações**
+- Badge mobile agora oculta texto "Notificações" quando visível
+- Polling só ativa quando usuário está autenticado
+- Removidos endpoints não disponíveis (`markAllRead`, `deleteNotification`)
+
+#### **Busca**
+- Hashtags renderizadas com mesmo layout do Trending
+- SearchPopover usa componentes estilizados do Trending
+- Navegação padronizada para todas as hashtags
+
+#### **Hashtags**
+- `useHashtags` mode 'single' removido (posts agora via `useHashtagPosts`)
+- Explore tab Trending sem infinite scroll (endpoint não pagina)
+- TrendsWidget busca dados diretamente da API (sem props)
+- Navegação de hashtags sempre via query string (`?q=...&tab=trending`)
+
+### Technical
+
+#### **Redux**
+- Slice `postsSlice` atualizado com `hashtagFeed` separado
+- Actions: `setHashtagFeedPosts`, `appendHashtagFeedPosts`, `clearHashtagFeed`
+- Selectors: `selectHashtagFeedPosts`, `selectHashtagFeedHasMore`, etc.
+- Feed principal e hashtag feed 100% independentes
+
+#### **API Integration**
+- `hashtagsApi` com endpoints corretos (ID numérico)
+- `searchHashtags` endpoint para busca por nome
+- Transform response adaptado para array direto em `getHashtagPosts`
+- Todos hooks seguem padrão: sem `useState` em `useEffect`
+
+#### **Performance**
+- Debounce de 500ms em SearchBar
+- Polling de 30s em notificações
+- Cache separado para evitar conflitos entre feeds
+- Limpeza automática ao trocar contexto
+
+### Notes
+
+**Features Nice to Have:**
+- Scheduled Posts, Polls e Locations não implementados por questões de:
+  - Infraestrutura (Redis/Celery não disponível no Render free tier)
+  - Risco/Complexidade (modificações em componentes críticos)
+  - Dependências Externas (integração com APIs de terceiros)
+- Arquitetura preparada: endpoints, types, transformers prontos
+- Feature flags permitem ativação futura sem reescrever código
+- Botões mantidos no layout com mensagens explicativas
+
+---
+
 ## [0.1.4] - 2026-03-06
 
 ### Added

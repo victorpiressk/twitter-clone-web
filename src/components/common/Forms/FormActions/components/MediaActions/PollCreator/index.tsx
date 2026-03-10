@@ -6,6 +6,11 @@ import type { PollCreatorProps } from './types'
 import * as S from './styles'
 import type { Poll, PollOption } from '../../../../../../../types/domain/models'
 
+// ============================================
+// FEATURE FLAG
+// ============================================
+const FEATURE_ENABLED = false // ⏸️ Desabilitado temporariamente
+
 const PollCreatorComponent = ({
   isOpen,
   onClose,
@@ -57,7 +62,8 @@ const PollCreatorComponent = ({
       options,
       durationHours,
       endsAt: endsAt.toISOString(),
-      totalVotes: 0
+      totalVotes: 0,
+      isActive: false
     }
 
     onPollCreate(poll)
@@ -72,6 +78,41 @@ const PollCreatorComponent = ({
   const isValid =
     question.trim() && optionTexts.filter((opt) => opt.trim()).length >= 2
 
+  // ============================================
+  // FEATURE DISABLED - Mostrar mensagem
+  // ============================================
+  if (!FEATURE_ENABLED) {
+    return (
+      <BasePopover
+        isOpen={isOpen}
+        onClose={onClose}
+        position="bottom"
+        triggerRef={triggerRef}
+        strategy="fixed"
+      >
+        <S.PollCreatorContainer>
+          <S.Header>
+            <S.Title>Enquetes</S.Title>
+            <S.CloseButton onClick={onClose}>
+              <X />
+            </S.CloseButton>
+          </S.Header>
+
+          <S.DisabledMessage>
+            <S.DisabledTitle>Funcionalidade em desenvolvimento</S.DisabledTitle>
+            <S.DisabledText>
+              A criação de enquetes estará disponível em breve. Estamos
+              trabalhando para trazer esta funcionalidade para você!
+            </S.DisabledText>
+          </S.DisabledMessage>
+        </S.PollCreatorContainer>
+      </BasePopover>
+    )
+  }
+
+  // ============================================
+  // FEATURE ENABLED - Funcionalidade completa
+  // ============================================
   return (
     <BasePopover
       isOpen={isOpen}

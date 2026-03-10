@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation
+} from '../../store/slices/api/notifications.api'
 import NotificationTabs from './components/NotificationTabs'
 import NotificationItem from './components/NotificationItem'
 import InfoBar from '../../components/Layout/InfoBar'
@@ -10,126 +14,52 @@ import type { Notification } from '../../types/domain/models'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
-// Mock data
-const initialNotifications: Notification[] = [
-  {
-    id: 1,
-    type: 'like',
-    actor: {
-      id: 2,
-      username: 'joao',
-      firstName: 'João',
-      lastName: 'Silva',
-      avatar: ''
-    },
-    targetPostId: 1,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    read: false,
-    readAt: 'Olá mundo! Este é meu primeiro post 🚀'
-  },
-  {
-    id: 2,
-    type: 'follow',
-    actor: {
-      id: 3,
-      username: 'maria',
-      firstName: 'Maria',
-      lastName: 'Costa',
-      avatar: ''
-    },
-    createdAt: new Date(Date.now() - 18000000).toISOString(),
-    read: false
-  },
-  {
-    id: 3,
-    type: 'retweet',
-    actor: {
-      id: 4,
-      username: 'pedro',
-      firstName: 'Pedro',
-      lastName: 'Santos',
-      avatar: ''
-    },
-    targetPostId: 1,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    read: true,
-    readAt: 'Olá mundo! Este é meu primeiro post 🚀'
-  },
-  {
-    id: 4,
-    type: 'reply',
-    actor: {
-      id: 5,
-      username: 'ana',
-      firstName: 'Ana',
-      lastName: 'Oliveira',
-      avatar: ''
-    },
-    targetCommentId: 2,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    read: true,
-    readAt: 'Concordo totalmente com você!'
-  },
-  {
-    id: 5,
-    type: 'mention',
-    actor: {
-      id: 6,
-      username: 'carlos',
-      firstName: 'Carlos',
-      lastName: 'Mendes',
-      avatar: ''
-    },
-    targetPostId: 3,
-    createdAt: new Date(Date.now() - 259200000).toISOString(),
-    read: true,
-    readAt: '@victor você viu essa notícia?'
-  }
-]
-
 const Notifications = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<NotificationTab>('all')
-  const [notifications, setNotifications] = useState<Notification[]>(() => {
-    // ← Carrega do localStorage se existir
-    const saved = localStorage.getItem('notifications')
-    return saved ? JSON.parse(saved) : initialNotifications
-  })
-  const [isLoading, setIsLoading] = useState(true)
 
+  const { data, isLoading, refetch } = useGetNotificationsQuery()
+  const [markAsRead] = useMarkNotificationReadMutation()
+
+  // ✅ Refetch ao focar na tab
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1500)
-  }, [])
+    const handleFocus = () => refetch()
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [refetch])
 
-  // ← Salva no localStorage sempre que mudar
+  // ✅ Polling (30s)
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications))
-  }, [notifications])
+    const interval = setInterval(() => refetch(), 30000)
+    return () => clearInterval(interval)
+  }, [refetch])
 
-  const handleNotificationClick = (notification: Notification) => {
-    // Marca como lida
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
-    )
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.isRead) {
+      try {
+        await markAsRead(notification.id)
+      } catch (error) {
+        console.error('Erro ao marcar notificação como lida:', error)
+      }
+    }
 
-    // Navega baseado no tipo
     if (notification.type === 'follow') {
       navigate(`/${notification.actor.username}`)
-    } else if (notification.targetPostId) {
-      navigate(
-        `/${notification.actor.username}/status/${notification.targetPostId}`
-      )
+    } else if (notification.post) {
+      navigate(`/${notification.actor.username}/status/${notification.post}`)
     }
   }
 
   const getFilteredNotifications = () => {
+    if (!data?.results) return []
+
     switch (activeTab) {
       case 'mentions':
-        return notifications.filter(
+        return data.results.filter(
           (n) => n.type === 'mention' || n.type === 'reply'
         )
       default:
-        return notifications
+        return data.results
     }
   }
 
@@ -142,6 +72,7 @@ const Notifications = () => {
         <S.NotificationsContainer>
           <S.NotificationsHeader>
             <S.HeaderTitle>Notificações</S.HeaderTitle>
+
             <NotificationTabs
               activeTab={activeTab}
               onTabChange={setActiveTab}
@@ -149,20 +80,16 @@ const Notifications = () => {
           </S.NotificationsHeader>
 
           <S.NotificationsList>
-            {filteredNotifications.length > 0 ? (
-              <>
-                {isLoading ? (
-                  <NotificationListSkeleton count={7} />
-                ) : (
-                  filteredNotifications.map((notification) => (
-                    <NotificationItem
-                      key={notification.id}
-                      notification={notification}
-                      onClick={() => handleNotificationClick(notification)}
-                    />
-                  ))
-                )}
-              </>
+            {isLoading ? (
+              <NotificationListSkeleton count={7} />
+            ) : filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onClick={() => handleNotificationClick(notification)}
+                />
+              ))
             ) : (
               <S.EmptyState>
                 <h3>Nenhuma notificação</h3>

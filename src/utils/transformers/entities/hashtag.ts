@@ -1,22 +1,34 @@
-import type { BackendHashtag } from '../../../types/contracts/dtos'
+import type {
+  BackendHashtag,
+  BackendTrendingHashtag
+} from '../../../types/contracts/dtos'
 import type { Hashtag, TrendingHashtag } from '../../../types/domain/models'
+
+// ============================================
+// HASHTAG NORMAL
+// ============================================
 
 export const transformHashtag = (backendHashtag: BackendHashtag): Hashtag => ({
   id: backendHashtag.id,
-  tag: backendHashtag.tag,
+  name: backendHashtag.name,
+  slug: backendHashtag.slug,
   postsCount: backendHashtag.posts_count,
-  isTrending: backendHashtag.is_trending,
-  rank: backendHashtag.rank
+  createdAt: backendHashtag.created_at
 })
 
-// Helper para garantir que rank existe (para TrendsWidget)
-export const transformTrendingHashtag = (
-  backendHashtag: BackendHashtag
-): TrendingHashtag => {
-  const hashtag = transformHashtag(backendHashtag)
+// ============================================
+// TRENDING HASHTAG
+// ============================================
 
-  return {
-    ...hashtag,
-    rank: hashtag.rank ?? 999 // Fallback se não vier rank
-  }
-}
+export const transformTrendingHashtag = (
+  backendHashtag: BackendTrendingHashtag,
+  index?: number
+): TrendingHashtag => ({
+  id: backendHashtag.id,
+  name: backendHashtag.name,
+  slug: backendHashtag.slug,
+  postsCount: backendHashtag.posts_count,
+  createdAt: backendHashtag.created_at,
+  recentPostsCount: backendHashtag.recent_posts_count,
+  rank: index !== undefined ? index + 1 : undefined // rank = posição + 1
+})

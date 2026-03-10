@@ -1,208 +1,196 @@
-import { useEffect, useState } from 'react'
+// src/pages/Explore/index.tsx
+
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { usePosts } from '../../hooks/usePosts'
+import { useHashtags } from '../../hooks/useHashtags'
+import { useHashtagPosts } from '../../hooks/useHashtagPosts'
 import InfoBar from '../../components/Layout/InfoBar'
 import SearchBar from '../../components/common/SearchBar'
 import BackButton from '../../components/common/BackButton'
-import PostList from '../../components/common/Posts/PostList'
+import PostCard from '../../components/common/Posts/PostCard'
 import ExploreTabs from './components/ExploreTabs'
-import TrendsWidget from '../../components/Layout/InfoBar/components/TrendsWidget'
+import TrendingHashtagsList from './components/TrendingHashtagsList'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import { ScrollToTop } from '../../hooks/useScrollToTop'
 import type { ExploreTab } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
-import type { PostWithInteractions, Trend } from '../../types/domain/models'
-
-// Mock data - Posts sugeridos
-const mockPosts: PostWithInteractions[] = [
-  {
-    id: 1,
-    content:
-      '🚀 Novidades do React 19: Server Components agora estão estáveis! #React #WebDev',
-    author: {
-      id: 1,
-      username: 'tech_news',
-      firstName: 'Tech',
-      lastName: 'News BR',
-      avatar: '',
-      bio: '',
-      isFollowing: false,
-      stats: {
-        following: 0,
-        followers: 0
-      }
-    },
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    updatedAt: '',
-    isPublished: true,
-    stats: { comments: 45, retweets: 128, likes: 567, views: 12340 },
-    isLiked: false,
-    isRetweeted: false,
-    isBookmarked: false
-  },
-  {
-    id: 2,
-    content:
-      'TypeScript 5.4 traz melhorias incríveis de performance! Confira: https://example.com',
-    author: {
-      id: 2,
-      username: 'dev_brasil',
-      firstName: 'Devs',
-      lastName: 'Brasil',
-      avatar: '',
-      bio: '',
-      isFollowing: false,
-      stats: {
-        following: 0,
-        followers: 0
-      }
-    },
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    updatedAt: '',
-    isPublished: true,
-    stats: { comments: 23, retweets: 89, likes: 345, views: 8900 },
-    isLiked: false,
-    isRetweeted: false,
-    isBookmarked: false
-  },
-  {
-    id: 3,
-    content:
-      'Dica: Use CSS Container Queries ao invés de Media Queries para componentes mais flexíveis! 💡',
-    author: {
-      id: 3,
-      username: 'frontend_tips',
-      firstName: 'Frontend',
-      lastName: 'Tips',
-      avatar: '',
-      bio: '',
-      isFollowing: false,
-      stats: {
-        following: 0,
-        followers: 0
-      }
-    },
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    updatedAt: '',
-    isPublished: true,
-    stats: { comments: 12, retweets: 56, likes: 234, views: 5600 },
-    isLiked: false,
-    isRetweeted: false,
-    isBookmarked: false
-  }
-]
-
-// Mock data - Trends expandidos
-const mockTrends: Trend[] = [
-  {
-    id: 1,
-    category: 'technology',
-    name: '#React19',
-    tweetCount: 125000,
-    rank: 1,
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    updatedAt: ''
-  },
-  {
-    id: 2,
-    category: 'technology',
-    name: '#TypeScript',
-    tweetCount: 89000,
-    rank: 2,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    updatedAt: ''
-  },
-  {
-    id: 3,
-    category: 'technology',
-    name: '#WebDev',
-    tweetCount: 234000,
-    rank: 2,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    updatedAt: ''
-  },
-  {
-    id: 4,
-    category: 'technology',
-    name: '#JavaScript',
-    tweetCount: 456000,
-    rank: 4,
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    updatedAt: ''
-  },
-  {
-    id: 5,
-    category: 'technology',
-    name: '#UX',
-    tweetCount: 67000,
-    rank: 5,
-    createdAt: new Date(Date.now() - 10888000).toISOString(),
-    updatedAt: ''
-  }
-]
 
 const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [posts, setPosts] = useState(mockPosts)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-  }, [])
-
-  // DERIVAR estado da URL (não usar useState + useEffect)
+  // Derivar estado da URL
   const activeTab: ExploreTab =
     (searchParams.get('tab') as ExploreTab) || 'for-you'
   const searchQuery = searchParams.get('q') || ''
 
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  // ============================================
+  // TAB "FOR YOU"
+  // ============================================
+
+  const {
+    posts,
+    isLoading: loadingForYou,
+    hasMore: hasMoreForYou,
+    loadMore: loadMoreForYou,
+    refresh: refreshForYou
+  } = usePosts({
+    type: 'forYou'
+  })
+
+  // ============================================
+  // TAB "TRENDING" - Modo Lista
+  // ============================================
+
+  const { hashtags: trendingHashtags, isLoading: loadingTrending } =
+    useHashtags({
+      mode: 'trending'
+    })
+
+  // ============================================
+  // TAB "TRENDING" - Modo Filtrado
+  // ============================================
+
+  // ✅ useHashtagPosts já retorna info da hashtag + posts
+  const { posts: hashtagPosts, isLoading: loadingHashtagPosts } =
+    useHashtagPosts({
+      hashtagName: searchQuery && activeTab === 'trending' ? searchQuery : ''
+    })
+
+  // ============================================
+  // HANDLERS
+  // ============================================
+
+  const handleRefreshForYou = async () => {
+    await refreshForYou()
+  }
 
   const handleTabChange = (tab: ExploreTab) => {
-    // Mantém query se existir
-    const params: Record<string, string> = { tab }
-    if (searchQuery) params.q = searchQuery
-    setSearchParams(params)
+    setSearchParams({ tab })
   }
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
       setSearchParams({ q: query.trim(), tab: activeTab })
     } else {
-      // Se limpar busca, mantém só a tab
       setSearchParams({ tab: activeTab })
     }
   }
 
+  const handleBackToTrending = () => {
+    setSearchParams({ tab: 'trending' })
+  }
+
+  // ============================================
+  // RENDER TAB CONTENT
+  // ============================================
+
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'for-you':
-        return (
-          <>
-            {isLoading ? (
-              <PostListSkeleton count={5} />
-            ) : (
-              <PostList posts={posts} />
-            )}
-          </>
-        )
+      // ============================================
+      // FOR YOU
+      // ============================================
+      case 'for-you': {
+        const isEmpty = !loadingForYou && posts.length === 0
 
-      case 'trending':
         return (
           <>
-            {isLoading ? (
+            {loadingForYou ? (
               <PostListSkeleton count={5} />
+            ) : isEmpty ? (
+              <S.EmptyState>
+                <h3>Nenhum post ainda</h3>
+                <p>Seja o primeiro a postar!</p>
+              </S.EmptyState>
             ) : (
-              <>
-                <div style={{ padding: '16px' }}>
-                  <TrendsWidget trends={mockTrends} showAll />
-                </div>
-                <PostList posts={posts} />
-              </>
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={loadMoreForYou}
+                hasMore={hasMoreForYou}
+                loader={
+                  <S.LoadingMore>
+                    <S.LoadingText>Carregando mais posts...</S.LoadingText>
+                  </S.LoadingMore>
+                }
+                endMessage={<S.EndMessage>Você chegou ao fim! 🎉</S.EndMessage>}
+                refreshFunction={handleRefreshForYou}
+                pullDownToRefresh
+                pullDownToRefreshThreshold={80}
+                pullDownToRefreshContent={
+                  <S.PullMessage>↓ Puxe para atualizar</S.PullMessage>
+                }
+                releaseToRefreshContent={
+                  <S.ReleaseMessage>↻ Solte para atualizar</S.ReleaseMessage>
+                }
+              >
+                {posts.map((post) => (
+                  <PostCard key={post.id} postId={post.id} variant="default" />
+                ))}
+              </InfiniteScroll>
             )}
           </>
         )
+      }
+
+      // ============================================
+      // TRENDING
+      // ============================================
+      case 'trending': {
+        // ============================================
+        // MODO FILTRADO (com query)
+        // ============================================
+        if (searchQuery) {
+          const isEmpty = !loadingHashtagPosts && hashtagPosts.length === 0
+
+          return (
+            <>
+              {/* Posts da Hashtag */}
+              {loadingHashtagPosts ? (
+                <PostListSkeleton count={5} />
+              ) : isEmpty ? (
+                <S.EmptyState>
+                  <h3>Nenhum post encontrado</h3>
+                  <p>Ainda não há posts com #{searchQuery}</p>
+                </S.EmptyState>
+              ) : (
+                // ✅ SEM InfiniteScroll (endpoint não pagina)
+                <div>
+                  {hashtagPosts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      postId={post.id}
+                      variant="default"
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )
+        }
+
+        // ============================================
+        // MODO LISTA (sem query)
+        // ============================================
+        const isEmpty = !loadingTrending && trendingHashtags.length === 0
+
+        return (
+          <>
+            {loadingTrending ? (
+              <PostListSkeleton count={5} />
+            ) : isEmpty ? (
+              <S.EmptyState>
+                <h3>Nenhum trend no momento</h3>
+                <p>Volte mais tarde para ver o que está em alta! 🔥</p>
+              </S.EmptyState>
+            ) : (
+              <TrendingHashtagsList hashtags={trendingHashtags} />
+            )}
+          </>
+        )
+      }
 
       case 'news':
         return (
@@ -239,9 +227,18 @@ const Explore = () => {
       <ContentWrapper>
         <S.ExploreContainer>
           <S.SearchBarWrapper>
-            <S.SearchBarContent $showBackButton={isSearchFocused}>
-              {isSearchFocused && (
-                <BackButton onClick={() => setIsSearchFocused(false)} />
+            <S.SearchBarContent
+              $showBackButton={isSearchFocused || !!searchQuery}
+            >
+              {(isSearchFocused || searchQuery) && (
+                <BackButton
+                  onClick={() => {
+                    setIsSearchFocused(false)
+                    if (activeTab === 'trending' && searchQuery) {
+                      handleBackToTrending()
+                    }
+                  }}
+                />
               )}
               <SearchBar
                 variant="large"

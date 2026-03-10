@@ -22,6 +22,14 @@ type PostsState = {
     loading: boolean
   }
 
+  // Feed separado para hashtags
+  hashtagFeed: {
+    ids: number[]
+    cursor: string | null
+    hasMore: boolean
+    loading: boolean
+  }
+
   // Post detail
   detail: {
     postId: number | null
@@ -42,6 +50,12 @@ const initialState: PostsState = {
   byId: {},
   allIds: [],
   feed: {
+    ids: [],
+    cursor: null,
+    hasMore: true,
+    loading: false
+  },
+  hashtagFeed: {
     ids: [],
     cursor: null,
     hasMore: true,
@@ -270,6 +284,87 @@ const postsSlice = createSlice({
       state.feed.ids = []
       state.feed.cursor = null
       state.feed.hasMore = true
+    },
+
+    setHashtagFeedPosts: (
+      state,
+      action: PayloadAction<{
+        posts: PostWithInteractions[]
+        cursor: string | null
+        hasMore: boolean
+      }>
+    ) => {
+      const { posts, cursor, hasMore } = action.payload
+
+      // Adiciona posts ao cache normalizado
+      posts.forEach((post) => {
+        state.byId[post.id] = {
+          ...state.byId[post.id],
+          ...post
+        }
+
+        if (!state.allIds.includes(post.id)) {
+          state.allIds.push(post.id)
+        }
+      })
+
+      // Atualiza hashtag feed
+      state.hashtagFeed.ids = posts.map((p) => p.id)
+      state.hashtagFeed.cursor = cursor
+      state.hashtagFeed.hasMore = hasMore
+      state.hashtagFeed.loading = false
+    },
+
+    // ✅ Adiciona posts ao hashtag feed (paginação)
+    appendHashtagFeedPosts: (
+      state,
+      action: PayloadAction<{
+        posts: PostWithInteractions[]
+        cursor: string | null
+        hasMore: boolean
+      }>
+    ) => {
+      const { posts, cursor, hasMore } = action.payload
+
+      // Proteção: Se não vierem posts
+      if (!posts || posts.length === 0) {
+        state.hashtagFeed.cursor = cursor
+        state.hashtagFeed.hasMore = false
+        state.hashtagFeed.loading = false
+        return
+      }
+
+      // Adiciona ao cache
+      posts.forEach((post) => {
+        const existing = state.byId[post.id]
+        state.byId[post.id] = {
+          ...existing,
+          ...post,
+          author: post.author || existing?.author,
+          stats: post.stats || existing?.stats
+        }
+
+        if (!state.allIds.includes(post.id)) {
+          state.allIds.push(post.id)
+        }
+      })
+
+      // Append ao hashtag feed SEM DUPLICAR
+      const currentIds = new Set(state.hashtagFeed.ids)
+      posts.forEach((p) => currentIds.add(p.id))
+
+      state.hashtagFeed.ids = Array.from(currentIds)
+      state.hashtagFeed.cursor = cursor
+      state.hashtagFeed.hasMore = hasMore && cursor !== null
+      state.hashtagFeed.loading = false
+    },
+
+    // ✅ Limpa hashtag feed
+    clearHashtagFeed: (state) => {
+      state.hashtagFeed.ids = []
+      state.hashtagFeed.cursor = null
+      state.hashtagFeed.hasMore = true
+      state.hashtagFeed.loading = false
     }
   }
 })
@@ -293,7 +388,10 @@ export const {
   setDetailLoading,
   setCreating,
   setError,
-  clearFeed
+  clearFeed,
+  setHashtagFeedPosts,
+  appendHashtagFeedPosts,
+  clearHashtagFeed
 } = postsSlice.actions
 
 // ============================================
@@ -312,6 +410,26 @@ export const selectFeedPostIds = (state: RootState) => state.posts.feed.ids
 export const selectFeedHasMore = (state: RootState) => state.posts.feed.hasMore
 export const selectFeedLoading = (state: RootState) => state.posts.feed.loading
 export const selectFeedCursor = (state: RootState) => state.posts.feed.cursor
+
+// Hashtag Feed selectors
+export const selectHashtagFeedPostIds = (state: RootState) =>
+  state.posts.hashtagFeed.ids
+export const selectHashtagFeedHasMore = (state: RootState) =>
+  state.posts.hashtagFeed.hasMore
+export const selectHashtagFeedLoading = (state: RootState) =>
+  state.posts.hashtagFeed.loading
+export const selectHashtagFeedCursor = (state: RootState) =>
+  state.posts.hashtagFeed.cursor
+
+// Selector memoizado para Hashtag Feed
+export const selectHashtagFeedPosts = createSelector(
+  [selectAllPosts, (state: RootState) => state.posts.hashtagFeed.ids],
+  (postsById, feedIds) => {
+    return feedIds
+      .map((id) => postsById[id])
+      .filter((post): post is PostWithInteractions => !!post)
+  }
+)
 
 // Selector para o Feed
 export const selectFeedPosts = createSelector(

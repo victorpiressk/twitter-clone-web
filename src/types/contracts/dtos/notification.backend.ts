@@ -1,5 +1,4 @@
-import type { BackendUserPreview } from './user.backend'
-import type { BackendPost } from './post.backend'
+import type { BackendUser } from './user.backend'
 
 export type BackendNotificationType =
   | 'like'
@@ -8,11 +7,22 @@ export type BackendNotificationType =
   | 'mention'
   | 'reply'
 
+export type BackendPostPreview = {
+  id: number
+  content: string
+  author: {
+    id: number
+    username: string
+  }
+}
+
 export type BackendNotification = {
   id: number
-  type: BackendNotificationType
-  actor: BackendUserPreview
-  post?: BackendPost | null
+  notification_type: BackendNotificationType
+  notification_type_display: string
+  actor: BackendUser // User completo
+  post: number | null // ✅ Apenas ID
+  post_preview: BackendPostPreview | null
   is_read: boolean
   created_at: string
 }

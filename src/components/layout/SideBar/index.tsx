@@ -1,6 +1,6 @@
 // src/components/Layout/SideBar/index.tsx
 
-import { useState, useRef, useMemo } from 'react' // ← Adicionar useMemo
+import { useState, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal } from 'lucide-react'
 import Button from '../../common/Button'
@@ -11,6 +11,7 @@ import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
 import { useToast } from '../../../hooks/useToast'
 import { useAppSelector } from '../../../store/hooks'
 import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
+import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
 import * as S from './styles'
 import { useLogoutMutation } from '../../../store/slices/api/auth.api'
 
@@ -22,19 +23,26 @@ const SideBar = () => {
   const user = useAppSelector(selectCurrentUser)
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
 
+  // ✅ NOVO: Buscar count de notificações não lidas
+  const { data: unreadData } = useGetUnreadCountQuery()
+  const unreadCount = unreadData?.count || 0
+
+  console.log('🔔 Unread Data:', unreadData)
+  console.log('🔔 Unread Count:', unreadCount)
+  console.log('🔔 Should Show Badge:', unreadCount > 0)
+
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
 
-  // ✅ CORREÇÃO: Atualiza path do perfil dinamicamente
   const navItems = useMemo(() => {
     return NAV_ITEMS.map((item) => {
       if (item.path === '/profile' && user) {
         return {
           ...item,
-          path: `/${user.username}` // ✅ Path dinâmico
+          path: `/${user.username}`
         }
       }
       return item
@@ -85,9 +93,11 @@ const SideBar = () => {
               </S.Logo>
             </li>
 
-            {/* ✅ CORREÇÃO: Usa navItems dinâmico */}
             {navItems.map((item) => {
               const Icon = item.icon
+              const isNotifications = item.path === '/notifications'
+              const showBadge = isNotifications && unreadCount > 0
+
               return (
                 <li key={item.path}>
                   <Button
@@ -96,7 +106,15 @@ const SideBar = () => {
                     variant="ghost"
                     active={location.pathname === item.path}
                   >
-                    <Icon size={26.25} />
+                    {/* Wrapper do ícone com badge */}
+                    <S.IconWrapper>
+                      <Icon size={26.25} />
+                      {showBadge && (
+                        <S.NotificationBadge>
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </S.NotificationBadge>
+                      )}
+                    </S.IconWrapper>
                     <span>{item.label}</span>
                   </Button>
                 </li>

@@ -1,28 +1,45 @@
+// src/components/Layout/InfoBar/components/TrendsWidget/index.tsx
+
 import { useNavigate } from 'react-router-dom'
-import type { TrendsWidgetProps } from './types'
+import { useGetTrendingHashtagsQuery } from '../../../../../store/slices/api/hashtags.api'
 import Button from '../../../../common/Button'
 import * as S from './styles'
 
-const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
+const TrendsWidget = () => {
   const navigate = useNavigate()
 
-  const formatCount = (count: number): string => {
-    if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`
-    }
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`
-    }
-    return count.toString()
+  // ✅ Buscar top 3 trending hashtags
+  const { data: trendingHashtags, isLoading } = useGetTrendingHashtagsQuery({
+    period: 'week',
+    limit: 3
+  })
+
+  const handleHashtagClick = (hashtagName: string) => {
+    navigate(`/explore?q=${encodeURIComponent(hashtagName)}&tab=trending`)
   }
 
-  const displayTrends = showAll ? trends : trends.slice(0, 3)
+  // Loading state
+  if (isLoading) {
+    return (
+      <S.Widget>
+        <S.WidgetHeader>
+          <S.WidgetTitle>O que está acontecendo</S.WidgetTitle>
+        </S.WidgetHeader>
+        <S.LoadingState>Carregando...</S.LoadingState>
+      </S.Widget>
+    )
+  }
 
-  // ✅ Handler para clicar no trend
-  const handleTrendClick = (trendName: string) => {
-    // Remove # se existir e faz encode para URL
-    const query = trendName.replace('#', '')
-    navigate(`/explore?q=${encodeURIComponent(query)}&tab=trending`)
+  // Empty state
+  if (!trendingHashtags || trendingHashtags.length === 0) {
+    return (
+      <S.Widget>
+        <S.WidgetHeader>
+          <S.WidgetTitle>O que está acontecendo</S.WidgetTitle>
+        </S.WidgetHeader>
+        <S.EmptyState>Nenhum trend no momento</S.EmptyState>
+      </S.Widget>
+    )
   }
 
   return (
@@ -31,26 +48,31 @@ const TrendsWidget = ({ trends, showAll = false }: TrendsWidgetProps) => {
         <S.WidgetTitle>O que está acontecendo</S.WidgetTitle>
       </S.WidgetHeader>
 
-      <S.TrendsList>
-        {displayTrends.map((trend) => (
-          <S.TrendItem
-            key={trend.id}
-            onClick={() => handleTrendClick(trend.tag)}
+      <S.TrendingList>
+        {trendingHashtags.map((hashtag, index) => (
+          <S.TrendingItem
+            key={hashtag.id}
+            onClick={() => handleHashtagClick(hashtag.name)}
           >
-            <S.TrendCategory>{trend.tag}</S.TrendCategory>
-            <S.TrendName>{trend.tag}</S.TrendName>
-            <S.TrendCount>{formatCount(trend.postsCount)} posts</S.TrendCount>
-          </S.TrendItem>
+            <S.TrendingInfo>
+              <S.TrendingRank>
+                {index + 1} <S.Separator>·</S.Separator> Assunto do Momento{' '}
+                <S.Separator>·</S.Separator>{' '}
+                <S.TrendingStats>
+                  {hashtag.postsCount.toLocaleString('pt-BR')} posts
+                </S.TrendingStats>
+              </S.TrendingRank>
+              <S.TrendingName>#{hashtag.name}</S.TrendingName>
+            </S.TrendingInfo>
+          </S.TrendingItem>
         ))}
-      </S.TrendsList>
+      </S.TrendingList>
 
-      {!showAll && (
-        <S.ShowMore>
-          <Button type="link" to="/explore" variant="ghost">
-            Mostrar mais
-          </Button>
-        </S.ShowMore>
-      )}
+      <S.ShowMore>
+        <Button type="link" to="/explore?tab=trending" variant="ghost">
+          Mostrar mais
+        </Button>
+      </S.ShowMore>
     </S.Widget>
   )
 }
