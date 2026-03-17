@@ -193,13 +193,24 @@ const postsSlice = createSlice({
         post.stats.likes += post.isLiked ? 1 : -1
       }
     },
+    setLikeId: (
+      state,
+      action: PayloadAction<{ postId: number; likeId: number | null }>
+    ) => {
+      const post = state.byId[action.payload.postId]
+      if (post) {
+        post.likeId = action.payload.likeId
+      }
+    },
 
     // ✅ Toggle retweet
-    toggleRetweet: (state, action: PayloadAction<number>) => {
-      const post = state.byId[action.payload]
+    setRetweeted: (
+      state,
+      action: PayloadAction<{ postId: number; value: boolean }>
+    ) => {
+      const post = state.byId[action.payload.postId]
       if (post) {
-        post.isRetweeted = !post.isRetweeted
-        post.stats.retweets += post.isRetweeted ? 1 : -1
+        post.isRetweeted = action.payload.value
       }
     },
 
@@ -215,15 +226,21 @@ const postsSlice = createSlice({
     incrementComments: (state, action: PayloadAction<number>) => {
       const post = state.byId[action.payload]
       if (post) {
-        post.stats.comments += 1
+        post.stats.replies += 1
       }
     },
 
-    // ✅ Incrementa retweets
-    incrementRetweets: (state, action: PayloadAction<number>) => {
-      const post = state.byId[action.payload]
+    // ✅ Incrementa ou decrementa retweets
+    adjustRetweets: (
+      state,
+      action: PayloadAction<{ postId: number; delta: 1 | -1 }>
+    ) => {
+      const post = state.byId[action.payload.postId]
       if (post) {
-        post.stats.retweets += 1
+        post.stats.retweets = Math.max(
+          0,
+          post.stats.retweets + action.payload.delta
+        )
       }
     },
 
@@ -378,10 +395,11 @@ export const {
   setFeedPosts,
   appendFeedPosts,
   toggleLike,
-  toggleRetweet,
+  setLikeId,
+  setRetweeted,
   toggleBookmark,
   incrementComments,
-  incrementRetweets,
+  adjustRetweets,
   removePost,
   setFeedLoading,
   setPostDetail,

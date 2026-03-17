@@ -53,9 +53,8 @@ export const transformRegisterRequest = (
 export const transformLoginRequest = (
   loginRequest: LoginRequest
 ): BackendLoginRequest => ({
-  username: loginRequest.username,
-  email: loginRequest.email,
-  phone: loginRequest.phone,
+  identifier:
+    loginRequest.username || loginRequest.email || loginRequest.phone || '',
   password: loginRequest.password
 })
 

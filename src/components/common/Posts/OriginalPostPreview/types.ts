@@ -1,6 +1,6 @@
-import type { Post } from '../../../../types/domain/models'
+import type { PostWithInteractions } from '../../../../types/domain/models'
 
 export type OriginalPostPreviewProps = {
-  post: Post
+  post: PostWithInteractions
   showConnector?: boolean
 }

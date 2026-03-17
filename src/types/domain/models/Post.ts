@@ -20,7 +20,7 @@ export type Post = {
   scheduledFor?: string | null // ← data futura de publicação
   isPublished: boolean // ← false se agendado, true se já publicado
   stats: {
-    comments: number
+    replies: number
     retweets: number
     likes: number
     views: number
@@ -37,6 +37,7 @@ export type PostWithInteractions = Post & {
   isLiked: boolean
   isRetweeted: boolean
   isBookmarked: boolean
+  likeId: number | null
 }
 
 export type PostDetail = Post & {

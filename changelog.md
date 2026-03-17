@@ -7,6 +7,113 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.1.6] - 2026-03-09
+ 
+### Fixed
+ 
+#### **Autenticação**
+- Login agora aceita `identifier` (username, email ou telefone) em vez de campos separados
+- Sessão persiste corretamente após reload/hibernação do servidor
+- Logout automático apenas em erro 401 (token inválido)
+- Erros de rede (500, timeout) não deslogam mais o usuário
+- Type `BackendLoginRequest` atualizado para `{ identifier, password }`
+- Transformer `transformLoginRequest` consolidado
+ 
+#### **Sistema de Likes**
+- Likes persistem corretamente após refresh
+- Toggle like/unlike funciona sem erros 400/404
+- Backend retorna `like_id` e frontend salva para deletar corretamente
+- Action `setLikeId` adicionada ao `postsSlice`
+- `DELETE /api/likes/{like_id}/` usa ID correto (não ID do post)
+- Update otimista com fallback em caso de erro
+ 
+#### **Sistema de Retweets**
+- Retweets simples funcionam corretamente
+- Quote retweets incrementam contador do post original
+- Actions `setRetweeted` e `adjustRetweets` substituem `toggleRetweet`/`incrementRetweets`
+- `RetweetPopover` detecta `isSimpleRetweet` corretamente
+- `PostCard` exibe post original em retweets simples via `displayPost`
+- `PostCard` variant `detailed` exibe post pai via `OriginalPostPreview`
+- Ordem de declaração de variáveis corrigida para evitar uso antes da definição
+ 
+#### **Sistema de Replies**
+- Model `Comment` removido (substituído por `Post` com `in_reply_to`)
+- Type `stats.comments` renomeado para `stats.replies` (alinhado com backend)
+- Transformer `transformPost` mapeia `replies` corretamente
+- Arquivo `comments.api.ts` deletado
+- Todas referências atualizadas em componentes e hooks
+ 
+#### **Profile Tabs**
+- Filtros dinâmicos implementados (`has_reply`, `has_media`, `is_retweet`, `liked_by`)
+- Tabs do perfil funcionam com `usePosts` + `profileParams`
+- Infinite scroll habilitado em todas as tabs
+- Tab "Posts" filtra replies e retweets
+- Tab "Replies" mostra apenas posts com resposta
+- Tab "Media" mostra apenas posts com mídia
+- Tab "Likes" mostra posts curtidos pelo usuário
+- 4 queries separadas substituídas por 1 `usePosts` reutilizável
+ 
+### Changed
+ 
+#### **API Integration**
+- `usePosts` agora aceita type `profile` com params opcionais
+- Selector usa `selectRawFeedPosts` para tipo `profile`
+- Sync effect usa key `profile-${JSON.stringify(params)}` para cache correto
+- `useGetLikesQuery` removido do Profile (substituído por `useGetPostsQuery`)
+ 
+#### **Redux State**
+- `postsSlice` com actions mais granulares:
+  - `setLikeId(postId, likeId)` - Salva ID do like
+  - `setRetweeted(postId, isRetweeted)` - Define estado de retweet
+  - `adjustRetweets(postId, delta)` - Incrementa/decrementa contador
+- `stats.comments` → `stats.replies` em toda aplicação
+ 
+#### **Components**
+- `PostCard` reorganizado para evitar hoisting errors
+- `PostCardActions` atualizado com `stats.replies`
+- `SearchPopover` atualizado com `stats.replies`
+- `Profile` refatorado com tabs dinâmicas e infinite scroll
+ 
+### Removed
+ 
+#### **Deprecated Code**
+- Diretório `/mocks` completamente removido
+- `comments.api.ts` deletado
+- `useGetLikesQuery` removido do Profile
+- Actions obsoletas: `toggleRetweet`, `incrementRetweets`
+- Lógica de retweet duplicada em `usePostActions`
+ 
+### Technical
+ 
+#### **Build**
+- `npm run build` executado com sucesso
+- Todos erros de importação de mocks corrigidos
+- Referências a `comments` atualizadas para `replies`
+- Types alinhados com API real (sem fallbacks mock)
+ 
+#### **Type Safety**
+- `BackendLoginRequest` com `identifier: string`
+- `BackendPostWithInteractions` com `like_id: number | null`
+- `PostWithInteractions` com `likeId: number | null`
+- `GetPostsParams` com filtros dinâmicos (`has_reply`, etc.)
+- Todos types alinhados com contratos do backend
+ 
+#### **Performance**
+- Profile usa 1 query em vez de 4 (redução de 75% requests)
+- Cache do Redux reutilizado entre tabs
+- Infinite scroll otimizado com selector específico
+ 
+### Notes
+ 
+**Preparação para Merge:**
+- Todos bugs críticos corrigidos
+- Build de produção sem warnings
+- Types alinhados com backend real
+- Mocks completamente removidos
+- Pronta para merge na `main`
+
+---
+
 ## [0.1.5] - 2026-03-09
 
 ### Added

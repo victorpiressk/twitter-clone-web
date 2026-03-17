@@ -8,7 +8,6 @@ const RetweetPopover = ({
   onClose,
   triggerRef,
   isRetweeted,
-  isQuoteRetweet,
   onRetweet,
   onQuote
 }: RetweetPopoverProps) => {
@@ -23,7 +22,7 @@ const RetweetPopover = ({
   }
 
   // ✅ Só mostra "Desfazer" se for retweet SIMPLES (não quote)
-  const isSimpleRetweet = isRetweeted && !isQuoteRetweet
+  const isSimpleRetweet = isRetweeted
 
   return (
     <>

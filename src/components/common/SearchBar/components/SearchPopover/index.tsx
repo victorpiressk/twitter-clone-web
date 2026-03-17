@@ -189,8 +189,7 @@ const SearchPopover = ({
                           {post.stats && (
                             <S.PostStats>
                               <span>
-                                <MessageCircle size={14} />{' '}
-                                {post.stats.comments}
+                                <MessageCircle size={14} /> {post.stats.replies}
                               </span>
                             </S.PostStats>
                           )}

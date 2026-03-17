@@ -4,7 +4,8 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   useGetPostsQuery,
   useGetFeedQuery,
-  useGetPostRepliesQuery
+  useGetPostRepliesQuery,
+  type GetPostsParams
 } from '../store/slices/api/posts'
 import {
   setFeedPosts,
@@ -28,10 +29,12 @@ type PostsType =
   | 'forYou' // /api/posts/ (todos)
   | 'following' // /api/posts/feed/ (seguindo)
   | 'replies' // /api/posts/{id}/replies/ (comentários)
+  | 'profile'
 
 type UsePostsOptions = {
   type: PostsType
   postId?: number // Obrigatório quando type='replies'
+  params?: GetPostsParams
 }
 
 type BackendPaginatedResponse = {
@@ -53,6 +56,7 @@ export const usePosts = (options: UsePostsOptions) => {
   const feedPosts = useAppSelector((state) => {
     if (type === 'replies') return selectRawFeedPosts(state)
     if (type === 'following') return selectFollowingFeedPosts(state)
+    if (type === 'profile') return selectRawFeedPosts(state)
     return selectFeedPosts(state)
   })
   const hasMore = useAppSelector(selectFeedHasMore)
@@ -95,6 +99,15 @@ export const usePosts = (options: UsePostsOptions) => {
     }
   )
 
+  const {
+    data: profilePostsData,
+    isLoading: isLoadingProfile,
+    isFetching: isFetchingProfile,
+    refetch: refetchProfile
+  } = useGetPostsQuery(options.params || {}, {
+    skip: type !== 'profile'
+  })
+
   // ✅ Seleciona dados baseado no tipo
   const data =
     type === 'forYou'
@@ -103,7 +116,9 @@ export const usePosts = (options: UsePostsOptions) => {
         ? followingPostsData
         : type === 'replies'
           ? repliesData
-          : undefined
+          : type === 'profile'
+            ? profilePostsData
+            : undefined
 
   const isLoadingQuery =
     type === 'forYou'
@@ -112,7 +127,9 @@ export const usePosts = (options: UsePostsOptions) => {
         ? isLoadingFollowing
         : type === 'replies'
           ? isLoadingReplies
-          : false
+          : type === 'profile'
+            ? isLoadingProfile
+            : false
 
   const isFetching =
     type === 'forYou'
@@ -121,7 +138,9 @@ export const usePosts = (options: UsePostsOptions) => {
         ? isFetchingFollowing
         : type === 'replies'
           ? isFetchingReplies
-          : false
+          : type === 'profile'
+            ? isFetchingProfile
+            : false
 
   const refetch = useMemo(() => {
     switch (type) {
@@ -131,22 +150,34 @@ export const usePosts = (options: UsePostsOptions) => {
         return refetchFollowing
       case 'replies':
         return refetchReplies
+      case 'profile':
+        return refetchProfile
       default:
         return () => Promise.resolve()
     }
-  }, [type, refetchAll, refetchFollowing, refetchReplies])
+  }, [type, refetchAll, refetchFollowing, refetchReplies, refetchProfile])
 
   // ✅ Limpa feed ao trocar de tipo
   useEffect(() => {
-    const key = type === 'replies' ? `replies-${postId}` : type
+    const key =
+      type === 'replies'
+        ? `replies-${postId}`
+        : type === 'profile'
+          ? `profile-${JSON.stringify(options.params)}`
+          : type
     activeTypeRef.current = key
     dispatch(clearFeed())
     isInitializedRef.current = false
-  }, [type, postId, dispatch])
+  }, [type, postId, options.params, dispatch])
 
   // ✅ Sincroniza com Redux
   useEffect(() => {
-    const key = type === 'replies' ? `replies-${postId}` : type
+    const key =
+      type === 'replies'
+        ? `replies-${postId}`
+        : type === 'profile'
+          ? `profile-${JSON.stringify(options.params)}`
+          : type
 
     console.log('[usePosts] sync effect:', {
       type,
@@ -177,7 +208,7 @@ export const usePosts = (options: UsePostsOptions) => {
       dispatch(setFeedPosts({ posts, cursor: data.next, hasMore: !!data.next }))
       isInitializedRef.current = true
     }
-  }, [data, type, postId, isFetching, isLoadingQuery, dispatch])
+  }, [data, type, postId, isFetching, isLoadingQuery, dispatch, options.params])
 
   // ============================================
   // LOAD MORE - ✅ CORRIGIDO COM TRANSFORM

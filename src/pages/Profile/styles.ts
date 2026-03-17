@@ -57,3 +57,37 @@ export const EmptyStateText = styled.p`
   color: ${({ theme }) => theme.colors.text.secondary};
   font-size: 0.938rem;
 `
+
+export const LoadingMore = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+`
+
+export const LoadingText = styled.span`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 0.875rem;
+`
+
+export const EndMessage = styled.div`
+  text-align: center;
+  padding: 32px 16px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 0.875rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.border.primary};
+`
+
+export const PullMessage = styled.div`
+  text-align: center;
+  padding: 12px;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 0.875rem;
+`
+
+export const ReleaseMessage = styled.div`
+  text-align: center;
+  padding: 12px;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: 0.875rem;
+  font-weight: 600;
+`

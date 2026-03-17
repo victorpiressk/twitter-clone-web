@@ -26,7 +26,7 @@ export const transformUser = (backendUser: BackendUser): User => ({
   banner: backendUser.banner || null,
   location: backendUser.location || '',
   website: backendUser.website || '',
-  birthDate: backendUser.birth_date || null,
+  birthDate: backendUser.birth_date || undefined,
   createdAt: backendUser.created_at,
   stats: {
     posts: backendUser.stats.posts,

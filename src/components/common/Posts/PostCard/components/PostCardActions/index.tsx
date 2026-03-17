@@ -42,7 +42,7 @@ const PostCardActions = ({
     <S.PostActions $variant={variant}>
       <S.ActionButton onClick={handleComment} $color={colors.primary}>
         <MessageCircle size={18} strokeWidth={2} />
-        <span>{formatNumber(post.stats.comments)}</span>
+        <span>{formatNumber(post.stats.replies)}</span>
       </S.ActionButton>
 
       <S.ActionButton

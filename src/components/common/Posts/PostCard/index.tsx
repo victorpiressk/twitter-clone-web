@@ -11,23 +11,25 @@ import PostCardContent from './components/PostCardContent'
 import PostCardActions from './components/PostCardActions'
 import PostCardMenu from './components/PostCardMenu'
 import EditPostModal from './components/EditPostModal'
+import OriginalPostPreview from '../OriginalPostPreview'
 import { useToast, usePostActions } from '../../../../hooks'
 import {
   useRetweetPostMutation,
   useUnretweetPostMutation
-} from '../../../../store/slices/api/posts' // ✅ IMPORT
+} from '../../../../store/slices/api/posts'
 import type { PostCardProps } from './types'
-import * as S from './styles'
 import { formatDate } from '../../../../utils/formatDate'
-import { colors } from '../../../../styles/globalStyles'
 import { useAppSelector, useAppDispatch } from '../../../../store/hooks'
 import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
 import {
+  adjustRetweets,
   removePost,
-  // selectPostById,
+  setRetweeted,
+  selectPostById,
   upsertPost
 } from '../../../../store/slices/posts/postsSlice'
-// import OriginalPostPreview from '../OriginalPostPreview'
+import { colors } from '../../../../styles/globalStyles'
+import * as S from './styles'
 
 const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const navigate = useNavigate()
@@ -49,10 +51,14 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   // ✅ Busca TODOS os posts do byId (selector simples)
   const allPosts = useAppSelector((state) => state.posts.byId)
 
-  // ✅ Busca post original do Redux (hook incondicionalmente)
-  // const originalPost = useAppSelector((state) =>
-  //   post.inReplyTo ? selectPostById(state, post.inReplyTo) : null
-  // )
+  // Busca post original — serve tanto para retweet simples quanto para reply no detailed
+  const retweetOfPost = useAppSelector((state) =>
+    post?.retweetOf ? selectPostById(state, post.retweetOf as number) : null
+  )
+
+  const inReplyToPost = useAppSelector((state) =>
+    post?.inReplyTo ? selectPostById(state, post.inReplyTo as number) : null
+  )
 
   // ✅ MEMOIZADO: Só recalcula quando allPosts, currentUser ou postId mudam
   const userRetweets = useMemo(() => {
@@ -81,6 +87,9 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   if (!post) return null
 
   const isSimpleRetweet = !!post.retweetOf && !post.content.trim()
+
+  const originalPost = isSimpleRetweet ? retweetOfPost : inReplyToPost
+  const displayPost = isSimpleRetweet && originalPost ? originalPost : post
 
   const createTime = new Date(post.createdAt).getTime()
   const updateTime = new Date(post.updatedAt).getTime()
@@ -111,25 +120,38 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const handleRetweetSimple = async () => {
     try {
       if (userMadeSimpleRetweet && userSimpleRetweet) {
-        await unretweetPost(postId).unwrap()
+        dispatch(setRetweeted({ postId, value: userMadeQuoteRetweet }))
+        dispatch(adjustRetweets({ postId, delta: -1 }))
         dispatch(removePost(userSimpleRetweet.id))
+        await unretweetPost(postId).unwrap()
         showToast('success', 'Retweet desfeito!')
       } else {
+        dispatch(setRetweeted({ postId, value: true }))
+        dispatch(adjustRetweets({ postId, delta: 1 }))
         const newRetweet = await retweetPost(postId).unwrap()
         dispatch(
           upsertPost({
             ...newRetweet,
             isLiked: false,
             isRetweeted: false,
-            isBookmarked: false
+            isBookmarked: false,
+            likeId: null
           })
         )
         showToast('success', 'Retweetado!')
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      dispatch(
+        setRetweeted({
+          postId,
+          value: userMadeSimpleRetweet || userMadeQuoteRetweet
+        })
+      )
+      dispatch(
+        adjustRetweets({ postId, delta: userMadeSimpleRetweet ? 1 : -1 })
+      )
       showToast('error', error?.data?.detail || 'Erro ao processar retweet')
-      console.error('Retweet error:', error)
     } finally {
       setIsRetweetPopoverOpen(false)
     }
@@ -173,7 +195,7 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
                 userProfileData={post.author}
               />
 
-              <PostCardContent post={post} variant={variant} />
+              <PostCardContent post={displayPost} variant={variant} />
 
               <PostCardMenu
                 post={post}
@@ -182,7 +204,7 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
             </S.PostMainContent>
 
             <PostCardActions
-              post={post}
+              post={displayPost}
               variant={variant}
               onComment={handleComment}
               onRetweet={handleRetweet}
@@ -192,9 +214,9 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
           </>
         ) : (
           <>
-            {/* {post.inReplyTo && originalPost && (
+            {variant === 'detailed' && originalPost && post.inReplyTo && (
               <OriginalPostPreview post={originalPost} showConnector />
-            )} */}
+            )}
 
             <S.PostHeaderStacked>
               <Avatar

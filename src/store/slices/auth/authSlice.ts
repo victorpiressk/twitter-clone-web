@@ -75,13 +75,29 @@ const authSlice = createSlice({
         }
       )
       // Quando getCurrentUser falha (token inválido)
-      .addMatcher(authApi.endpoints.getCurrentUser.matchRejected, (state) => {
-        state.user = null
-        state.accessToken = null
-        state.isAuthenticated = false
-        state.loading = false
-        localStorage.removeItem('accessToken')
-      })
+      .addMatcher(
+        authApi.endpoints.getCurrentUser.matchRejected,
+        (state, action) => {
+          // Só desloga se for 401 (token inválido)
+          // Erros de rede, timeout, 500 não devem deslogar
+          const status = (action.payload as { status?: number })?.status
+
+          if (status === 401) {
+            state.user = null
+            state.accessToken = null
+            state.isAuthenticated = false
+            localStorage.removeItem('accessToken')
+          }
+          // Qualquer outro erro: mantém a sessão, apenas loga
+          else {
+            console.warn(
+              '[auth] getCurrentUser falhou com status:',
+              status,
+              '— sessão mantida'
+            )
+          }
+        }
+      )
   }
 })
 

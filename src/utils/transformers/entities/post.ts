@@ -38,7 +38,7 @@ export const transformPost = (backendPost: BackendPost): Post => ({
   scheduledFor: backendPost.scheduled_for,
   isPublished: backendPost.is_published,
   stats: {
-    comments: backendPost.stats.comments,
+    replies: backendPost.stats.replies,
     retweets: backendPost.stats.retweets,
     likes: backendPost.stats.likes,
     views: backendPost.stats.views
@@ -63,7 +63,8 @@ export const transformPostWithInteractions = (
     ...basePost,
     isLiked: backendPostWithInteractions.is_liked,
     isRetweeted: backendPostWithInteractions.is_retweeted,
-    isBookmarked: backendPostWithInteractions.is_bookmarked
+    isBookmarked: backendPostWithInteractions.is_bookmarked,
+    likeId: backendPostWithInteractions.like_id
   }
 }
 
@@ -117,7 +118,7 @@ export const transformPostToBackend = (post: Post): BackendPost => ({
   scheduled_for: post.scheduledFor,
   is_published: post.isPublished,
   stats: {
-    comments: post.stats.comments,
+    replies: post.stats.replies,
     retweets: post.stats.retweets,
     likes: post.stats.likes,
     views: post.stats.views

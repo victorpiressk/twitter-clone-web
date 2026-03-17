@@ -24,6 +24,8 @@ export type GetPostsParams = PaginationParams & {
   author?: number
   has_media?: boolean
   has_reply?: boolean
+  is_retweet?: boolean
+  liked_by?: number
 }
 
 // ============================================

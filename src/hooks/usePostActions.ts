@@ -4,18 +4,17 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   useLikePostMutation,
   useUnlikePostMutation,
-  useRetweetPostMutation,
-  useUnretweetPostMutation,
   useDeletePostMutation
 } from '../store/slices/api/posts'
 import {
   toggleLike,
-  toggleRetweet,
   toggleBookmark,
   removePost,
-  selectPostById
+  selectPostById,
+  setLikeId
 } from '../store/slices/posts/postsSlice'
 import { useToast } from './useToast'
+import type { Like } from '../types/domain/models'
 
 /**
  * Hook para ações em um post específico
@@ -34,8 +33,6 @@ export const usePostActions = (postId: number) => {
   // ✅ Mutations
   const [likePostMutation] = useLikePostMutation()
   const [unlikePostMutation] = useUnlikePostMutation()
-  const [retweetPostMutation] = useRetweetPostMutation()
-  const [unretweetPostMutation] = useUnretweetPostMutation()
   const [deletePostMutation] = useDeletePostMutation()
 
   // ============================================
@@ -44,52 +41,29 @@ export const usePostActions = (postId: number) => {
   const likePost = useCallback(async () => {
     if (!post) return
 
-    // ✅ Update otimista
-    dispatch(toggleLike(postId))
+    const wasLiked = post.isLiked
 
     try {
-      if (post.isLiked) {
-        await unlikePostMutation(postId).unwrap()
+      if (wasLiked) {
+        const likeId = post.likeId
+        if (!likeId) {
+          showToast('error', 'Erro ao descurtir post')
+          return // ← sai ANTES do toggle otimista
+        }
+        dispatch(toggleLike(postId)) // ← toggle otimista só depois de validar
+        await unlikePostMutation(likeId).unwrap()
+        dispatch(setLikeId({ postId, likeId: null }))
       } else {
-        await likePostMutation({ post: postId }).unwrap()
+        dispatch(toggleLike(postId)) // ← toggle otimista
+        const result: Like = await likePostMutation({ post: postId }).unwrap()
+        dispatch(setLikeId({ postId, likeId: result.id }))
       }
     } catch (error) {
-      // ✅ Reverte se falhar
-      dispatch(toggleLike(postId))
+      dispatch(toggleLike(postId)) // ← reverte em caso de erro
       showToast('error', 'Erro ao curtir post')
       console.error('Erro ao dar like:', error)
     }
   }, [post, postId, likePostMutation, unlikePostMutation, dispatch, showToast])
-
-  // ============================================
-  // RETWEET
-  // ============================================
-  const retweetPost = useCallback(async () => {
-    if (!post) return
-
-    // ✅ Update otimista
-    dispatch(toggleRetweet(postId))
-
-    try {
-      if (post.isRetweeted) {
-        await unretweetPostMutation(postId).unwrap()
-      } else {
-        await retweetPostMutation(postId).unwrap()
-      }
-    } catch (error) {
-      // ✅ Reverte se falhar
-      dispatch(toggleRetweet(postId))
-      showToast('error', 'Erro ao retweetar')
-      console.error('Erro ao retweetar:', error)
-    }
-  }, [
-    post,
-    postId,
-    retweetPostMutation,
-    unretweetPostMutation,
-    dispatch,
-    showToast
-  ])
 
   // ============================================
   // BOOKMARK
@@ -139,19 +113,16 @@ export const usePostActions = (postId: number) => {
 
     // Actions
     likePost,
-    retweetPost,
     bookmarkPost,
     deletePost,
 
     // Derived states (evita post?.isLiked nos componentes)
     isLiked: post?.isLiked ?? false,
-    isRetweeted: post?.isRetweeted ?? false,
     isBookmarked: post?.isBookmarked ?? false,
 
     // Stats
     likesCount: post?.stats.likes ?? 0,
-    retweetsCount: post?.stats.retweets ?? 0,
-    commentsCount: post?.stats.comments ?? 0,
+    commentsCount: post?.stats.replies ?? 0,
     viewsCount: post?.stats.views ?? 0
   }
 }

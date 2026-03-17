@@ -1,26 +1,24 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { useAppSelector } from '../../store/hooks'
 import { selectCurrentUser } from '../../store/slices/auth/authSlice'
-import {
-  useGetPostsQuery,
-  useGetLikesQuery
-} from '../../store/slices/api/posts'
 import { useUpdateUserMutation } from '../../store/slices/api/users.api'
 import { useViewingUser } from '../../hooks/useViewingUser'
 import { useUserActions } from '../../hooks/useUserActions'
 import { useToast } from '../../hooks/useToast'
+import { usePosts } from '../../hooks/usePosts'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
 import EditProfileModal from './components/EditProfileModal'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
-import PostList from '../../components/common/Posts/PostList'
+import PostCard from '../../components/common/Posts/PostCard'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import ProfileHeaderSkeleton from '../../components/common/Skeleton/components/ProfileHeaderSkeleton'
-import { ContentWrapper } from '../../styles/globalStyles'
 import type { ProfileTab } from './types'
 import type { UpdateUserRequest } from '../../types/domain/requests'
+import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
 const Profile = () => {
@@ -43,36 +41,33 @@ const Profile = () => {
 
   const isOwnProfile = currentUser?.id === viewingUser?.id
 
-  // POSTS DO USUÁRIO
-  const { data: userPostsData, isLoading: isLoadingPosts } = useGetPostsQuery(
-    { author: viewingUser?.id },
-    { skip: !viewingUser || activeTab !== 'posts' }
-  )
+  const profileParams = useMemo(() => {
+    if (!viewingUser) return undefined
 
-  // REPLIES DO USUÁRIO
-  const { data: userRepliesData, isLoading: isLoadingReplies } =
-    useGetPostsQuery(
-      {
-        author: viewingUser?.id,
-        has_reply: true
-      },
-      { skip: !viewingUser || activeTab !== 'replies' }
-    )
+    switch (activeTab) {
+      case 'posts':
+        return { author: viewingUser.id, has_reply: false, is_retweet: false }
+      case 'replies':
+        return { author: viewingUser.id, has_reply: true }
+      case 'media':
+        return { author: viewingUser.id, has_media: true }
+      case 'likes':
+        return { liked_by: viewingUser.id }
+      default:
+        return {}
+    }
+  }, [activeTab, viewingUser])
 
-  // MEDIA DO USUÁRIO
-  const { data: userMediaData, isLoading: isLoadingMedia } = useGetPostsQuery(
-    {
-      author: viewingUser?.id,
-      has_media: true
-    },
-    { skip: !viewingUser || activeTab !== 'media' }
-  )
-
-  // LIKES DO USUÁRIO
-  const { data: likedPostsData, isLoading: isLoadingLikes } = useGetLikesQuery(
-    undefined,
-    { skip: activeTab !== 'likes' || !isOwnProfile }
-  )
+  const {
+    posts,
+    isLoading: isLoadingPosts,
+    hasMore,
+    loadMore,
+    refresh
+  } = usePosts({
+    type: 'profile',
+    params: profileParams
+  })
 
   const handleFollowToggle = () => {
     if (viewingUser?.isFollowing) {
@@ -127,22 +122,6 @@ const Profile = () => {
     }
   }
 
-  // Dados da tab ativa
-  const activeData = {
-    posts: userPostsData?.results || [],
-    replies: userRepliesData?.results || [],
-    media: userMediaData?.results || [],
-    likes: likedPostsData?.results || []
-  }[activeTab]
-
-  // Loading da tab ativa
-  const isLoadingTab = {
-    posts: isLoadingPosts,
-    replies: isLoadingReplies,
-    media: isLoadingMedia,
-    likes: isLoadingLikes
-  }[activeTab]
-
   if (isLoading) {
     return (
       <ContentWrapper>
@@ -185,10 +164,29 @@ const Profile = () => {
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <S.TabContent>
-            {isLoadingTab ? (
+            {isLoadingPosts ? (
               <PostListSkeleton count={3} />
-            ) : activeData.length > 0 ? (
-              <PostList posts={activeData} variant="default" />
+            ) : posts.length > 0 ? (
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={loadMore}
+                hasMore={hasMore}
+                loader={<S.LoadingMore>Carregando...</S.LoadingMore>}
+                endMessage={<S.EndMessage>Você chegou ao fim!</S.EndMessage>}
+                refreshFunction={refresh}
+                pullDownToRefresh
+                pullDownToRefreshThreshold={80}
+                pullDownToRefreshContent={
+                  <S.PullMessage>↓ Puxe para atualizar</S.PullMessage>
+                }
+                releaseToRefreshContent={
+                  <S.ReleaseMessage>↻ Solte para atualizar</S.ReleaseMessage>
+                }
+              >
+                {posts.map((post) => (
+                  <PostCard key={post.id} postId={post.id} variant="default" />
+                ))}
+              </InfiniteScroll>
             ) : (
               <S.EmptyState>
                 <S.EmptyStateText>

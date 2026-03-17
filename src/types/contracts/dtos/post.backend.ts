@@ -20,7 +20,7 @@ export type BackendPost = {
   scheduled_for?: string | null // ← data futura de publicação
   is_published: boolean // ← false se agendado, true se já publicado
   stats: {
-    comments: number
+    replies: number
     retweets: number
     likes: number
     views: number
@@ -37,6 +37,7 @@ export type BackendPostWithInteractions = BackendPost & {
   is_liked: boolean
   is_retweeted: boolean
   is_bookmarked: boolean
+  like_id: number | null
 }
 
 export type BackendPostDetail = BackendPost & {

@@ -14,9 +14,7 @@ export type BackendRegisterRequest = {
 }
 
 export type BackendLoginRequest = {
-  username?: string
-  email?: string
-  phone?: string
+  identifier: string
   password: string
 }
 

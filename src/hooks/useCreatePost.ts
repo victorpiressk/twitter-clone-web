@@ -8,7 +8,8 @@ import { useQuoteRetweetMutation } from '../store/slices/api/posts/retweets.api'
 import {
   upsertPost,
   incrementComments,
-  incrementRetweets
+  adjustRetweets,
+  setRetweeted
 } from '../store/slices/posts/postsSlice'
 import { useToast } from './useToast'
 import {
@@ -106,11 +107,13 @@ export const useCreatePost = () => {
               ...result,
               isLiked: false,
               isRetweeted: false,
-              isBookmarked: false
+              isBookmarked: false,
+              likeId: null
             })
           )
 
-          dispatch(incrementRetweets(args.retweetOf))
+          dispatch(adjustRetweets({ postId: args.retweetOf, delta: 1 }))
+          dispatch(setRetweeted({ postId: args.retweetOf, value: true }))
         }
         // ============================================
         // CREATE POST (normal ou reply)
@@ -127,7 +130,8 @@ export const useCreatePost = () => {
               ...result,
               isLiked: false,
               isRetweeted: false,
-              isBookmarked: false
+              isBookmarked: false,
+              likeId: null
             })
           )
         }
