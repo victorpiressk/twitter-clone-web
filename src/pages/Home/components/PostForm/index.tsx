@@ -1,4 +1,6 @@
+// src/components/common/Forms/PostForm/PostForm.tsx
 import { useRef, useState, useCallback } from 'react'
+import { useCreatePost } from '../../../../hooks'
 import Avatar from '../../../../components/common/Avatar'
 import Textarea from '../../../../components/common/Textarea'
 import MediaPreview from '../../../../components/common/Forms/MediaPreview'
@@ -6,37 +8,35 @@ import LocationPreview from '../../../../components/common/Forms/LocationPreview
 import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
 import PostFormActions from '../../../../components/common/Forms/FormActions'
-import { useToast } from '../../../../hooks/useToast'
-import { createMediaFile, validateMedia } from '../../../../utils/mediaHelpers'
+import { useAppSelector } from '../../../../store/hooks'
+import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
+import { createMediaFile } from '../../../../utils/mediaHelpers'
+import type { Poll, Location } from '../../../../types/domain/models'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 import type { PostFormProps } from './types'
-import type { MediaFile } from '../../../../components/common/Forms/MediaPreview/types'
-import type { Location } from '../../../../components/common/Forms/FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
-import type { Poll } from '../../../../components/common/Forms/FormActions/components/MediaActions/PollCreator/types'
 import * as S from './styles'
 
 const PostForm = ({
-  userName = 'Usuário',
-  userAvatar,
-
   // Props controladas (FormModal usa via useFormModal)
   content: controlledContent,
   medias: controlledMedias,
   onContentChange,
   onMediasChange,
 
-  // Props não-controladas (Home usa)
-  onSubmit,
-
   isModal = false,
   showActions = true
 }: PostFormProps) => {
-  const { showToast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  // Usar usuário do Redux
+  const user = useAppSelector(selectCurrentUser)
+
+  // ✅ Usa useCreatePost
+  const { createPost, isCreating } = useCreatePost()
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   // Estado interno (usado quando NÃO é controlado - Home)
   const [internalContent, setInternalContent] = useState('')
-  const [internalMedias, setInternalMedias] = useState<MediaFile[]>([])
+  const [internalMedias, setInternalMedias] = useState<PostMediaWithFile[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
@@ -55,25 +55,13 @@ const PostForm = ({
     }
   }
 
-  // Handler: Upload de mídias (valida e cria MediaFile)
+  // ✅ Handler: Upload de mídias CORRIGIDO
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
-      const validMedias: MediaFile[] = []
-
-      for (const file of newFiles) {
-        // Valida antes de adicionar
-        const validation = validateMedia(file, [...medias, ...validMedias])
-
-        if (!validation.valid) {
-          showToast('error', validation.error!)
-          continue
-        }
-
-        const mediaFile = createMediaFile(file)
-        if (mediaFile) {
-          validMedias.push(mediaFile)
-        }
-      }
+      // ✅ Usa createMediaFile do mediaHelpers
+      const validMedias: PostMediaWithFile[] = newFiles.map((file) =>
+        createMediaFile(file)
+      )
 
       if (validMedias.length > 0) {
         if (isControlled) {
@@ -83,7 +71,7 @@ const PostForm = ({
         }
       }
     },
-    [medias, isControlled, onMediasChange, showToast]
+    [medias, isControlled, onMediasChange]
   )
 
   // Handler: Remover mídia
@@ -91,14 +79,14 @@ const PostForm = ({
     const updated = medias.filter((m) => m.id !== id)
     const removed = medias.find((m) => m.id === id)
 
-    if (removed) {
-      URL.revokeObjectURL(removed.preview)
+    if (removed && 'url' in removed) {
+      URL.revokeObjectURL(removed.url)
     }
 
     if (isControlled) {
       onMediasChange?.(updated)
     } else {
-      setInternalMedias(updated)
+      setInternalMedias(updated as PostMediaWithFile[])
     }
   }
 
@@ -126,7 +114,11 @@ const PostForm = ({
 
     // Limpa mídia
     if (medias.length > 0) {
-      medias.forEach((m) => URL.revokeObjectURL(m.preview))
+      medias.forEach((m) => {
+        if ('url' in m) {
+          URL.revokeObjectURL(m.url)
+        }
+      })
       if (isControlled) {
         onMediasChange?.([])
       } else {
@@ -150,31 +142,30 @@ const PostForm = ({
     setScheduledFor(null)
   }
 
-  // Handler: Submit
+  // ✅ Handler: Submit (usando useCreatePost)
   const handleSubmit = async () => {
     if (!content.trim() && medias.length === 0) return
 
-    setIsSubmitting(true)
-
     try {
-      if (onSubmit) {
-        await onSubmit(content, medias)
-        showToast('success', 'Post criado com sucesso!')
+      // ✅ Chama createPost do useCreatePost
+      await createPost(content.trim(), medias.length > 0 ? medias : undefined)
 
-        // Cleanup (apenas no modo não-controlado)
-        if (!isControlled) {
-          setInternalContent('')
-          medias.forEach((m) => URL.revokeObjectURL(m.preview))
-          setInternalMedias([])
-          setLocation(null)
-          setPoll(null)
-          setScheduledFor(null)
-        }
+      // Cleanup (apenas no modo não-controlado)
+      if (!isControlled) {
+        setInternalContent('')
+        medias.forEach((m) => {
+          if ('url' in m) {
+            URL.revokeObjectURL(m.url)
+          }
+        })
+        setInternalMedias([])
+        setLocation(null)
+        setPoll(null)
+        setScheduledFor(null)
       }
-    } catch {
-      showToast('error', 'Erro ao criar post. Tente novamente.')
-    } finally {
-      setIsSubmitting(false)
+    } catch (error) {
+      // Erro já tratado no useCreatePost (toast)
+      console.error('Erro ao criar post:', error)
     }
   }
 
@@ -184,7 +175,7 @@ const PostForm = ({
 
   return (
     <S.PostFormContainer $isModal={isModal}>
-      <Avatar src={userAvatar} alt={userName} size="small" />
+      <Avatar src={user?.avatar} alt={user?.username} size="small" />
 
       <S.PostFormContent>
         <Textarea
@@ -195,23 +186,23 @@ const PostForm = ({
           rows={1}
         />
 
-        {/* Componente unificado de preview de medias*/}
+        {/* Preview de mídias */}
         {medias.length > 0 && (
           <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
         )}
 
-        {/* Renderizar preview de enquete */}
+        {/* Preview de enquete */}
         {poll && (
           <PollPreview
             question={poll.question}
             options={poll.options}
-            duration={poll.duration}
+            duration={poll.durationHours}
             onRemove={handleRemovePoll}
             variant="editable"
           />
         )}
 
-        {/* Renderizar preview de Schedule */}
+        {/* Preview de Schedule */}
         {scheduledFor && (
           <SchedulePreview
             scheduledDate={scheduledFor}
@@ -220,7 +211,7 @@ const PostForm = ({
           />
         )}
 
-        {/* Renderizar preview de location */}
+        {/* Preview de location */}
         {location && (
           <LocationPreview
             locationName={location.name}
@@ -229,7 +220,7 @@ const PostForm = ({
           />
         )}
 
-        {/* Renderiza actions apenas se showActions=true */}
+        {/* Actions */}
         {showActions && (
           <PostFormActions
             content={content}
@@ -239,7 +230,7 @@ const PostForm = ({
             maxLength={280}
             onMediaUpload={handleMediaUpload}
             onSubmit={handleSubmit}
-            loading={isSubmitting}
+            loading={isCreating}
             submitLabel="Postar"
             onEmojiSelect={handleEmojiSelect}
             onLocationSelect={handleLocationSelect}

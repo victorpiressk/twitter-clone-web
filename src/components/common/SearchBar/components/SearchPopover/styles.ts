@@ -227,3 +227,143 @@ export const UserResultBio = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
 `
+
+// ============================================
+// SECTION TITLE
+// ============================================
+
+export const SectionTitle = styled.div`
+  padding: 12px 16px 8px;
+  font-size: ${fontSizes.sm};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.secondary};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`
+
+// ============================================
+// POST RESULTS
+// ============================================
+
+export const PostResultItem = styled.button`
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`
+
+export const PostHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+`
+
+export const PostAuthor = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+export const PostAuthorName = styled.span`
+  font-size: ${fontSizes.sm};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.primary};
+`
+
+export const PostMeta = styled.span`
+  font-size: ${fontSizes.xs};
+  color: ${(props) => props.theme.colors.text.secondary};
+`
+
+export const PostContent = styled.p`
+  font-size: ${fontSizes.sm};
+  color: ${(props) => props.theme.colors.text.primary};
+  line-height: 1.4;
+  margin: 0;
+  word-break: break-word;
+`
+
+export const PostStats = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: ${fontSizes.xs};
+  color: ${(props) => props.theme.colors.text.secondary};
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`
+
+// ============================================
+// HASHTAG RESULTS
+// ============================================
+
+export const HashtagResultItem = styled.button`
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+  text-align: left;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`
+
+export const HashtagInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+`
+
+export const HashtagRank = styled.div`
+  font-size: ${fontSizes.xs};
+  color: ${(props) => props.theme.colors.text.secondary};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
+
+export const HashtagSeparator = styled.span`
+  color: ${(props) => props.theme.colors.text.secondary};
+`
+
+export const HashtagStats = styled.span`
+  color: ${(props) => props.theme.colors.text.secondary};
+`
+
+export const HashtagName = styled.span`
+  font-size: ${fontSizes.md};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.primary};
+`

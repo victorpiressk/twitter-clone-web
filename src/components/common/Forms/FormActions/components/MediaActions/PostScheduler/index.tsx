@@ -10,6 +10,11 @@ import * as S from './styles'
 // Registra locale português
 registerLocale('pt-BR', ptBR)
 
+// ============================================
+// FEATURE FLAG
+// ============================================
+const FEATURE_ENABLED = false // ⏸️ Desabilitado temporariamente
+
 const PostSchedulerComponent = ({
   isOpen,
   onClose,
@@ -49,6 +54,42 @@ const PostSchedulerComponent = ({
     onClose()
   }
 
+  // ============================================
+  // FEATURE DISABLED - Mostrar mensagem
+  // ============================================
+  if (!FEATURE_ENABLED) {
+    return (
+      <BasePopover
+        isOpen={isOpen}
+        onClose={onClose}
+        position="bottom"
+        triggerRef={triggerRef}
+        strategy="fixed"
+      >
+        <S.SchedulerContainer>
+          <S.Header>
+            <S.Title>Agendar post</S.Title>
+            <S.CloseButton onClick={onClose}>
+              <X />
+            </S.CloseButton>
+          </S.Header>
+
+          <S.DisabledMessage>
+            <S.DisabledTitle>Funcionalidade em desenvolvimento</S.DisabledTitle>
+            <S.DisabledText>
+              O agendamento de posts estará disponível em breve. Esta
+              funcionalidade requer infraestrutura adicional (Redis, Celery) que
+              será implementada futuramente.
+            </S.DisabledText>
+          </S.DisabledMessage>
+        </S.SchedulerContainer>
+      </BasePopover>
+    )
+  }
+
+  // ============================================
+  // FEATURE ENABLED - Funcionalidade completa
+  // ============================================
   return (
     <BasePopover
       isOpen={isOpen}

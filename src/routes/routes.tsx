@@ -10,10 +10,11 @@ import Connect from '../pages/Connect'
 import Messages from '../pages/Messages'
 import FollowPage from '../pages/FollowPage'
 import ProtectedRoute from '../components/common/ProtectedRoute'
-import { useAuth } from '../hooks/useAuth'
+import { useAppSelector } from '../store/hooks'
+import { selectIsAuthenticated } from '../store/slices/auth/authSlice'
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth()
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   return (
     <Routes>

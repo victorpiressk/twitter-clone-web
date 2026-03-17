@@ -1,6 +1,9 @@
-import { Search, User, X } from 'lucide-react'
+// src/components/common/SearchBar/components/SearchPopover/index.tsx
+
+import { Search, User, X, MessageCircle } from 'lucide-react'
 import BasePopover from '../../../Popovers/BasePopover'
 import Avatar from '../../../Avatar'
+import { formatDate } from '../../../../../utils/formatDate'
 import type { SearchPopoverProps } from './types'
 import * as S from './styles'
 
@@ -12,8 +15,12 @@ const SearchPopover = ({
   searchHistory,
   onRemoveHistoryItem,
   onOpenClearModal,
-  searchSuggestions = [],
-  searchResults = [],
+  searchResults,
+  onUserClick,
+  onSuggestionClick,
+  onPostClick,
+  onHashtagClick,
+  isLoading = false,
   variant
 }: SearchPopoverProps) => {
   const renderContent = () => {
@@ -24,117 +31,220 @@ const SearchPopover = ({
             $variant={variant === 'large' ? 'large' : 'small'}
           >
             <S.EmptyMessage>
-              Tente buscar por pessoas, listas ou palavras-chave
+              Tente buscar por pessoas, posts ou hashtags
             </S.EmptyMessage>
           </S.PopoverContainer>
         )
 
       case 'history':
         return (
-          <>
-            <S.PopoverContainer
-              $variant={variant === 'large' ? 'large' : 'small'}
-            >
-              <S.HistoryHeader>
-                <S.HistoryTitle>Recente</S.HistoryTitle>
-                <S.ClearAllButton onClick={onOpenClearModal}>
-                  Limpar tudo
-                </S.ClearAllButton>
-              </S.HistoryHeader>
+          <S.PopoverContainer
+            $variant={variant === 'large' ? 'large' : 'small'}
+          >
+            <S.HistoryHeader>
+              <S.HistoryTitle>Recente</S.HistoryTitle>
+              <S.ClearAllButton onClick={onOpenClearModal}>
+                Limpar tudo
+              </S.ClearAllButton>
+            </S.HistoryHeader>
 
-              <S.HistoryList>
-                {searchHistory.map((item) => (
-                  <S.HistoryItem
-                    key={item.id}
-                    onClick={() => console.log('Click item:', item)}
+            <S.HistoryList>
+              {searchHistory.map((item) => (
+                <S.HistoryItem
+                  key={item.id}
+                  onClick={() => {
+                    if (item.type === 'search' && onSuggestionClick) {
+                      onSuggestionClick(item.text)
+                    } else if (
+                      item.type === 'user' &&
+                      item.username &&
+                      onUserClick
+                    ) {
+                      onUserClick(item.username, item.text)
+                    }
+                  }}
+                >
+                  <S.HistoryIcon>
+                    {item.type === 'search' ? (
+                      <Search size={18} strokeWidth={2} />
+                    ) : (
+                      <User size={18} strokeWidth={2} />
+                    )}
+                  </S.HistoryIcon>
+
+                  <S.HistoryText>
+                    <S.HistoryMainText>{item.text}</S.HistoryMainText>
+                    {item.username && (
+                      <S.HistorySubText>@{item.username}</S.HistorySubText>
+                    )}
+                  </S.HistoryText>
+
+                  <S.RemoveButton
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onRemoveHistoryItem(item.id)
+                    }}
+                    aria-label="Remover"
                   >
-                    <S.HistoryIcon>
-                      {item.type === 'search' ? (
-                        <Search size={18} strokeWidth={2} />
-                      ) : (
-                        <User size={18} strokeWidth={2} />
-                      )}
-                    </S.HistoryIcon>
-
-                    <S.HistoryText>
-                      <S.HistoryMainText>{item.text}</S.HistoryMainText>
-                      {item.username && (
-                        <S.HistorySubText>@{item.username}</S.HistorySubText>
-                      )}
-                    </S.HistoryText>
-
-                    <S.RemoveButton
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onRemoveHistoryItem(item.id)
-                      }}
-                      aria-label="Remover"
-                    >
-                      <X size={16} strokeWidth={2} />
-                    </S.RemoveButton>
-                  </S.HistoryItem>
-                ))}
-              </S.HistoryList>
-            </S.PopoverContainer>
-          </>
+                    <X size={16} strokeWidth={2} />
+                  </S.RemoveButton>
+                </S.HistoryItem>
+              ))}
+            </S.HistoryList>
+          </S.PopoverContainer>
         )
 
-      case 'searching':
+      case 'searching': {
+        const hasResults =
+          (searchResults?.users?.length || 0) > 0 ||
+          (searchResults?.posts?.length || 0) > 0 ||
+          (searchResults?.hashtags?.length || 0) > 0
+
         return (
           <S.PopoverContainer
             $variant={variant === 'large' ? 'large' : 'small'}
           >
             <S.SearchingSection>
-              {/* Sugestões de busca */}
-              {searchSuggestions.length > 0 && (
+              {/* Loading state */}
+              {isLoading && <S.EmptyMessage>Buscando...</S.EmptyMessage>}
+
+              {/* Resultados */}
+              {!isLoading && (
                 <>
-                  {searchSuggestions.map((suggestion) => (
-                    <S.SuggestionItem
-                      key={suggestion.id}
-                      onClick={() => console.log('Buscar:', suggestion.text)}
-                    >
-                      <S.SuggestionIcon>
-                        <Search size={18} strokeWidth={2} />
-                      </S.SuggestionIcon>
-                      <S.SuggestionText>{suggestion.text}</S.SuggestionText>
-                    </S.SuggestionItem>
-                  ))}
+                  {/* USUÁRIOS */}
+                  {searchResults?.users && searchResults.users.length > 0 && (
+                    <>
+                      <S.SectionTitle>Pessoas</S.SectionTitle>
+                      {searchResults.users.map((user) => (
+                        <S.UserResultItem
+                          key={user.id}
+                          onClick={() => {
+                            if (onUserClick) {
+                              const displayName =
+                                `${user.firstName} ${user.lastName}`.trim()
+                              onUserClick(user.username, displayName)
+                            }
+                          }}
+                        >
+                          <Avatar
+                            src={user.avatar}
+                            alt={user.firstName}
+                            size="small"
+                          />
 
-                  {searchResults.length > 0 && <S.Divider />}
+                          <S.UserResultInfo>
+                            <S.UserResultName>
+                              {user.firstName} {user.lastName}
+                            </S.UserResultName>
+                            <S.UserResultUsername>
+                              @{user.username}
+                            </S.UserResultUsername>
+                            {user.bio && (
+                              <S.UserResultBio>{user.bio}</S.UserResultBio>
+                            )}
+                          </S.UserResultInfo>
+                        </S.UserResultItem>
+                      ))}
+                    </>
+                  )}
+
+                  {/* POSTS */}
+                  {searchResults?.posts && searchResults.posts.length > 0 && (
+                    <>
+                      {searchResults.users &&
+                        searchResults.users.length > 0 && <S.Divider />}
+                      <S.SectionTitle>Posts</S.SectionTitle>
+                      {searchResults.posts.map((post) => (
+                        <S.PostResultItem
+                          key={post.id}
+                          onClick={() => {
+                            if (onPostClick) {
+                              onPostClick(post.id, post.author.username)
+                            }
+                          }}
+                        >
+                          <S.PostHeader>
+                            <Avatar
+                              src={post.author.avatar}
+                              alt={post.author.username}
+                              size="small"
+                            />
+                            <S.PostAuthor>
+                              <S.PostAuthorName>
+                                {post.author.firstName} {post.author.lastName}
+                              </S.PostAuthorName>
+                              <S.PostMeta>
+                                @{post.author.username} ·{' '}
+                                {formatDate(post.createdAt, 'feed')}
+                              </S.PostMeta>
+                            </S.PostAuthor>
+                          </S.PostHeader>
+
+                          <S.PostContent>
+                            {post.content.length > 150
+                              ? `${post.content.slice(0, 150)}...`
+                              : post.content}
+                          </S.PostContent>
+
+                          {post.stats && (
+                            <S.PostStats>
+                              <span>
+                                <MessageCircle size={14} /> {post.stats.replies}
+                              </span>
+                            </S.PostStats>
+                          )}
+                        </S.PostResultItem>
+                      ))}
+                    </>
+                  )}
+
+                  {/* HASHTAGS */}
+                  {searchResults?.hashtags &&
+                    searchResults.hashtags.length > 0 && (
+                      <>
+                        {((searchResults.users &&
+                          searchResults.users.length > 0) ||
+                          (searchResults.posts &&
+                            searchResults.posts.length > 0)) && <S.Divider />}
+                        <S.SectionTitle>Hashtags</S.SectionTitle>
+                        {searchResults.hashtags.map((hashtag, index) => (
+                          <S.HashtagResultItem
+                            key={hashtag.id}
+                            onClick={() => {
+                              if (onHashtagClick) {
+                                // ✅ Navega para Explore com query
+                                onHashtagClick(hashtag.name)
+                              }
+                            }}
+                          >
+                            <S.HashtagInfo>
+                              <S.HashtagRank>
+                                {index + 1}{' '}
+                                <S.HashtagSeparator>·</S.HashtagSeparator>{' '}
+                                Assunto do Momento{' '}
+                                <S.HashtagSeparator>·</S.HashtagSeparator>{' '}
+                                <S.HashtagStats>
+                                  {hashtag.postsCount.toLocaleString('pt-BR')}{' '}
+                                  posts
+                                </S.HashtagStats>
+                              </S.HashtagRank>
+                              <S.HashtagName>#{hashtag.name}</S.HashtagName>
+                            </S.HashtagInfo>
+                          </S.HashtagResultItem>
+                        ))}
+                      </>
+                    )}
+
+                  {/* Sem resultados */}
+                  {!hasResults && (
+                    <S.EmptyMessage>Nenhum resultado encontrado</S.EmptyMessage>
+                  )}
                 </>
-              )}
-
-              {/* Resultados de usuários */}
-              {searchResults.map((user) => (
-                <S.UserResultItem
-                  key={user.id}
-                  onClick={() => console.log('Ir para perfil:', user.username)}
-                >
-                  <Avatar
-                    src={user.avatar}
-                    alt={user.displayName}
-                    size="small"
-                  />
-
-                  <S.UserResultInfo>
-                    <S.UserResultName>{user.displayName}</S.UserResultName>
-                    <S.UserResultUsername>
-                      @{user.username}
-                    </S.UserResultUsername>
-                    {user.bio && <S.UserResultBio>{user.bio}</S.UserResultBio>}
-                  </S.UserResultInfo>
-                </S.UserResultItem>
-              ))}
-
-              {/* Se não houver resultados */}
-              {searchSuggestions.length === 0 && searchResults.length === 0 && (
-                <S.EmptyMessage>
-                  Tente buscar por pessoas, listas ou palavras-chave
-                </S.EmptyMessage>
               )}
             </S.SearchingSection>
           </S.PopoverContainer>
         )
+      }
 
       default:
         return null

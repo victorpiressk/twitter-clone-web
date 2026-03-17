@@ -1,7 +1,6 @@
-import type { UserSuggestion } from '../../types'
+import type { UserCardWithStats } from '../../../../types/domain/models'
 
 export type UserSuggestionCardProps = {
-  user: UserSuggestion
-  onFollowToggle: (userId: string) => void
+  user: UserCardWithStats
   showSubscribe?: boolean // Se true, mostra "Inscrever-se" ao invés de "Seguir"
 }

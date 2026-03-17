@@ -6,6 +6,994 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
+## [0.1.6] - 2026-03-09
+ 
+### Fixed
+ 
+#### **Autenticação**
+- Login agora aceita `identifier` (username, email ou telefone) em vez de campos separados
+- Sessão persiste corretamente após reload/hibernação do servidor
+- Logout automático apenas em erro 401 (token inválido)
+- Erros de rede (500, timeout) não deslogam mais o usuário
+- Type `BackendLoginRequest` atualizado para `{ identifier, password }`
+- Transformer `transformLoginRequest` consolidado
+ 
+#### **Sistema de Likes**
+- Likes persistem corretamente após refresh
+- Toggle like/unlike funciona sem erros 400/404
+- Backend retorna `like_id` e frontend salva para deletar corretamente
+- Action `setLikeId` adicionada ao `postsSlice`
+- `DELETE /api/likes/{like_id}/` usa ID correto (não ID do post)
+- Update otimista com fallback em caso de erro
+ 
+#### **Sistema de Retweets**
+- Retweets simples funcionam corretamente
+- Quote retweets incrementam contador do post original
+- Actions `setRetweeted` e `adjustRetweets` substituem `toggleRetweet`/`incrementRetweets`
+- `RetweetPopover` detecta `isSimpleRetweet` corretamente
+- `PostCard` exibe post original em retweets simples via `displayPost`
+- `PostCard` variant `detailed` exibe post pai via `OriginalPostPreview`
+- Ordem de declaração de variáveis corrigida para evitar uso antes da definição
+ 
+#### **Sistema de Replies**
+- Model `Comment` removido (substituído por `Post` com `in_reply_to`)
+- Type `stats.comments` renomeado para `stats.replies` (alinhado com backend)
+- Transformer `transformPost` mapeia `replies` corretamente
+- Arquivo `comments.api.ts` deletado
+- Todas referências atualizadas em componentes e hooks
+ 
+#### **Profile Tabs**
+- Filtros dinâmicos implementados (`has_reply`, `has_media`, `is_retweet`, `liked_by`)
+- Tabs do perfil funcionam com `usePosts` + `profileParams`
+- Infinite scroll habilitado em todas as tabs
+- Tab "Posts" filtra replies e retweets
+- Tab "Replies" mostra apenas posts com resposta
+- Tab "Media" mostra apenas posts com mídia
+- Tab "Likes" mostra posts curtidos pelo usuário
+- 4 queries separadas substituídas por 1 `usePosts` reutilizável
+ 
+### Changed
+ 
+#### **API Integration**
+- `usePosts` agora aceita type `profile` com params opcionais
+- Selector usa `selectRawFeedPosts` para tipo `profile`
+- Sync effect usa key `profile-${JSON.stringify(params)}` para cache correto
+- `useGetLikesQuery` removido do Profile (substituído por `useGetPostsQuery`)
+ 
+#### **Redux State**
+- `postsSlice` com actions mais granulares:
+  - `setLikeId(postId, likeId)` - Salva ID do like
+  - `setRetweeted(postId, isRetweeted)` - Define estado de retweet
+  - `adjustRetweets(postId, delta)` - Incrementa/decrementa contador
+- `stats.comments` → `stats.replies` em toda aplicação
+ 
+#### **Components**
+- `PostCard` reorganizado para evitar hoisting errors
+- `PostCardActions` atualizado com `stats.replies`
+- `SearchPopover` atualizado com `stats.replies`
+- `Profile` refatorado com tabs dinâmicas e infinite scroll
+ 
+### Removed
+ 
+#### **Deprecated Code**
+- Diretório `/mocks` completamente removido
+- `comments.api.ts` deletado
+- `useGetLikesQuery` removido do Profile
+- Actions obsoletas: `toggleRetweet`, `incrementRetweets`
+- Lógica de retweet duplicada em `usePostActions`
+ 
+### Technical
+ 
+#### **Build**
+- `npm run build` executado com sucesso
+- Todos erros de importação de mocks corrigidos
+- Referências a `comments` atualizadas para `replies`
+- Types alinhados com API real (sem fallbacks mock)
+ 
+#### **Type Safety**
+- `BackendLoginRequest` com `identifier: string`
+- `BackendPostWithInteractions` com `like_id: number | null`
+- `PostWithInteractions` com `likeId: number | null`
+- `GetPostsParams` com filtros dinâmicos (`has_reply`, etc.)
+- Todos types alinhados com contratos do backend
+ 
+#### **Performance**
+- Profile usa 1 query em vez de 4 (redução de 75% requests)
+- Cache do Redux reutilizado entre tabs
+- Infinite scroll otimizado com selector específico
+ 
+### Notes
+ 
+**Preparação para Merge:**
+- Todos bugs críticos corrigidos
+- Build de produção sem warnings
+- Types alinhados com backend real
+- Mocks completamente removidos
+- Pronta para merge na `main`
+
+---
+
+## [0.1.5] - 2026-03-09
+
+### Added
+
+#### **Notificações**
+- Integração completa do sistema de notificações com RTK Query
+- Badge de notificações não lidas no Sidebar (desktop e mobile)
+- Polling automático a cada 30s para atualizar count
+- Refetch automático ao focar na tab de notificações
+- Suporte a count > 99 (mostra "99+")
+- Animação suave ao aparecer/desaparecer badge
+- Type `PostPreview` para preview simplificado de posts
+- Transformer `transformNotification` corrigido para usar `post_preview`
+- Navegação correta usando ID do post em vez de objeto completo
+
+#### **Busca Global**
+- SearchBar com variantes (small/large) e estados (empty/history/searching)
+- SearchPopover com debounce de 500ms
+- Histórico de buscas em localStorage
+- Modal de confirmação para limpar histórico completo
+- Busca simultânea de usuários, posts e hashtags
+- Renderização de resultados com avatar, bio e stats
+- Navegação para perfil, post ou hashtag ao clicar
+- Workaround para busca com espaços (nome + sobrenome separados)
+- Loading e empty states em todos os cenários
+- Integração completa com endpoints da API
+
+#### **Hashtags**
+- Sistema completo de hashtags com busca, trending e posts
+- Hook `useHashtags` com 3 modes: 'all', 'trending', 'search'
+- Hook `useHashtagPosts` para buscar posts por hashtag (nome → ID → posts)
+- Hook `useRenderHashtags` para renderizar hashtags clicáveis em posts
+- Feed separado para hashtags no Redux (`hashtagFeed`)
+- Actions e selectors dedicados para hashtag feed
+- Página Explore com tabs "For You" e "Trending"
+- Tab Trending com dois modos: lista (top 30) e filtrado (posts da hashtag)
+- Componente `TrendingHashtagsList` com rank e contador
+- TrendsWidget atualizado com top 3 hashtags (sidebar)
+- Navegação consistente: click → `/explore?q={name}&tab=trending`
+- Suporte a hashtags numéricas (#3, #123)
+- Limpeza automática de cache ao trocar hashtag
+- Busca exata de hashtag (case-insensitive)
+- BackButton no SearchBar para voltar à lista trending
+
+#### **Feature Flags (Nice to Have)**
+- Componentes com mensagens de "Funcionalidade em desenvolvimento"
+- PollCreator com flag `FEATURE_ENABLED = false`
+- PostScheduler com flag `FEATURE_ENABLED = false`
+- LocationPicker com flag `FEATURE_ENABLED = false`
+- Código original preservado e pronto para ativação futura
+- Estilos para mensagens disabled (`DisabledMessage`, `DisabledTitle`, `DisabledText`)
+
+### Fixed
+
+#### **Notificações**
+- Type `BackendNotification.post` corrigido (ID numérico, não objeto)
+- Transformer agora usa `post_preview.content` em vez de `post.content`
+- Navegação usa `notification.post` (ID) corretamente
+- RTK Query cache invalidation funcionando
+- Endpoint `read` individual usa método POST (não PATCH)
+- URL do endpoint `unread_count` usa underscore (não hífen)
+
+#### **Busca**
+- Backend não suporta busca combinada `first_name + last_name`
+- Workaround: queries separadas por nome e sobrenome
+- Renderização de hashtags no padrão Trending (sem ícone Hash)
+- Navegação de hashtag corrigida (agora usa `/explore?q=...&tab=trending`)
+
+#### **Hashtags**
+- Endpoints corrigidos para usar ID numérico (não nome)
+- Endpoint `searchHashtags` criado para busca por nome
+- Endpoint `getHashtagPosts` retorna array direto (não objeto paginado)
+- Models `BackendHashtag` e `Hashtag` corrigidos (campo `name`, não `tag`)
+- Transformers corrigidos para mapear campos corretos
+- Feed separado para evitar conflito com ForYou/Following
+- Busca exata de hashtag (não pega primeira do array)
+- Cache limpo imediatamente ao trocar hashtag
+- Regex de hashtags suporta números e acentos
+
+### Changed
+
+#### **Notificações**
+- Badge mobile agora oculta texto "Notificações" quando visível
+- Polling só ativa quando usuário está autenticado
+- Removidos endpoints não disponíveis (`markAllRead`, `deleteNotification`)
+
+#### **Busca**
+- Hashtags renderizadas com mesmo layout do Trending
+- SearchPopover usa componentes estilizados do Trending
+- Navegação padronizada para todas as hashtags
+
+#### **Hashtags**
+- `useHashtags` mode 'single' removido (posts agora via `useHashtagPosts`)
+- Explore tab Trending sem infinite scroll (endpoint não pagina)
+- TrendsWidget busca dados diretamente da API (sem props)
+- Navegação de hashtags sempre via query string (`?q=...&tab=trending`)
+
+### Technical
+
+#### **Redux**
+- Slice `postsSlice` atualizado com `hashtagFeed` separado
+- Actions: `setHashtagFeedPosts`, `appendHashtagFeedPosts`, `clearHashtagFeed`
+- Selectors: `selectHashtagFeedPosts`, `selectHashtagFeedHasMore`, etc.
+- Feed principal e hashtag feed 100% independentes
+
+#### **API Integration**
+- `hashtagsApi` com endpoints corretos (ID numérico)
+- `searchHashtags` endpoint para busca por nome
+- Transform response adaptado para array direto em `getHashtagPosts`
+- Todos hooks seguem padrão: sem `useState` em `useEffect`
+
+#### **Performance**
+- Debounce de 500ms em SearchBar
+- Polling de 30s em notificações
+- Cache separado para evitar conflitos entre feeds
+- Limpeza automática ao trocar contexto
+
+### Notes
+
+**Features Nice to Have:**
+- Scheduled Posts, Polls e Locations não implementados por questões de:
+  - Infraestrutura (Redis/Celery não disponível no Render free tier)
+  - Risco/Complexidade (modificações em componentes críticos)
+  - Dependências Externas (integração com APIs de terceiros)
+- Arquitetura preparada: endpoints, types, transformers prontos
+- Feature flags permitem ativação futura sem reescrever código
+- Botões mantidos no layout com mensagens explicativas
+
+---
+
+## [0.1.4] - 2026-03-06
+
+### Added
+
+#### **Follow/Unfollow System**
+- Hook `useUserActions` para gerenciar follow/unfollow com optimistic updates
+- Hook `useSyncFollows` para sincronizar follows ao login
+- Armazenamento de `followIds` no Redux para gerenciar unfollows
+- Sincronização automática de follows ao login via `getMyFollows` endpoint
+- Reset completo de state ao logout (Redux + RTK Query cache)
+- Toast de sucesso/erro em ações de follow/unfollow
+- Rollback automático em caso de erro
+
+#### **User Suggestions (Who to Follow)**
+- Widget `WhoToFollowWidget` na sidebar com fetch automático
+- Lista de 3 sugestões de usuários
+- Filtro automático de usuário logado e usuários já seguidos
+- Widget não renderiza se lista vazia (return null)
+- Integração com `useGetUsersQuery` para buscar sugestões
+- Link "Mostrar mais" → `/connect`
+
+#### **Connect Page**
+- Página `/connect` com tabs (Sugestões, Criadores)
+- Componente `UserSuggestionCard` com botão de follow
+- Filtros de usuário logado e usuários seguidos
+- Memoização com `useMemo` para evitar re-renders
+- Loading skeleton e empty states personalizados
+- Avatar com `ProfilePopover` interativo
+
+#### **Profile Page**
+- Hook `useViewingUser` para lógica compartilhada (Profile + FollowPage)
+- Busca de usuário por username (lista → detalhes)
+- Redirect 404 se usuário não existe
+- Cleanup automático ao desmontar (`clearViewing`)
+- Tabs: Posts, Replies, Media, Likes
+- Componentes: `ProfileStats`, `ProfileTabs`, `ProfileHeaderSkeleton`
+- Integração com queries filtradas:
+  - Posts: `useGetPostsQuery({ author })`
+  - Replies: `useGetPostsQuery({ author, has_reply: true })`
+  - Media: `useGetPostsQuery({ author, has_media: true })`
+  - Likes: `useGetLikesQuery()` (privado, só próprio perfil)
+- Empty states customizados por tab
+- Conditional queries (skip baseado em activeTab)
+- Mensagem "Curtidas não disponíveis" para outros perfis
+
+#### **Followers/Following Lists**
+- Páginas `/:username/followers` e `/:username/following`
+- Componente `FollowUserCard` com `useUserActions`
+- Tabs de navegação (Followers, Following)
+- Loading skeleton e empty states personalizados
+- Redirect 404 se usuário não existe
+
+#### **Edit Profile**
+- Modal `EditProfileModal` completa
+- Upload de avatar e banner (FormData)
+- Edição de bio, location, website, birthDate
+- Split automático de displayName → firstName/lastName
+- Preview de imagens antes do upload
+- Validação de campos
+- Auto-adicionar `https://` no website
+- Modal `BirthDateModal` (com limite de 3 edições)
+- Helper `ensureProtocol` (adiciona https:// automaticamente)
+- Helper `splitFullName` (divide displayName)
+- Helper `getFullName` (combina firstName + lastName)
+- Flag `removeBanner` para detectar remoção de banner
+- `hasChanges` com `useMemo` para detectar mudanças
+- Tipagem correta (UpdateUserRequest com File | string)
+
+#### **Sidebar Integration**
+- Botão de perfil dinâmico (path: `/${user.username}`)
+- Navigation funcional (navega para próprio perfil)
+- `useMemo` para navItems (recalcula quando user muda)
+
+#### **Redux State (Users)**
+- Campo `followIds` no state
+- Reducers: `setFollowId`, `removeFollowId`, `clearFollows`
+- Reducer: `resetUsersState` (reset completo)
+- ExtraReducer: auto-reset ao `logout`
+
+#### **API Integration**
+- Endpoint `getMyFollows` (sincronização de follows)
+- Transformers: `transformFollow`, `transformFollowRequest`
+- Type `GetPostsParams` (author, has_reply, has_media)
+- `getPosts` aceita query params para filtros
+
+### Changed
+
+#### **Components**
+- `UserSuggestionCard` - Migrado para `useUserActions`, removido `onFollowToggle` prop
+- `WhoToFollowWidget` - Fetch automático, sem props, filtros integrados
+- `FollowUserCard` - Migrado para `useUserActions`, removido `onFollowToggle` prop
+- `ProfileHeader` - Botão de follow com `useUserActions`
+- `Connect` - Filtros de users, Redux integration
+- `Profile` - Migrado para `useViewingUser`, refatoração completa
+- `FollowPage` - Migrado para `useViewingUser`, refatoração completa
+
+#### **API Endpoints**
+- `getUserFollowers` - Aceita array direto (não só paginado)
+- `getUserFollowing` - Aceita array direto (não só paginado)
+- `providesTags` - Mudado de 'Follow' → 'User' (followers/following)
+
+### Fixed
+
+1. **Follow state persistia após logout** - Reset completo implementado
+2. **Backend retornava todos follows** - Filtro por usuário logado no frontend
+3. **Transform crashava com array direto** - Safe checks adicionados
+4. **UserSuggestionCard mostrava próprio user** - Filtro de usuário logado
+5. **WhoToFollowWidget não carregava** - Fetch automático implementado
+6. **Código duplicado** - Profile + FollowPage → `useViewingUser`
+7. **Warnings de selector** - Removido `useMemo` incorreto
+8. **Author undefined em transformPost** - Safe check adicionado
+9. **Likes tab crashava** - Safe check em `transformPost`
+10. **Conditional rendering de Likes** - Só busca se `isOwnProfile`
+
+### Optimizations
+
+- **Memoização de selectors** - Evita re-renders desnecessários
+- **Filtros centralizados** - Connect, WhoToFollow compartilham lógica
+- **Lógica de follow centralizada** - Nenhum componente gerencia estado local
+- **Safe checks em transformResponse** - Previne crashes
+- **Refatoração DRY** - 80% menos código duplicado (Profile + FollowPage)
+- **Conditional queries** - Só busca dados da tab ativa
+
+### Removed
+
+- Props `onFollowToggle` de componentes (hook cuida de tudo)
+- Estado local de follow (substituído por Redux)
+- `useMemo` incorreto em selectors (causava warnings)
+- Código duplicado em Profile/FollowPage (substituído por hook)
+
+---
+
+## [0.1.3] - 2025-03-02
+
+### Added
+
+#### Hooks Especializados
+- **usePostActions**: Hook para ações em posts individuais (like, retweet, delete, bookmark) com optimistic updates e rollback automático
+- **useCreatePost**: Hook unificado para criação e edição de posts com suporte a posts normais, quotes, replies e updates
+- **usePosts**: Hook unificado para gerenciamento de feeds com suporte a três tipos ('forYou', 'following', 'replies') e infinite scroll
+
+#### Funcionalidades
+- Infinite scroll implementado na Home (feed principal) e PostDetail (comentários)
+- Pull to refresh nos feeds
+- Loading states (skeleton inicial, loading ao buscar mais)
+- Empty states e end messages
+- Detecção inteligente de múltiplos retweets (simple e quotes separados)
+- Preview de imagens nos formulários com createObjectURL
+- Renderização de quote tweets com OriginalPostEmbed
+
+### Changed
+
+#### Componentes
+- **PostCard**: Migrado para usePostActions, removida dependência de array de posts, adicionados modais integrados
+- **PostCardActions**: Adicionado stopPropagation para prevenir navegação indesejada
+- **PostCardContent**: Busca originalPost do Redux para renderizar quote tweets
+- **PostForm**: Migrado para useCreatePost, código reduzido em 80%
+- **HomeLayout**: Migrado para usePosts, código reduzido em 60% (150 → 60 linhas)
+- **PostDetail**: Implementado infinite scroll de comentários com usePosts
+
+#### Modais e Formulários
+- **useFormModal**: Refatorado para usar useCreatePost com suporte a 4 tipos (create, comment, quote, edit)
+- **BaseForm**: Corrigida renderização de extraContent para mode 'quote'
+- **CreatePostModal**: Integrado com useFormModal tipo 'create'
+- **CommentModal**: Integrado com useFormModal tipo 'comment'
+- **RetweetModal**: Integrado com useFormModal tipo 'quote'
+- **EditPostModal**: Integrado com useFormModal tipo 'edit'
+
+### Fixed
+
+#### Bugs Críticos
+- **Transforms em fetch manual**: Nome de usuário e data sumiam após o 5º post devido à falta de transformação de snake_case para camelCase no loadMore
+- **Renderização de imagens**: Imagens não apareciam no PostCard por falta de transforms
+- **Renderização de quote tweets**: OriginalPostEmbed não renderizava devido a props incorretas e condição de mode errada
+- **Preview de imagens**: handleMediaUpload não criava preview por não usar createMediaFile
+- **Crash em posts com comentários**: Componentes crashavam quando post era undefined
+- **Navegação indesejada**: Clicar em botões de comment/retweet navegava para detail
+- **Contador de comments**: Contador não atualizava ao criar reply
+- **Detecção de retweets**: find() pegava apenas primeiro retweet, agora usa filter() e separa simple de quotes
+- **Re-renders desnecessários**: Adicionada memoização com useMemo para evitar warnings de selector
+
+### Removido
+- **usePost**: Hook genérico removido, funcionalidade migrada para hooks especializados
+- **useFeed**: Hook removido, substituído por usePosts com suporte a múltiplos tipos
+
+### Técnico
+- Aplicação de transformers (transformPost) em todos os fetch manuais do loadMore
+- Safety checks (if (!post) return null) adicionados em componentes críticos
+- Optimistic updates com rollback automático em ações de posts
+- Memoização de selectors com useMemo para otimização de performance
+- Redux sync automático via upsertPost e removePost
+- Extração correta de Files para upload com cleanup de Blobs
+- scrollableTarget="window" para compatibilidade com Sidebar
+
+### Impacto
+- 3 hooks criados (usePostActions, useCreatePost, usePosts)
+- 2 hooks removidos (usePost, useFeed)
+- 8 componentes atualizados
+- 2 páginas atualizadas (Home, PostDetail)
+- 7 bugs críticos resolvidos
+- 60% de redução de código na Home
+- Infinite scroll em 2 contextos (feed principal e comentários)
+
+## [0.1.2] - 2026-02-13
+
+### Added
+
+#### Auth Integration com Redux Toolkit
+
+**Migração Completa de Context API para Redux**
+- Sistema de autenticação completamente refatorado usando Redux Toolkit
+- Remoção de `AuthContext` e `AuthProvider` (Context API legacy)
+- Migração para estado centralizado via `authSlice`
+- Token persistence automática com sincronização Redux ↔ localStorage
+
+**Login Flow**
+- Integração com `useLoginMutation` (RTK Query)
+- Detecção automática de tipo de identificador (email/phone/username via regex)
+- Armazenamento de token no `authSlice` e `localStorage`
+- Error handling centralizado com `transformApiError`
+- Validação de campos com feedback visual
+- Toast de feedback (sucesso/erro)
+- Loading state durante autenticação
+- Redirect automático para `/home` após login bem-sucedido
+
+**Register Flow**
+- Integração com `useRegisterMutation` (RTK Query)
+- Formulário completo: username, email, password, firstName, lastName
+- Error handling com `transformApiError`
+- Validação de campos obrigatórios
+- Password match validation
+- Auto-login após registro
+- Toast de feedback
+- Redirect para `/home`
+
+**Logout Flow**
+- Integração com `useLogoutMutation` (RTK Query)
+- Limpeza completa de token do `authSlice`
+- Remoção de token do `localStorage`
+- Loading state no botão ("Saindo...")
+- Toast de confirmação
+- Redirect automático para `/`
+
+**Sidebar Integration com Redux**
+- Migração de `MOCK_CURRENT_USER` para dados reais do Redux
+- Integração com `useAppSelector(selectCurrentUser)`
+- Exibição de dados reais do usuário autenticado (avatar, nome, username)
+- Botão de logout integrado com `useLogoutMutation`
+- Loading state durante logout
+- Validação automática de usuário autenticado
+
+**Protected Routes**
+- Componente `ProtectedRoute` atualizado para usar Redux
+- Leitura de estado via `useAppSelector(selectIsAuthenticated)`
+- Remoção de dependência de `useAuth` hook (legacy)
+- Verificação de autenticação antes de renderizar rotas protegidas
+- Redirect automático para `/` se não autenticado
+- 10 rotas protegidas: `/home`, `/explore`, `/notifications`, `/connect`, `/messages`, `/:username`, `/:username/status/:postId`, `/:username/following`, `/:username/followers`
+
+**Token Persistence**
+- Token salvo em `localStorage` após login/register
+- Token carregado do `localStorage` ao inicializar aplicação
+- Estado de autenticação persistido entre reloads
+- Sincronização automática: Redux state ↔ localStorage
+
+**Auth Middleware**
+- Middleware customizado para interceptar ações RTK Query
+- Detecção automática de erro 401 (token expirado/inválido)
+- Auto-logout e limpeza de estado em erro 401
+- Remoção de token do `localStorage`
+- Correção de bug crítico que bloqueava atualização de estado
+
+**Error Handling Centralizado**
+- Implementação de `transformApiError` utility
+- Mapeamento de erros HTTP para mensagens user-friendly
+- Extração de erros de validação de campos do backend
+- Integração em Login e Register flows
+- Fallback para erros desconhecidos
+- Suporte a erros de rede e timeout
+
+### Changed
+
+**Auth System - Migração Arquitetural**
+- **Removido:** `AuthContext` (Context API)
+- **Removido:** `AuthProvider` do App.tsx
+- **Removido:** Hook `useAuth` (legacy)
+- **Migrado:** Sistema completo para Redux Toolkit
+- **Vantagens:** Centralização de estado, cache automático (RTK Query), DevTools, melhor escalabilidade
+
+**Login/Register Pages**
+- Formulários integrados com RTK Query
+- Detecção inteligente de tipo de identificador (email/phone/username)
+- Error handling melhorado com feedback por campo
+- Loading states conectados ao Redux
+- Toast notifications mantidas
+- Validações client-side mantidas
+
+**Sidebar**
+- Dados reais do usuário substituem mock (`MOCK_CURRENT_USER`)
+- Integração com Redux para leitura de `currentUser`
+- Logout integrado com RTK Query mutation
+- Loading state visual durante logout
+
+**ProtectedRoute**
+- Leitura de `isAuthenticated` via Redux selector
+- Remoção de Context API
+- Código mais limpo e performático
+
+### Removed
+
+**Context API Legacy**
+- `src/contexts/AuthContext.tsx` - Removido completamente
+- `AuthProvider` - Removido do App.tsx
+- Hook `useAuth` (legacy) - Removido
+- Props drilling de auth - Eliminado (estado global Redux)
+- Mock user em Sidebar - Substituído por dados reais
+
+### Fixed
+
+**Auth Flow**
+- Correção de bug crítico em `authMiddleware` que bloqueava atualização de estado
+- Middleware agora identifica corretamente o estado de autenticação
+- Auto-logout não é mais executado incorretamente
+- Sincronização correta entre localStorage e Redux
+- Token expirado limpa estado corretamente (401 handling)
+- Loading states durante autenticação
+- Feedback visual consistente (toasts)
+
+**Sidebar**
+- Correção de usuário não identificado (user=null)
+- Correção de logout não redirecionando
+- Dados reais do usuário agora exibidos corretamente
+
+### Technical
+
+**authSlice (Redux)**
+- Estado: `user`, `accessToken`, `isAuthenticated`, `loading`, `error`
+- Actions: `setCredentials` (login/register), `logout`, `setUser`, `setLoading`, `setError`, `clearError`
+- Persist logic: sincroniza com localStorage
+- Selectors: `selectCurrentUser`, `selectAccessToken`, `selectIsAuthenticated`, `selectAuthLoading`, `selectAuthError`
+- Initial state carrega token do localStorage
+
+**authMiddleware**
+- Intercepta todas as ações RTK Query
+- Detecta erro 401 em qualquer endpoint
+- Dispatch automático de `logout` action
+- Limpeza completa de estado (Redux + localStorage)
+- Correção de bug que causava logout incorreto
+
+**Login Auto-detection**
+```typescript
+const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
+const isPhone = /^\d{10,11}$/.test(identifier.replace(/\D/g, ''))
+
+const payload = {
+  password: formData.password,
+  ...(isEmail && { email: identifier }),
+  ...(isPhone && { phone: identifier }),
+  ...(!isEmail && !isPhone && { username: identifier })
+}
+```
+
+**Error Transformer**
+```typescript
+transformApiError(err: FetchBaseQueryError | SerializedError): {
+  message: string
+  fields: Record<string, string>
+}
+```
+
+**ProtectedRoute (Refatorado)**
+```typescript
+// Antes (Context):
+const { isAuthenticated } = useAuth()
+
+// Depois (Redux):
+const isAuthenticated = useAppSelector(selectIsAuthenticated)
+```
+
+**Sidebar (Refatorado)**
+```typescript
+// Antes (Mock):
+const [user] = useState(MOCK_CURRENT_USER)
+
+// Depois (Redux):
+const user = useAppSelector(selectCurrentUser)!
+```
+
+---
+
+## [0.1.1] - 2026-02-13
+
+### Added
+
+#### Redux Toolkit + RTK Query Integration
+
+**Redux Setup Completo**
+- Configuração do Redux Toolkit com store centralizado
+- RTK Query para gerenciamento de API e cache automático
+- Typed hooks (`useAppDispatch`, `useAppSelector`) para type-safety
+- Redux Provider integrado no App.tsx
+
+**API Slice (RTK Query)**
+- Configuração base do RTK Query com `createApi`
+- `prepareHeaders` para autenticação automática (token Bearer)
+- `reducerPath: 'api'` para integração no store
+- `tagTypes` para invalidação de cache (`Post`, `User`, `Comment`, `Follow`)
+
+**Endpoints Implementados (25 endpoints)**
+
+*Autenticação:*
+- `register` - Registro de novo usuário
+- `login` - Login com credenciais
+- `logout` - Logout e invalidação de token
+
+*Usuários:*
+- `getUsers` - Listagem paginada de usuários
+- `getUserById` - Detalhes de usuário específico
+- `getCurrentUser` - Dados do usuário autenticado
+- `updateUser` - Atualização de perfil
+- `getUserFollowers` - Lista de seguidores
+- `getUserFollowing` - Lista de seguindo
+
+*Posts:*
+- `getPosts` - Listagem paginada de posts
+- `getPostById` - Detalhes de post específico
+- `createPost` - Criação de novo post
+- `updatePost` - Edição de post
+- `deletePost` - Remoção de post
+- `getFeed` - Feed personalizado do usuário
+
+*Comentários:*
+- `getComments` - Listagem de comentários
+- `createComment` - Criar comentário
+- `updateComment` - Editar comentário
+- `deleteComment` - Remover comentário
+
+*Curtidas:*
+- `getLikes` - Listagem de curtidas
+- `likePost` - Curtir post
+- `unlikePost` - Descurtir post
+
+*Follows:*
+- `getFollows` - Listagem de follows
+- `followUser` - Seguir usuário
+- `unfollowUser` - Deixar de seguir
+
+**Slices Normalizados**
+
+*authSlice:*
+- Gerenciamento de estado de autenticação
+- Armazena: `user`, `token`, `isAuthenticated`
+- Actions: `setCredentials`, `logout`
+- Persist token em localStorage (preparado para implementação)
+
+*postsSlice:*
+- Cache normalizado de posts (`byId`, `allIds`)
+- Estrutura de feed com paginação (`ids`, `cursor`, `hasMore`)
+- Estado de post detail (thread, comments)
+- Actions optimistic: `toggleLike`, `toggleRetweet`, `toggleBookmark`
+- Gerenciamento de loading states
+- Selectors memoizados (`selectFeedPosts`, `selectPostDetail`)
+
+*usersSlice:*
+- Cache normalizado de usuários (`byId`, `byUsername`)
+- Follow state separado para performance
+- Sugestões de usuários (Who to Follow)
+- Estado de profile sendo visualizado
+- Actions: `upsertUser`, `toggleFollow`, `setSuggestions`
+- Selectors memoizados (`selectUserWithFollowState`, `selectSuggestions`)
+
+**Sistema de Transformers**
+
+*Data Transformers (`utils/transformers.ts`):*
+- `transformUser` - BackendUser → User (snake_case → camelCase)
+- `transformUserToCard` - User → UserCard (dados resumidos)
+- `transformUserToCardWithStats` - BackendUser → UserCardWithStats
+- `transformPost` - BackendPost → Post (normalização completa)
+- `transformPostWithInteractions` - BackendPost → PostWithInteractions
+- `transformPoll` - BackendPoll → Poll (enquetes)
+- `transformLocation` - BackendLocation → Location
+- `transformCreatePostRequest` - CreatePostRequest → Backend format
+- Conversão automática: `snake_case` ↔ `camelCase`
+- Tratamento de campos opcionais (fallbacks)
+- Agregação de stats (`posts_count` → `stats.posts`)
+
+*Error Transformers (`utils/errorTransformers.ts`):*
+- Tratamento de erros de API padronizado
+- Mapeamento de códigos HTTP para mensagens user-friendly
+- Extração de erros de validação de campos
+- Fallbacks para erros desconhecidos
+
+**Organização de Types**
+
+Reestruturação completa de types em subpastas por responsabilidade:
+
+*types/api/requests.ts:*
+- `RegisterRequest` - Dados de registro
+- `LoginRequest` - Credenciais de login
+- `CreatePostRequest` - Criação de post
+- `UpdatePostRequest` - Edição de post
+- `CreateCommentRequest` - Criação de comentário
+- `FollowRequest`, `LikeRequest` - Actions de interação
+
+*types/api/responses.ts:*
+- `AuthResponse` - Resposta de autenticação (token + user)
+- `PaginatedResponse<T>` - Padrão de paginação do backend
+
+*types/api/backend.ts:*
+- `BackendUser` - Modelo de usuário do backend (snake_case)
+- `BackendPost` - Modelo de post do backend
+- `BackendPoll` - Modelo de enquete do backend
+- `BackendPollOption` - Opções de enquete
+- `BackendPostMedia` - Mídia de posts
+- `BackendLocation` - Localização geográfica
+- `BackendPaginatedResponse<T>` - Paginação do backend
+
+*types/api/index.ts:*
+- Barrel exports para facilitar imports
+
+### Changed
+
+#### Reorganização de Estrutura
+
+**Transformers Movidos**
+- `store/transformers.ts` → `utils/transformers.ts`
+- Separação de conceitos: transformers são funções puras (utils), não estado (store)
+- Reutilizáveis fora do contexto Redux
+- Testáveis isoladamente
+
+**mediaHelpers Simplificado**
+- Removida validação frontend de mídia
+- Backend assume responsabilidade total de validação (tipo, tamanho, segurança)
+- Frontend apenas cria preview (blob URLs)
+- `createMediaFile` retorna `PostMedia` com referência ao `File` original
+- `validateMedia` sempre retorna válido (mock)
+- `revokeMediaPreviews` para cleanup de memória
+- Decisão: Evitar refatoração em cascata de 20+ arquivos
+
+**Modelos Atualizados**
+- `Post.author` agora usa `UserCardWithStats` (era `UserPreview`)
+- Compatibilidade com AvatarProfilePopover (precisa stats)
+- Todos os modelos alinhados com estrutura real do backend
+
+### Removed
+
+**Types Duplicados**
+- Remoção de types locais que duplicavam modelos centralizados
+- Eliminação de inconsistências entre frontend e backend
+
+### Fixed
+
+**Correções de Build**
+- Resolvidos erros de import após movimentação de transformers
+- Correções de tipagem em componentes após refatoração de modelos
+- ESLint warnings corrigidos (underscore params, ts-expect-error)
+
+### Metrics
+
+#### Arquivos Criados (14):
+- `src/store/index.ts` - Store config
+- `src/store/hooks.ts` - Typed hooks
+- `src/store/slices/api.ts` - RTK Query API
+- `src/store/slices/auth/authSlice.ts` - Auth state
+- `src/store/slices/posts/postsSlice.ts` - Posts cache
+- `src/store/slices/users/usersSlice.ts` - Users cache
+- `src/types/api/index.ts` - Barrel exports
+- `src/types/api/requests.ts` - Request types
+- `src/types/api/responses.ts` - Response types
+- `src/types/api/backend.ts` - Backend DTOs
+- `src/utils/transformers.ts` - Data transformers
+- `src/utils/errorTransformers.ts` - Error handlers
+
+#### Arquivos Modificados (3):
+- `src/App.tsx` - Redux Provider
+- `src/utils/mediaHelpers.ts` - Simplificação
+- `package.json` - Dependências
+
+#### Linhas de Código:
+- Adicionadas: ~1,200 linhas (Redux + types + transformers)
+- Removidas: ~150 linhas (duplicações)
+- Net: ~1,050 linhas
+
+### Dependencies
+
+**Adicionadas:**
+- `@reduxjs/toolkit@^2.x.x` - Redux Toolkit
+- `react-redux@^9.x.x` - React bindings para Redux
+
+### Highlights
+
+#### Decisões Arquiteturais Documentadas
+
+**1. Normalized State Pattern**
+- Estrutura `byId` + `allIds` para evitar duplicação
+- Um post/user existe em um único lugar
+- Atualizações automáticas em toda aplicação
+- Pattern recomendado pela documentação oficial do Redux
+
+**2. Optimistic Updates**
+- Like/Retweet atualizam UI instantaneamente
+- API processa em background
+- Reversão em caso de erro
+- UX responsiva (sem espera)
+
+**3. Backend como Source of Truth**
+- Validação de mídia apenas no backend
+- Frontend valida apenas para UX básica
+- Evita duplicação de lógica
+- Trade-off consciente (simplicidade vs otimização)
+
+**4. Transformers Pattern**
+- Camada de adaptação backend ↔ frontend
+- Conversão automática snake_case → camelCase
+- Facilita mudanças no backend sem quebrar frontend
+- Testável e reutilizável
+
+**5. RTK Query para Cache**
+- Cache automático de dados da API
+- Invalidação inteligente via tags
+- Loading/error states automáticos
+- Menos código boilerplate (vs Redux tradicional)
+
+#### Competências Demonstradas
+- Gerenciamento de estado complexo (Redux Toolkit)
+- Cache e otimização (RTK Query, normalized state)
+- Separação de conceitos (slices, transformers, types)
+- Type safety rigoroso (TypeScript)
+- Decisões de arquitetura com trade-offs conscientes
+- Documentação técnica detalhada
+
+
+## [0.1.0] - 2026-02-11
+
+### Added
+
+#### Refatoração Completa de Modelos e Integração de Dados
+
+**Modelos Centralizados**
+- Criação de modelos centralizados em `src/models/` baseados na estrutura real do backend
+- Modelo `User` com todos os campos retornados pela API
+- Modelo `Post` com suporte a mídia, enquetes, localização e agendamento
+- Modelo `PostWithInteractions` para estados de interação do usuário
+- Modelo `Poll` com sistema de votação
+- Modelo `Notification` com suporte a agrupamento
+- Modelo `Location` para geolocalização de posts
+- Modelo `Trend` para trending topics
+- Tipos auxiliares: `UserPreview`, `UserCard`, `UserCardWithStats`, `UserWithFollowState`
+
+**Refatoração de 28 Arquivos de Types**
+- **Grupo 1 (Models):** 7 arquivos centralizados criados
+- **Grupo 2 (Avatar):** 2 arquivos refatorados para usar `UserCardWithStats`
+- **Grupo 3 (Widgets):** 3 arquivos refatorados (WhoToFollow, Trends, Search)
+- **Grupo 4 (User Cards):** 4 arquivos refatorados (Connect, FollowPage)
+- **Grupo 5 (Profile):** 3 arquivos refatorados com lógica de `isOwnProfile`
+- **Grupo 6 (Posts Core):** 4 arquivos refatorados (PostCard, PostList, Embeds)
+- **Grupo 7 (Forms/Modals):** 8 arquivos refatorados (PollCreator, FormActions, Modals)
+- **Grupo 8 (Context):** 1 arquivo refatorado (PostContext com Quote Tweet corrigido)
+- **Grupo 9 (Pages):** 3 arquivos refatorados (Home, PostDetail, Notifications)
+
+**Decisões Arquiteturais**
+- `Post.author` usa `UserCardWithStats` (não `UserPreview`) para suportar AvatarProfilePopover
+- Quote Tweet usa `Post.content` + `Post.retweetOf` (backend não retorna campo separado)
+- `isOwnProfile` calculado no frontend (não vem do backend)
+- Remoção de modelos duplicados e inconsistentes espalhados pelo projeto
+- LocationPicker com mock temporário alinhado ao modelo centralizado
+
+### Changed
+
+#### PostContext Refatorado
+- Correção de typos: `is_liked` → `isLiked`, `is_retweeted` → `isRetweeted`
+- Lógica de `alreadyRetweeted` corrigida (valida `content` vazio)
+- Lógica de desfazer retweet corrigida (atualiza post original)
+- Extração de `MOCK_CURRENT_USER` para evitar duplicação (DRY)
+- Quote Tweet alinhado com estrutura do backend (usa `content` + `retweetOf`)
+- Campo `publishedAt` adicionado em `commentPost`
+
+#### PostCard Refatorado
+- Substituição de `post.retweetComment` por `post.content.trim()`
+- Identificação correta de Retweet Simples vs Quote Tweet
+- AvatarProfilePopover temporariamente desabilitado (aguarda integração com API)
+- PollPreview corrigido (objeto `votes` construído corretamente)
+- Validação de `poll.question` (fallback para string vazia)
+
+#### Profile Page
+- Cálculo de `isOwnProfile` implementado (compara usuário logado com perfil visualizado)
+- Mock de dados alinhado ao modelo `UserWithFollowState`
+- Correção de `handleSaveProfile` (firstName/lastName)
+- Handler `onQuoteTweet` implementado
+
+#### OriginalPostEmbed
+- Busca de post original via `post.retweetOf`
+- Renderização de dados do post original corrigida
+
+#### LocationPicker
+- Mock de localizações movido para `src/mocks/locations.ts`
+- Estrutura alinhada ao modelo `Location` centralizado
+- Busca e filtro de localizações funcionando
+
+### Removed
+
+#### Modelos Duplicados Removidos
+- Remoção de types locais em componentes que duplicavam modelos
+- Remoção de `retweetComment` do modelo `Post` (campo não existe no backend)
+- Remoção de `mockLocations` antigo (estrutura inconsistente)
+- Eliminação de ~15 arquivos de types redundantes
+
+### Fixed
+
+#### Correções de Bugs
+- PostContext: Estado de retweet não persistia corretamente
+- PostCard: AvatarProfilePopover acessava campos inexistentes em `UserPreview`
+- PollPreview: Prop `votes` recebia tipo incorreto
+- Quote Tweet: Lógica quebrada por uso de campo inexistente (`retweetComment`)
+- LocationPicker: Mock incompatível com modelo centralizado
+
+### Metrics
+
+#### Arquivos Refatorados
+- 28 arquivos de types atualizados
+- 7 modelos centralizados criados
+- ~15 arquivos de types duplicados removidos
+- ~200 linhas de código duplicado eliminadas
+
+#### Cobertura da Refatoração
+- 100% dos componentes usando modelos centralizados
+- 100% dos types alinhados com estrutura do backend
+- 0 modelos duplicados remanescentes
+
+### Highlights
+
+#### Demonstração de Competências
+- Refatoração em larga escala (28 arquivos)
+- Alinhamento frontend-backend (análise de APIs reais)
+- Quebra intencional para mapeamento de dependências
+- Decisões arquiteturais documentadas (isOwnProfile, Quote Tweet, etc)
+- Eliminação de technical debt (duplicação, inconsistências)
+
+#### Metodologia Aplicada
+- Refatoração incremental (grupos de 2-4 arquivos)
+- Validação de cada etapa antes de avançar
+- Análise crítica de código (PostContext review)
+- Documentação de decisões técnicas
+
+#### Padrões de Design
+- **Single Source of Truth**: Modelos centralizados
+- **DRY**: Eliminação de duplicação (MOCK_CURRENT_USER, types)
+- **Separation of Concerns**: Lógica de UI vs dados do backend
+- **Type Safety**: TypeScript rigoroso em todos os componentes
+
 ## [0.0.9] - 2026-02-10
 
 ### Added

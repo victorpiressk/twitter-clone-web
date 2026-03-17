@@ -154,4 +154,8 @@ export const ContentWrapper = styled.div`
   width: 1050px;
   display: flex;
   justify-content: space-between;
+
+  @media (max-width: 1024px) {
+    width: 600px;
+  }
 `

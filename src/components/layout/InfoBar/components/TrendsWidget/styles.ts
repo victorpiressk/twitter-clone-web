@@ -80,3 +80,70 @@ export const ShowMore = styled.button`
     }
   }
 `
+
+export const TrendingList = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+export const TrendingItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-align: left;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`
+
+export const TrendingInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`
+
+export const TrendingName = styled.span`
+  font-size: ${fontSizes.md};
+  font-weight: ${fontWeights.bold};
+  color: ${(props) => props.theme.colors.text.primary};
+  margin-bottom: 2px;
+`
+
+export const TrendingStats = styled.span`
+  font-size: ${fontSizes.sm};
+  color: ${(props) => props.theme.colors.text.secondary};
+`
+
+export const TrendingRank = styled.div`
+  color: ${(props) => props.theme.colors.text.secondary};
+  min-width: 36px;
+  margin-bottom: 6px;
+`
+
+export const Separator = styled.span`
+  color: ${(props) => props.theme.colors.text.secondary};
+`
+
+export const LoadingState = styled.div`
+  padding: 20px 16px;
+  text-align: center;
+  color: ${(props) => props.theme.colors.text.secondary};
+  font-size: ${fontSizes.sm};
+`
+
+export const EmptyState = styled.div`
+  padding: 20px 16px;
+  text-align: center;
+  color: ${(props) => props.theme.colors.text.secondary};
+  font-size: ${fontSizes.sm};
+`

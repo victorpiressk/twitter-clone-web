@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { fontSizes, fontWeights } from '../../../styles/globalStyles'
+import { colors, fontSizes, fontWeights } from '../../../styles/globalStyles'
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
 import { light } from '../../../styles/themes/light'
@@ -40,6 +40,10 @@ export const Aside = styled.aside`
   overflow-y: auto;
   overscroll-behavior-y: none;
   color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
+
+  @media (max-width: 1280px) {
+    width: 88px;
+  }
 `
 
 export const Nav = styled.nav`
@@ -67,6 +71,17 @@ export const NavList = styled.ul`
 
     span {
       margin: 0 16px 0 20px;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    li {
+      display: flex;
+      justify-content: center;
+    }
+
+    ${ButtonLink} > span {
+      display: none;
     }
   }
 `
@@ -105,12 +120,22 @@ export const SideButton = styled(ButtonContainer)<SideButtonProps>`
     span {
       margin: 0 16px 0 20px;
     }
+
+    @media (max-width: 1280px) {
+      span {
+        display: none;
+      }
+    }
   `}
 `
 
 export const FooterButton = styled(ButtonContainer)`
   justify-content: space-between;
   margin-top: 12px;
+
+  @media (max-width: 1280px) {
+    justify-content: center;
+  }
 `
 
 export const UserNames = styled.div`
@@ -119,6 +144,10 @@ export const UserNames = styled.div`
   justify-content: flex-start;
 
   padding: 0 11px;
+
+  @media (max-width: 1280px) {
+    display: none;
+  }
 `
 
 export const DisplayName = styled.span`
@@ -139,6 +168,10 @@ export const MoreIcon = styled.div`
   display: flex;
   justify-content: flex-end;
   width: 100%;
+
+  @media (max-width: 1280px) {
+    display: none;
+  }
 `
 
 export const PopoverItem = styled.button<PopoverItemProps>`
@@ -157,5 +190,53 @@ export const PopoverItem = styled.button<PopoverItemProps>`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.hover.primary};
+  }
+`
+
+export const IconWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const NotificationBadge = styled.span`
+  position: absolute;
+  top: -4px;
+  right: -8px;
+
+  background: ${colors.primary};
+  color: ${colors.white};
+
+  border-radius: 10px;
+  padding: 2px 6px;
+
+  font-size: 11px;
+  font-weight: ${fontWeights.bold};
+  line-height: 1;
+
+  min-width: 18px;
+  height: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Border branco para destacar do fundo */
+  box-shadow: 0 0 0 2px ${(props) => props.theme.colors.background.primary};
+
+  /* Animação suave ao aparecer */
+  animation: badgePulse 0.3s ease-in-out;
+
+  @keyframes badgePulse {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 `

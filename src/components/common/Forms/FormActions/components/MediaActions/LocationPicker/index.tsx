@@ -1,35 +1,13 @@
-import { useState, useMemo } from 'react'
+import { X } from 'lucide-react'
 import BasePopover from '../../../../../Popovers/BasePopover'
-import { MOCK_LOCATIONS } from './constants/mockLocations'
 import type { LocationPickerProps } from './types'
 import * as S from './styles'
 
 const LocationPickerComponent = ({
   isOpen,
   onClose,
-  triggerRef,
-  onLocationSelect
+  triggerRef
 }: LocationPickerProps) => {
-  const [searchTerm, setSearchTerm] = useState('')
-
-  // Filtra localizações baseado na busca
-  const filteredLocations = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return MOCK_LOCATIONS
-    }
-
-    const search = searchTerm.toLowerCase()
-    return MOCK_LOCATIONS.filter((location) =>
-      location.name.toLowerCase().includes(search)
-    )
-  }, [searchTerm])
-
-  const handleLocationClick = (location: (typeof MOCK_LOCATIONS)[0]) => {
-    onLocationSelect(location)
-    onClose()
-    setSearchTerm('') // Limpa busca ao fechar
-  }
-
   return (
     <BasePopover
       isOpen={isOpen}
@@ -39,28 +17,20 @@ const LocationPickerComponent = ({
       strategy="fixed"
     >
       <S.LocationPickerContainer>
-        <S.SearchInput
-          type="text"
-          placeholder="Buscar localização..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          autoFocus
-        />
-
-        <S.LocationList>
-          {filteredLocations.length > 0 ? (
-            filteredLocations.map((location) => (
-              <S.LocationItem
-                key={location.id}
-                onClick={() => handleLocationClick(location)}
-              >
-                {location.name}
-              </S.LocationItem>
-            ))
-          ) : (
-            <S.EmptyState>Nenhuma localização encontrada</S.EmptyState>
-          )}
-        </S.LocationList>
+        <S.Header>
+          <S.Title>Adicionar localização</S.Title>
+          <S.CloseButton onClick={onClose}>
+            <X />
+          </S.CloseButton>
+        </S.Header>
+        <S.DisabledMessage>
+          <S.DisabledTitle>Funcionalidade em desenvolvimento</S.DisabledTitle>
+          <S.DisabledText>
+            A adição de localização estará disponível em breve. Esta
+            funcionalidade requer integração com API externa (Google Places) que
+            será implementada futuramente.
+          </S.DisabledText>
+        </S.DisabledMessage>
       </S.LocationPickerContainer>
     </BasePopover>
   )

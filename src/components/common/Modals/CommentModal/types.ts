@@ -1,21 +1,9 @@
-import type { MediaFile } from '../../Forms/MediaPreview/types'
-import type { PostMedia } from '../../Posts/PostCard/types'
+import type { PostWithInteractions } from '../../../../types/domain/models'
 
 export type CommentModalProps = {
   isOpen: boolean
   onClose: () => void
-  originalPost: {
-    id: number
-    author: {
-      name: string
-      username: string
-      avatar: string | null
-    }
-    content: string
-    createdAt: string
-    images?: PostMedia[]
-  }
-  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
+  originalPost: PostWithInteractions
   userName: string
   userAvatar: string | null
 }

@@ -1,4 +1,4 @@
-import type { MediaFile } from '../../Forms/MediaPreview/types'
+import type { FormModalType } from '../../../../hooks'
 
 export type FormModalProps = {
   // Controle do modal
@@ -17,10 +17,8 @@ export type FormModalProps = {
 
   // Conteúdo extra (para Comment/Retweet)
   extraContent?: React.ReactNode
-  mode?: 'comment' | 'retweet'
-
-  // Callback de submit
-  onSubmit: (content: string, medias?: MediaFile[]) => Promise<void> | void
+  mode: FormModalType
+  originalPostId?: number
 
   // Customização (opcional)
   maxLength?: number

@@ -1,14 +1,6 @@
+import type { PostWithInteractions } from '../../../../types/domain/models'
+
 export type OriginalPostPreviewProps = {
-  post: {
-    id: string
-    author: {
-      name: string
-      username: string
-      avatar: string
-    }
-    content: string
-    createdAt: string
-    images?: string[]
-  }
+  post: PostWithInteractions
   showConnector?: boolean
 }

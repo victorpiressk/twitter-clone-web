@@ -6,7 +6,6 @@ const CommentModal = ({
   isOpen,
   onClose,
   originalPost,
-  onSubmit,
   userName,
   userAvatar
 }: CommentModalProps) => {
@@ -21,10 +20,10 @@ const CommentModal = ({
       successMessage="Comentário enviado com sucesso!"
       errorMessage="Erro ao enviar comentário. Tente novamente."
       extraContent={<OriginalPostPreview post={originalPost} showConnector />}
-      onSubmit={onSubmit}
       maxLength={280}
       modalSize="medium"
       mode="comment"
+      originalPostId={originalPost.id}
     />
   )
 }

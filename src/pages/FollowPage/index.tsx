@@ -1,150 +1,118 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import BackButton from '../../components/common/BackButton'
-import InfoBar from '../../components/Layout/InfoBar'
+// src/pages/FollowPage/index.tsx
+
+import { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { useAppSelector } from '../../store/hooks'
+import { selectCurrentUser } from '../../store/slices/auth/authSlice'
+import { useViewingUser } from '../../hooks/useViewingUser'
+import {
+  useGetUserFollowersQuery,
+  useGetUserFollowingQuery
+} from '../../store/slices/api/users.api'
 import FollowTabs from './components/FollowTabs'
 import FollowUserCard from './components/FollowUserCard'
+import BackButton from '../../components/common/BackButton'
 import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
-import ScrollToTop from '../../hooks/useScrollToTop'
-import type { FollowTab, FollowUser } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
+import InfoBar from '../../components/Layout/InfoBar'
+import { ScrollToTop } from '../../hooks/useScrollToTop'
+import type { FollowTab } from './types'
 import * as S from './styles'
-
-// Mock data
-const mockFollowing: FollowUser[] = [
-  {
-    id: '1',
-    username: 'reactjs',
-    displayName: 'React',
-    bio: 'The library for web and native user interfaces',
-    isFollowing: true
-  },
-  {
-    id: '2',
-    username: 'typescript',
-    displayName: 'TypeScript',
-    bio: 'TypeScript is a strongly typed programming language',
-    isFollowing: true
-  }
-]
-
-const mockFollowers: FollowUser[] = [
-  {
-    id: '3',
-    username: 'developer1',
-    displayName: 'Dev One',
-    bio: 'Full Stack Developer',
-    isFollowing: false
-  },
-  {
-    id: '4',
-    username: 'developer2',
-    displayName: 'Dev Two',
-    bio: 'Frontend Engineer',
-    isFollowing: true
-  }
-]
 
 const FollowPage = () => {
   const { username } = useParams<{ username: string }>()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const [activeTab, setActiveTab] = useState<FollowTab>('followers')
 
-  const [following, setFollowing] = useState(mockFollowing)
-  const [followers, setFollowers] = useState(mockFollowers)
-  const [isLoading, setIsLoading] = useState(true)
+  const currentUser = useAppSelector(selectCurrentUser)
 
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1500)
-  }, [])
+  // ✅ Hook centraliza TODA a lógica de busca/sync/404
+  const { viewingUser, isLoading: isLoadingUser } = useViewingUser(username)
 
-  // Estado DERIVADO da URL (não precisa de useState nem useEffect)
-  const activeTab: FollowTab = location.pathname.includes('/followers')
-    ? 'followers'
-    : 'following'
+  // ✅ Busca seguidores
+  const { data: followersData, isLoading: isLoadingFollowers } =
+    useGetUserFollowersQuery(
+      { userId: viewingUser?.id ?? 0 },
+      { skip: !viewingUser || activeTab !== 'followers' }
+    )
 
-  // Mock user data
-  const profileUser = {
-    displayName: 'Victor Pires',
-    username: 'victor'
+  // ✅ Busca seguindo
+  const { data: followingData, isLoading: isLoadingFollowing } =
+    useGetUserFollowingQuery(
+      { userId: viewingUser?.id ?? 0 },
+      { skip: !viewingUser || activeTab !== 'following' }
+    )
+
+  // ✅ Dados da aba ativa
+  const activeData = activeTab === 'followers' ? followersData : followingData
+  const isLoading =
+    isLoadingUser ||
+    (activeTab === 'followers' ? isLoadingFollowers : isLoadingFollowing)
+
+  // ✅ Verifica se é próprio perfil
+  const isOwnProfile = currentUser?.id === viewingUser?.id
+
+  // ✅ Loading
+  if (isLoadingUser || !viewingUser) {
+    return (
+      <ContentWrapper>
+        <S.FollowContainer>
+          <S.FollowHeader>
+            <BackButton />
+            <S.HeaderInfo>
+              <S.HeaderName>Carregando...</S.HeaderName>
+            </S.HeaderInfo>
+          </S.FollowHeader>
+          <UserCardListSkeleton count={5} />
+        </S.FollowContainer>
+        <InfoBar />
+      </ContentWrapper>
+    )
   }
-
-  const handleTabChange = (newTab: FollowTab) => {
-    navigate(`/${username}/${newTab}`)
-  }
-
-  const handleFollowToggle = (userId: string) => {
-    if (activeTab === 'following') {
-      setFollowing((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, isFollowing: !user.isFollowing }
-            : user
-        )
-      )
-    } else {
-      setFollowers((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? { ...user, isFollowing: !user.isFollowing }
-            : user
-        )
-      )
-    }
-  }
-
-  const currentList = activeTab === 'following' ? following : followers
 
   return (
     <>
       <ScrollToTop />
       <ContentWrapper>
         <S.FollowContainer>
-          <S.Header>
-            <S.HeaderTop>
-              <BackButton />
-              <S.HeaderInfo>
-                <S.HeaderName>{profileUser.displayName}</S.HeaderName>
-                <S.HeaderUsername>@{profileUser.username}</S.HeaderUsername>
-              </S.HeaderInfo>
-            </S.HeaderTop>
+          <S.FollowHeader>
+            <BackButton />
+            <S.HeaderInfo>
+              <S.HeaderName>
+                {viewingUser.firstName} {viewingUser.lastName}
+              </S.HeaderName>
+              <S.HeaderUsername>@{viewingUser.username}</S.HeaderUsername>
+            </S.HeaderInfo>
+          </S.FollowHeader>
 
-            <FollowTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          </S.Header>
+          <FollowTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <S.UserList>
-            {currentList.length > 0 ? (
+            {isLoading ? (
+              <UserCardListSkeleton count={5} />
+            ) : (
               <>
-                {isLoading ? (
-                  <UserCardListSkeleton count={5} />
-                ) : (
-                  currentList.map((user) => (
-                    <FollowUserCard
-                      key={user.id}
-                      user={user}
-                      onFollowToggle={handleFollowToggle}
-                    />
+                {activeData && activeData.results.length > 0 ? (
+                  activeData.results.map((user) => (
+                    <FollowUserCard key={user.id} user={user} />
                   ))
+                ) : (
+                  <S.EmptyState>
+                    <S.EmptyStateText>
+                      {activeTab === 'followers'
+                        ? isOwnProfile
+                          ? 'Você ainda não tem seguidores.'
+                          : `${viewingUser.firstName} ainda não tem seguidores.`
+                        : isOwnProfile
+                          ? 'Você ainda não está seguindo ninguém.'
+                          : `${viewingUser.firstName} ainda não está seguindo ninguém.`}
+                    </S.EmptyStateText>
+                  </S.EmptyState>
                 )}
               </>
-            ) : (
-              <S.EmptyState>
-                <h3>
-                  {activeTab === 'following'
-                    ? 'Você não está seguindo ninguém'
-                    : 'Ninguém segue você ainda'}
-                </h3>
-                <p>
-                  {activeTab === 'following'
-                    ? 'Quando seguir alguém, eles aparecerão aqui.'
-                    : 'Quando alguém seguir você, eles aparecerão aqui.'}
-                </p>
-              </S.EmptyState>
             )}
           </S.UserList>
         </S.FollowContainer>
-
-        <InfoBar variant="default" />
+        <InfoBar />
       </ContentWrapper>
     </>
   )

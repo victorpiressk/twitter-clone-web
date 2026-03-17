@@ -1,7 +1,7 @@
 type DateVariant = 'feed' | 'detail' | 'joined' | 'full'
 
 export const formatDate = (
-  dateString: string,
+  dateString?: string,
   variant: DateVariant = 'feed'
 ): string => {
   if (!dateString) return ''
@@ -9,11 +9,11 @@ export const formatDate = (
   const date = new Date(dateString)
   const now = new Date()
 
-  // Tratamento para evitar quebra de fuso horário em datas "puras" (YYYY-MM-DD)
-  // Usado na variante 'joined' e 'full' para manter a consistência local
+  // ✅ CORRIGIDO: Sempre usar safeDate para evitar problemas de timezone
+  // Para datas no formato YYYY-MM-DD, cria Date em UTC e converte para local
   const safeDate = dateString.includes('T')
     ? date
-    : new Date(dateString.replace(/-/g, '/'))
+    : new Date(dateString + 'T00:00:00') // ✅ Força UTC, não local
 
   switch (variant) {
     case 'feed': {
@@ -47,9 +47,11 @@ export const formatDate = (
     }
 
     case 'joined': {
-      const month = safeDate.toLocaleDateString('pt-BR', { month: 'long' })
-      const year = safeDate.getFullYear()
-      // Capitaliza a primeira letra do mês (ex: "janeiro" -> "Janeiro")
+      const month = safeDate.toLocaleDateString('pt-BR', {
+        month: 'long',
+        timeZone: 'UTC' // ✅ Força UTC
+      })
+      const year = safeDate.getUTCFullYear() // ✅ Usa UTC
       return `${month.charAt(0).toUpperCase() + month.slice(1)} de ${year}`
     }
 
@@ -57,7 +59,8 @@ export const formatDate = (
       return safeDate.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'UTC' // ✅ Força UTC
       })
     }
 

@@ -1,36 +1,29 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { usePosts } from '../../hooks/usePosts'
 import InforBar from '../../components/Layout/InfoBar'
 import PostForm from './components/PostForm'
-import PostList from '../../components/common/Posts/PostList'
+import PostCard from '../../components/common/Posts/PostCard'
 import HomeTabs from './components/HomeTabs'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-import ScrollToTop from '../../hooks/useScrollToTop'
-import { usePost } from '../../hooks/usePost'
+import { ScrollToTop } from '../../hooks'
 import type { ActiveTab } from './components/HomeTabs/types'
-import type { HomeProps } from './types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
-const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
-  const { posts, createPost, likePost, retweetPost, quoteTweet, commentPost } =
-    usePost()
-
+const HomeLayout = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('forYou')
-  const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    // Simula fetch de posts
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
-  }, [])
+  // ✅ Usa usePosts com type
+  const { posts, isLoading, hasMore, loadMore, refresh } = usePosts({
+    type: activeTab // 'forYou' ou 'following'
+  })
 
-  const filteredPosts = useMemo(() => {
-    if (activeTab === 'following') {
-      return posts.filter((post) => post.author.isFollowing === true)
-    }
-    return posts // "Para você" mostra todos
-  }, [posts, activeTab])
+  const handleRefresh = async () => {
+    await refresh()
+  }
+
+  const isEmpty = !isLoading && posts.length === 0
 
   return (
     <>
@@ -39,23 +32,48 @@ const HomeLayout = ({ userAvatar, userName }: HomeProps) => {
         <S.HomeContainer>
           <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <PostForm
-            userName={userName}
-            userAvatar={userAvatar}
-            onSubmit={createPost}
-          />
+          <PostForm />
 
           {isLoading ? (
             <PostListSkeleton count={5} />
+          ) : isEmpty ? (
+            <S.EmptyState>
+              <S.EmptyStateTitle>
+                {activeTab === 'following'
+                  ? 'Nenhum post de quem você segue'
+                  : 'Nenhum post ainda'}
+              </S.EmptyStateTitle>
+              <S.EmptyStateText>
+                {activeTab === 'following'
+                  ? 'Comece seguindo pessoas para ver posts aqui!'
+                  : 'Seja o primeiro a postar!'}
+              </S.EmptyStateText>
+            </S.EmptyState>
           ) : (
-            <PostList
-              posts={filteredPosts}
-              onLike={likePost}
-              onRetweet={retweetPost}
-              onQuoteTweet={quoteTweet}
-              onComment={commentPost}
-              variant="default"
-            />
+            <InfiniteScroll
+              dataLength={posts.length}
+              next={loadMore}
+              hasMore={hasMore}
+              loader={
+                <S.LoadingMore>
+                  <S.LoadingText>Carregando mais posts...</S.LoadingText>
+                </S.LoadingMore>
+              }
+              endMessage={<S.EndMessage>Você chegou ao fim!</S.EndMessage>}
+              refreshFunction={handleRefresh}
+              pullDownToRefresh
+              pullDownToRefreshThreshold={80}
+              pullDownToRefreshContent={
+                <S.PullMessage>↓ Puxe para atualizar</S.PullMessage>
+              }
+              releaseToRefreshContent={
+                <S.ReleaseMessage>↻ Solte para atualizar</S.ReleaseMessage>
+              }
+            >
+              {posts.map((post) => (
+                <PostCard key={post.id} postId={post.id} variant="default" />
+              ))}
+            </InfiniteScroll>
           )}
         </S.HomeContainer>
         <InforBar variant="default" />

@@ -1,10 +1,4 @@
-import type { PollOption } from '../../../../../Posts/PostCard/types'
-
-export type Poll = {
-  question: string
-  options: PollOption[]
-  duration: number // horas
-}
+import type { Poll } from '../../../../../../../types/domain/models'
 
 export type PollCreatorProps = {
   isOpen: boolean

@@ -1,13 +1,15 @@
+// src/components/common/Forms/BaseForm/BaseForm.tsx
 import Avatar from '../../Avatar'
 import Textarea from '../../Textarea'
 import MediaPreview from '../MediaPreview'
 import LocationPreview from '../LocationPreview'
 import PollPreview from '../PollPreview'
 import SchedulePreview from '../SchedulePreview'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 import type { BaseFormProps } from './types'
 import * as S from './styles'
 
-const ContentForm = ({
+const BaseForm = ({
   userName,
   userAvatar,
   content,
@@ -36,16 +38,17 @@ const ContentForm = ({
       const updated = medias.filter((m) => m.id !== id)
       const removed = medias.find((m) => m.id === id)
 
-      if (removed) {
-        URL.revokeObjectURL(removed.preview)
+      if (removed && 'url' in removed) {
+        URL.revokeObjectURL(removed.url)
       }
 
-      onMediasChange(updated)
+      onMediasChange(updated as PostMediaWithFile[])
     }
   }
 
   return (
     <S.Container $isModal={isModal}>
+      {/* ✅ CORRIGIDO: Renderiza extraContent para comments */}
       {extraContent && mode === 'comment' && (
         <S.ExtraContentWrapper>{extraContent}</S.ExtraContentWrapper>
       )}
@@ -68,7 +71,8 @@ const ContentForm = ({
             <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
           )}
 
-          {extraContent && mode === 'retweet' && (
+          {/* ✅ CORRIGIDO: Renderiza extraContent para quotes também */}
+          {extraContent && mode === 'quote' && (
             <S.ExtraContentWrapper>{extraContent}</S.ExtraContentWrapper>
           )}
 
@@ -77,7 +81,7 @@ const ContentForm = ({
             <PollPreview
               question={poll.question}
               options={poll.options}
-              duration={poll.duration}
+              duration={poll.durationHours}
               onRemove={onRemovePoll}
               variant="editable"
             />
@@ -106,4 +110,4 @@ const ContentForm = ({
   )
 }
 
-export default ContentForm
+export default BaseForm

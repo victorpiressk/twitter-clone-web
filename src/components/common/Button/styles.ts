@@ -51,7 +51,7 @@ const variants = {
     border-radius: 9999px;
 
     &:hover:not(:disabled) {
-      background-color: ${colors.primaryHover};
+      background-color: ${colors.hover.primary};
     }
   `,
 

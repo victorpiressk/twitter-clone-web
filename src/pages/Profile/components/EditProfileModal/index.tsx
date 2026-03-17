@@ -1,12 +1,59 @@
-import { useState, useRef } from 'react'
+// src/pages/Profile/components/EditProfileModal/index.tsx
+
+import { useState, useRef, useMemo } from 'react' // ✅ Adicionar useMemo
 import { Camera, ChevronRight, Trash2 } from 'lucide-react'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
 import Input from '../../../../components/common/Input'
 import BirthDateModal from './components/BirthDateModal'
 import { useToast } from '../../../../hooks/useToast'
-import type { EditProfileModalProps, EditProfileFormData } from './types'
+import type { EditProfileModalProps } from './types'
+import type { User } from '../../../../types/domain/models'
 import * as S from './styles'
+import { formatDate } from '../../../../utils/formatDate'
+
+/**
+ * Garante que a URL tenha protocolo
+ */
+const ensureProtocol = (url: string): string => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  return `https://${url}`
+}
+
+/**
+ * Divide nome completo em firstName e lastName
+ */
+const splitFullName = (
+  fullName: string
+): { firstName: string; lastName: string } => {
+  const trimmed = fullName.trim()
+  if (!trimmed) {
+    return { firstName: '', lastName: '' }
+  }
+
+  const parts = trimmed.split(' ')
+
+  if (parts.length === 1) {
+    // Só tem um nome
+    return { firstName: parts[0], lastName: '' }
+  }
+
+  // Primeiro nome + resto vira lastName
+  const firstName = parts[0]
+  const lastName = parts.slice(1).join(' ')
+
+  return { firstName, lastName }
+}
+
+/**
+ * Combina firstName e lastName em nome completo
+ */
+const getFullName = (firstName: string, lastName: string): string => {
+  return [firstName, lastName].filter(Boolean).join(' ')
+}
 
 const EditProfileModal = ({
   isOpen,
@@ -17,22 +64,23 @@ const EditProfileModal = ({
   const { showToast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [formData, setFormData] = useState<EditProfileFormData>({
-    displayName: currentData.displayName,
-    bio: currentData.bio,
-    location: currentData.location,
-    website: currentData.website,
-    birthDate: currentData.birthDate,
-    profileImage: null,
-    bannerImage: null
-  })
+  const [formData, setFormData] = useState<User>(currentData)
 
-  const [profileImagePreview, setProfileImagePreview] = useState<
-    string | undefined
-  >(currentData.avatar)
-  const [bannerImagePreview, setBannerImagePreview] = useState<
-    string | undefined
-  >(currentData.banner)
+  // ✅ NOVO: displayName para o input
+  const [displayName, setDisplayName] = useState(
+    getFullName(currentData.firstName, currentData.lastName)
+  )
+
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null)
+  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null)
+  const [removeBanner, setRemoveBanner] = useState(false)
+
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
+    currentData.avatar
+  )
+  const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(
+    currentData.banner
+  )
 
   const [isBirthDateModalOpen, setIsBirthDateModalOpen] = useState(false)
   const [birthDateEditCount, setBirthDateEditCount] = useState(0)
@@ -40,10 +88,22 @@ const EditProfileModal = ({
   const profileImageInputRef = useRef<HTMLInputElement>(null)
   const bannerImageInputRef = useRef<HTMLInputElement>(null)
 
+  // ✅ NOVO: Atualiza formData quando displayName muda
+  const handleDisplayNameChange = (value: string) => {
+    setDisplayName(value)
+
+    const { firstName, lastName } = splitFullName(value)
+    setFormData((prev) => ({
+      ...prev,
+      firstName,
+      lastName
+    }))
+  }
+
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setFormData((prev) => ({ ...prev, profileImage: file }))
+      setProfileImageFile(file) // ✅ Salva File separado
       setProfileImagePreview(URL.createObjectURL(file))
     }
   }
@@ -51,40 +111,35 @@ const EditProfileModal = ({
   const handleBannerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setFormData((prev) => ({ ...prev, bannerImage: file }))
+      setBannerImageFile(file) // ✅ Salva File separado
+      setRemoveBanner(false)
       setBannerImagePreview(URL.createObjectURL(file))
     }
   }
 
   const handleRemoveBanner = () => {
-    setFormData((prev) => ({ ...prev, bannerImage: null }))
-    setBannerImagePreview(undefined)
+    setBannerImageFile(null)
+    setRemoveBanner(true) // ✅ Flag para remover
+    setBannerImagePreview(null)
   }
 
   const handleSaveBirthDate = (newDate: string) => {
     setFormData((prev) => ({ ...prev, birthDate: newDate }))
-    setBirthDateEditCount((prev) => prev + 1) // Incrementa contador
-  }
-
-  const formatBirthDate = (dateString?: string): string => {
-    if (!dateString) return 'Não informado'
-
-    // Separa a string sem conversão de timezone
-    const [year, month, day] = dateString.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // Cria data local
-
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    })
+    setBirthDateEditCount((prev) => prev + 1)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+
     try {
-      await onSave(formData)
+      await onSave({
+        ...formData,
+        website: formData.website ? ensureProtocol(formData.website) : '',
+        avatar: profileImageFile || formData.avatar,
+        banner: removeBanner ? null : bannerImageFile || formData.banner
+      })
+
       showToast('success', 'Perfil atualizado com sucesso!')
       onClose()
     } catch {
@@ -94,16 +149,24 @@ const EditProfileModal = ({
     }
   }
 
-  const hasChanges =
-    formData.displayName !== currentData.displayName ||
-    formData.bio !== currentData.bio ||
-    formData.location !== currentData.location ||
-    formData.website !== currentData.website ||
-    formData.birthDate !== currentData.birthDate ||
-    formData.profileImage !== null ||
-    formData.bannerImage !== null
+  // ✅ CORRIGIDO: Verifica mudanças com displayName
+  const hasChanges = useMemo(() => {
+    const currentFullName = getFullName(
+      currentData.firstName,
+      currentData.lastName
+    )
 
-  // Footer com botão Salvar
+    return (
+      displayName !== currentFullName ||
+      formData.bio !== currentData.bio ||
+      formData.location !== currentData.location ||
+      formData.website !== currentData.website ||
+      formData.birthDate !== currentData.birthDate ||
+      formData.avatar !== null ||
+      formData.banner !== null
+    )
+  }, [displayName, formData, currentData])
+
   const footer = (
     <S.FooterContent>
       <Button
@@ -127,7 +190,7 @@ const EditProfileModal = ({
         showOverlay
         showCloseButton
         title="Editar perfil"
-        header={<div />} // ← Usa ModalHeader padrão com title
+        header={<div />}
         footer={footer}
       >
         <S.FormContainer onSubmit={handleSubmit}>
@@ -167,14 +230,14 @@ const EditProfileModal = ({
 
           {/* Form Fields */}
           <S.FormFields>
+            {/* ✅ CORRIGIDO: displayName com split automático */}
             <Input
               name="displayName"
               label="Nome"
-              value={formData.displayName}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, displayName: value }))
-              }
+              value={displayName}
+              onChange={handleDisplayNameChange}
               maxLength={50}
+              placeholder="Nome Sobrenome"
             />
 
             <Input
@@ -208,6 +271,7 @@ const EditProfileModal = ({
                 setFormData((prev) => ({ ...prev, website: value }))
               }
               maxLength={100}
+              placeholder="exemplo.com"
             />
 
             {/* Campo Data de Nascimento */}
@@ -215,7 +279,7 @@ const EditProfileModal = ({
               <S.BirthDateInfo>
                 <S.BirthDateLabel>Data de nascimento</S.BirthDateLabel>
                 <S.BirthDateValue>
-                  {formatBirthDate(formData.birthDate)}
+                  {formatDate(formData.birthDate, 'full')}
                 </S.BirthDateValue>
               </S.BirthDateInfo>
               <S.ChevronIcon>

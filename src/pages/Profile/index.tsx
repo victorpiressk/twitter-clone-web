@@ -1,141 +1,142 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { useAppSelector } from '../../store/hooks'
+import { selectCurrentUser } from '../../store/slices/auth/authSlice'
+import { useUpdateUserMutation } from '../../store/slices/api/users.api'
+import { useViewingUser } from '../../hooks/useViewingUser'
+import { useUserActions } from '../../hooks/useUserActions'
+import { useToast } from '../../hooks/useToast'
+import { usePosts } from '../../hooks/usePosts'
 import ProfileHeader from './components/ProfileHeader'
 import ProfileTabs from './components/ProfileTabs'
-import PostList from '../../components/common/Posts/PostList'
 import EditProfileModal from './components/EditProfileModal'
-import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-import type { UserProfile, ProfileTab } from './types'
-import type { Post } from '../../components/common/Posts/PostCard/types'
-import type { EditProfileFormData } from './components/EditProfileModal/types'
-import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import BackButton from '../../components/common/BackButton'
+import PostCard from '../../components/common/Posts/PostCard'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
+import ProfileHeaderSkeleton from '../../components/common/Skeleton/components/ProfileHeaderSkeleton'
+import type { ProfileTab } from './types'
+import type { UpdateUserRequest } from '../../types/domain/requests'
+import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
-// Mock data (depois vem da API)
-const mockUser: UserProfile = {
-  id: '1',
-  username: 'victor',
-  displayName: 'Victor Pires',
-  bio: 'Desenvolvedor Full Stack | React + TypeScript + Django\n🚀 Construindo coisas incríveis',
-  location: 'Senhor do Bonfim, BA',
-  website: 'https://github.com/victorpiressk',
-  birthDate: '1995-01-06',
-  joinedAt: '2020-01-15T00:00:00Z',
-  stats: {
-    posts: 123,
-    following: 100,
-    followers: 500
-  },
-  isFollowing: false,
-  isOwnProfile: true
-}
-
-const mockPosts: Post[] = [
-  {
-    id: '1',
-    author: {
-      id: '1',
-      username: 'victor',
-      displayName: 'Victor Pires',
-      isFollowing: false,
-      avatar: ''
-    },
-    content: 'Olá mundo! Este é meu primeiro post 🚀',
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    stats: { comments: 12, retweets: 5, likes: 42, views: 1234 },
-    isLiked: false,
-    isRetweeted: false
-  }
-]
-
 const Profile = () => {
-  const { username } = useParams()
-  const [user, setUser] = useState(mockUser)
+  const { username } = useParams<{ username: string }>()
+  const { showToast } = useToast()
+
   const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
-  const [posts, setPosts] = useState(mockPosts)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isLoadingPosts, setIsLoadingPosts] = useState(true)
 
-  useEffect(() => {
-    // Simula fetch de posts do usuário
-    setTimeout(() => {
-      setIsLoadingPosts(false)
-    }, 1500)
-  }, [])
+  const currentUser = useAppSelector(selectCurrentUser)
+  const { viewingUser, isLoading } = useViewingUser(username)
 
-  // TODO: Integrar com API
-  console.log('Viewing profile of:', username)
+  const [updateUserMutation] = useUpdateUserMutation()
+
+  const {
+    followUser,
+    unfollowUser,
+    isLoading: isFollowLoading
+  } = useUserActions(viewingUser?.id || 0)
+
+  const isOwnProfile = currentUser?.id === viewingUser?.id
+
+  const profileParams = useMemo(() => {
+    if (!viewingUser) return undefined
+
+    switch (activeTab) {
+      case 'posts':
+        return { author: viewingUser.id, has_reply: false, is_retweet: false }
+      case 'replies':
+        return { author: viewingUser.id, has_reply: true }
+      case 'media':
+        return { author: viewingUser.id, has_media: true }
+      case 'likes':
+        return { liked_by: viewingUser.id }
+      default:
+        return {}
+    }
+  }, [activeTab, viewingUser])
+
+  const {
+    posts,
+    isLoading: isLoadingPosts,
+    hasMore,
+    loadMore,
+    refresh
+  } = usePosts({
+    type: 'profile',
+    params: profileParams
+  })
 
   const handleFollowToggle = () => {
-    setUser((prev) => ({ ...prev, isFollowing: !prev.isFollowing }))
+    if (viewingUser?.isFollowing) {
+      unfollowUser()
+    } else {
+      followUser()
+    }
   }
 
+  // Edit Profile handlers
   const handleEditProfile = () => {
     setIsEditModalOpen(true)
   }
 
-  const handleSaveProfile = (data: EditProfileFormData) => {
-    console.log('Salvar perfil:', data)
+  const handleSaveProfile = async (data: UpdateUserRequest) => {
+    if (!viewingUser) return
 
-    // Atualiza dados do usuário (mock)
-    setUser((prev) => ({
-      ...prev,
-      displayName: data.displayName,
-      bio: data.bio,
-      location: data.location,
-      website: data.website,
-      birthDate: data.birthDate
-      // TODO: Integrar com API para salvar imagens também
-      // avatar: data.profileImage ? URL.createObjectURL(data.profileImage) : prev.avatar,
-      // banner: data.bannerImage ? URL.createObjectURL(data.bannerImage) : prev.banner
-    }))
+    try {
+      const formData = new FormData()
 
-    // TODO: Integrar com API
-    // await api.updateProfile(user.id, data)
+      // Campos de texto
+      if (data.firstName) formData.append('first_name', data.firstName)
+      if (data.lastName) formData.append('last_name', data.lastName)
+      if (data.bio) formData.append('bio', data.bio)
+      if (data.location) formData.append('location', data.location)
+      if (data.website) formData.append('website', data.website)
+      if (data.birthDate) formData.append('birth_date', data.birthDate)
+
+      // ✅ Avatar: Se for File, adiciona
+      if (data.avatar instanceof File) {
+        formData.append('profile_image', data.avatar)
+      }
+
+      // ✅ Banner: Se for File, adiciona / Se for null, remove (backend decide)
+      if (data.banner instanceof File) {
+        formData.append('banner', data.banner)
+      } else if (data.banner === null) {
+        // Alguns backends aceitam string vazia para remover
+        formData.append('banner', '')
+      }
+
+      await updateUserMutation({
+        id: viewingUser.id,
+        data: formData
+      }).unwrap()
+
+      showToast('success', 'Perfil atualizado com sucesso!')
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error)
+      showToast('error', 'Erro ao atualizar perfil')
+      throw error
+    }
   }
 
-  const handleLike = (postId: string) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              stats: {
-                ...post.stats,
-                likes: post.isLiked
-                  ? post.stats.likes - 1
-                  : post.stats.likes + 1
-              }
-            }
-          : post
-      )
+  if (isLoading) {
+    return (
+      <ContentWrapper>
+        <S.ProfileContainer>
+          <S.ProfileHeader>
+            <BackButton />
+            <S.HeaderInfo>
+              <S.HeaderTitle>Perfil</S.HeaderTitle>
+            </S.HeaderInfo>
+          </S.ProfileHeader>
+          <ProfileHeaderSkeleton />
+        </S.ProfileContainer>
+        <InfoBar />
+      </ContentWrapper>
     )
-  }
-
-  const handleRetweet = (postId: string) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isRetweeted: !post.isRetweeted,
-              stats: {
-                ...post.stats,
-                retweets: post.isRetweeted
-                  ? post.stats.retweets - 1
-                  : post.stats.retweets + 1
-              }
-            }
-          : post
-      )
-    )
-  }
-
-  const handleComment = (postId: string) => {
-    console.log('Comentar no post:', postId)
   }
 
   return (
@@ -144,93 +145,72 @@ const Profile = () => {
         <S.ProfileContainer>
           <S.ProfileHeader>
             <BackButton />
-
             <S.HeaderInfo>
-              <S.HeaderTitle>{user.displayName}</S.HeaderTitle>
-              <S.PostCount>{user.stats.posts} posts</S.PostCount>
+              <S.HeaderTitle>
+                {viewingUser!.firstName} {viewingUser!.lastName}
+              </S.HeaderTitle>
+              <S.PostCount>{viewingUser!.stats.posts} posts</S.PostCount>
             </S.HeaderInfo>
           </S.ProfileHeader>
 
           <ProfileHeader
-            user={user}
+            user={viewingUser!}
+            isOwnProfile={isOwnProfile}
             onFollowToggle={handleFollowToggle}
+            isFollowLoading={isFollowLoading}
             onEditProfile={handleEditProfile}
           />
 
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <S.TabContent>
-            {activeTab === 'posts' && (
-              <>
-                {isLoadingPosts ? (
-                  <PostListSkeleton count={3} />
-                ) : (
-                  <PostList
-                    posts={posts}
-                    onLike={handleLike}
-                    onRetweet={handleRetweet}
-                    onComment={handleComment}
-                  />
-                )}
-              </>
-            )}
-
-            {activeTab === 'replies' && (
-              <div
-                style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#71767B'
-                }}
+            {isLoadingPosts ? (
+              <PostListSkeleton count={3} />
+            ) : posts.length > 0 ? (
+              <InfiniteScroll
+                dataLength={posts.length}
+                next={loadMore}
+                hasMore={hasMore}
+                loader={<S.LoadingMore>Carregando...</S.LoadingMore>}
+                endMessage={<S.EndMessage>Você chegou ao fim!</S.EndMessage>}
+                refreshFunction={refresh}
+                pullDownToRefresh
+                pullDownToRefreshThreshold={80}
+                pullDownToRefreshContent={
+                  <S.PullMessage>↓ Puxe para atualizar</S.PullMessage>
+                }
+                releaseToRefreshContent={
+                  <S.ReleaseMessage>↻ Solte para atualizar</S.ReleaseMessage>
+                }
               >
-                Respostas em breve...
-              </div>
-            )}
-
-            {activeTab === 'media' && (
-              <div
-                style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#71767B'
-                }}
-              >
-                Mídia em breve...
-              </div>
-            )}
-
-            {activeTab === 'likes' && (
-              <div
-                style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#71767B'
-                }}
-              >
-                Curtidas em breve...
-              </div>
+                {posts.map((post) => (
+                  <PostCard key={post.id} postId={post.id} variant="default" />
+                ))}
+              </InfiniteScroll>
+            ) : (
+              <S.EmptyState>
+                <S.EmptyStateText>
+                  {activeTab === 'posts' && 'Nenhum post ainda'}
+                  {activeTab === 'replies' && 'Nenhuma resposta ainda'}
+                  {activeTab === 'media' && 'Nenhuma mídia ainda'}
+                  {activeTab === 'likes' && 'Nenhuma curtida ainda'}
+                </S.EmptyStateText>
+              </S.EmptyState>
             )}
           </S.TabContent>
         </S.ProfileContainer>
         <InfoBar />
       </ContentWrapper>
 
-      {/* Modal Editar Perfil */}
-      <EditProfileModal
-        key={isEditModalOpen ? 'open' : 'closed'}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleSaveProfile}
-        currentData={{
-          displayName: user.displayName,
-          bio: user.bio || '',
-          location: user.location || '',
-          website: user.website || '',
-          birthDate: user.birthDate,
-          avatar: user.avatar,
-          banner: user.banner
-        }}
-      />
+      {/* Modal de Edição */}
+      {viewingUser && isOwnProfile && (
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveProfile}
+          currentData={viewingUser}
+        />
+      )}
     </>
   )
 }

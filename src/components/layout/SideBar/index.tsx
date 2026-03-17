@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react'
+// src/components/Layout/SideBar/index.tsx
+
+import { useState, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal } from 'lucide-react'
 import Button from '../../common/Button'
@@ -7,25 +9,45 @@ import Popover from '../../common/Popovers/BasePopover'
 import CreatePostModal from './components/CreatePostModal'
 import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
 import { useToast } from '../../../hooks/useToast'
-import { useAuth } from '../../../hooks/useAuth'
-import type { SidebarProps } from './types'
+import { useAppSelector } from '../../../store/hooks'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
+import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
 import * as S from './styles'
+import { useLogoutMutation } from '../../../store/slices/api/auth.api'
 
-const SideBar = ({
-  onCreatePost,
-  userAvatar,
-  userName,
-  userDisplayName
-}: SidebarProps) => {
+const SideBar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { logout } = useAuth()
+
+  const user = useAppSelector(selectCurrentUser)
+  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
+
+  // ✅ NOVO: Buscar count de notificações não lidas
+  const { data: unreadData } = useGetUnreadCountQuery()
+  const unreadCount = unreadData?.count || 0
+
+  console.log('🔔 Unread Data:', unreadData)
+  console.log('🔔 Unread Count:', unreadCount)
+  console.log('🔔 Should Show Badge:', unreadCount > 0)
+
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)
   const moreButtonRef = useRef<HTMLButtonElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
+
+  const navItems = useMemo(() => {
+    return NAV_ITEMS.map((item) => {
+      if (item.path === '/profile' && user) {
+        return {
+          ...item,
+          path: `/${user.username}`
+        }
+      }
+      return item
+    })
+  }, [user])
 
   const handleMoreItemClick = (item: (typeof MORE_ITEMS)[number]) => {
     switch (item.action) {
@@ -42,15 +64,20 @@ const SideBar = ({
     setIsMoreOpen(false)
   }
 
-  const handleProfileMenuClick = (itemId: string) => {
+  const handleProfileMenuClick = async (itemId: string) => {
     switch (itemId) {
       case 'add-account':
         console.log('Adicionar conta')
         break
       case 'logout':
-        logout()
-        showToast('success', 'Você saiu da sua conta')
-        break
+        try {
+          await logoutMutation().unwrap()
+          showToast('success', 'Você saiu da sua conta')
+        } catch {
+          showToast('info', 'Você foi desconectado')
+        }
+        setIsProfileMenuOpen(false)
+        return
     }
     setIsProfileMenuOpen(false)
   }
@@ -66,9 +93,11 @@ const SideBar = ({
               </S.Logo>
             </li>
 
-            {/* Navegação principal */}
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon
+              const isNotifications = item.path === '/notifications'
+              const showBadge = isNotifications && unreadCount > 0
+
               return (
                 <li key={item.path}>
                   <Button
@@ -77,7 +106,15 @@ const SideBar = ({
                     variant="ghost"
                     active={location.pathname === item.path}
                   >
-                    <Icon size={26.25} />
+                    {/* Wrapper do ícone com badge */}
+                    <S.IconWrapper>
+                      <Icon size={26.25} />
+                      {showBadge && (
+                        <S.NotificationBadge>
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </S.NotificationBadge>
+                      )}
+                    </S.IconWrapper>
                     <span>{item.label}</span>
                   </Button>
                 </li>
@@ -115,15 +152,22 @@ const SideBar = ({
             type="button"
             $variant="ghost"
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            disabled={isLoggingOut}
           >
-            <Avatar src={userAvatar} alt={userName} size="small" />
-            <S.UserNames>
-              <S.DisplayName>{userDisplayName}</S.DisplayName>
-              <S.Username>@{userName}</S.Username>
-            </S.UserNames>
-            <S.MoreIcon>
-              <MoreHorizontal size={18} strokeWidth={2} />
-            </S.MoreIcon>
+            {user && (
+              <>
+                <Avatar src={user.avatar} alt={user.username} size="small" />
+                <S.UserNames>
+                  <S.DisplayName>
+                    {user.firstName} {user.lastName}
+                  </S.DisplayName>
+                  <S.Username>@{user.username}</S.Username>
+                </S.UserNames>
+                <S.MoreIcon>
+                  <MoreHorizontal size={18} strokeWidth={2} />
+                </S.MoreIcon>
+              </>
+            )}
           </S.FooterButton>
         </S.Nav>
       </S.Aside>
@@ -166,22 +210,26 @@ const SideBar = ({
             key={item.id}
             onClick={() => handleProfileMenuClick(item.id)}
             $variant="profile"
+            disabled={item.id === 'logout' && isLoggingOut}
           >
-            {item.id === 'logout'
-              ? `${item.label} de @${userName}`
-              : item.label}
+            {item.id === 'logout' && isLoggingOut
+              ? 'Saindo...'
+              : item.id === 'logout' && user
+                ? `Sair de @${user.username}`
+                : item.label}
           </S.PopoverItem>
         ))}
       </Popover>
 
       {/* Modal Criar Post */}
-      <CreatePostModal
-        isOpen={isCreatePostModalOpen}
-        onClose={() => setIsCreatePostModalOpen(false)}
-        onSubmit={onCreatePost}
-        userName={userName}
-        userAvatar={userAvatar}
-      />
+      {user && (
+        <CreatePostModal
+          isOpen={isCreatePostModalOpen}
+          onClose={() => setIsCreatePostModalOpen(false)}
+          userName={user.username}
+          userAvatar={user.avatar}
+        />
+      )}
     </>
   )
 }

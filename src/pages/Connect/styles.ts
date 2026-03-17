@@ -40,3 +40,25 @@ export const SectionTitle = styled.h3`
 `
 
 export const UsersList = styled.div``
+
+export const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+`
+
+export const EmptyStateTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text.primary};
+  margin-bottom: 8px;
+`
+
+export const EmptyStateText = styled.p`
+  font-size: 0.938rem;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  max-width: 400px;
+`

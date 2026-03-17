@@ -1,10 +1,9 @@
-import type { MediaFile } from '../MediaPreview/types'
-import type { Location } from './components/MediaActions/LocationPicker/constants/mockLocations'
-import type { Poll } from './components/MediaActions/PollCreator/types'
+import type { Poll, Location } from '../../../../types/domain/models'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 
 export type PostFormActionsProps = {
   content: string
-  medias: MediaFile[]
+  medias: PostMediaWithFile[] | File[]
   poll?: Poll | null
   maxMedias?: number
   isDisabled: boolean

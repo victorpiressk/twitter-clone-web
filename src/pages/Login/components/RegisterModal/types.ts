@@ -17,5 +17,5 @@ export type RegisterFormData = {
   // Etapa 2
   username: string
   password: string
-  confirmPassword: string
+  passwordConfirm: string
 }

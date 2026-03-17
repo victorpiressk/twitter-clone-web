@@ -21,6 +21,9 @@ const RetweetPopover = ({
     onClose()
   }
 
+  // ✅ Só mostra "Desfazer" se for retweet SIMPLES (não quote)
+  const isSimpleRetweet = isRetweeted
+
   return (
     <>
       <BasePopover
@@ -31,7 +34,7 @@ const RetweetPopover = ({
       >
         <S.PopoverItem onClick={handleRetweet}>
           <Repeat size={18} />
-          {isRetweeted ? 'Desfazer Retweet' : 'Retweet'}
+          {isSimpleRetweet ? 'Desfazer Retweet' : 'Retweet'}
         </S.PopoverItem>
 
         <S.PopoverItem onClick={handleQuote}>

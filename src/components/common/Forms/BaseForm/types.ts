@@ -1,17 +1,17 @@
-import type { MediaFile } from '../MediaPreview/types'
-import type { Poll } from '../FormActions/components/MediaActions/PollCreator/types'
-import type { Location } from '../FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
+import type { FormModalType } from '../../../../hooks'
+import type { Poll, Location } from '../../../../types/domain/models'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 
 export type BaseFormProps = {
   userName: string
   userAvatar: string | null
   content: string
-  medias: MediaFile[]
+  medias: PostMediaWithFile[]
   location?: Location | null
   poll?: Poll | null
   scheduledFor?: Date | null
   onContentChange: (value: string) => void
-  onMediasChange: (medias: MediaFile[]) => void
+  onMediasChange: (medias: PostMediaWithFile[]) => void
   onRemoveLocation?: () => void
   onRemovePoll?: () => void
   onRemoveSchedule?: () => void
@@ -19,7 +19,7 @@ export type BaseFormProps = {
   maxLength?: number
   extraContent?: React.ReactNode
   isModal?: boolean
-  mode?: 'comment' | 'retweet'
+  mode?: FormModalType
   disabled?: boolean
   onRemoveMedia?: (id: string) => void
 }

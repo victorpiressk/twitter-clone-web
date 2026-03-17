@@ -1,6 +1,5 @@
-import type { FollowUser } from '../../types'
+import type { User } from '../../../../types/domain/models'
 
 export type FollowUserCardProps = {
-  user: FollowUser
-  onFollowToggle: (userId: string) => void
+  user: User
 }

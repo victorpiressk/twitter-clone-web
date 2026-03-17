@@ -1,46 +1,18 @@
-import { useState } from 'react'
 import { MapPin, Link as LinkIcon, Calendar, Cake } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
 import ProfileStats from '../ProfileStats'
 import { formatDate } from '../../../../utils/formatDate'
-import { useToast } from '../../../../hooks/useToast'
 import type { ProfileHeaderProps } from './types'
 import * as S from './styles'
 
 const ProfileHeader = ({
   user,
+  isOwnProfile,
   onFollowToggle,
+  isFollowLoading,
   onEditProfile
 }: ProfileHeaderProps) => {
-  const { showToast } = useToast()
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleFollowClick = async (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsLoading(true)
-
-    try {
-      if (user.isFollowing) {
-        showToast('info', `Você deixou de seguir @${user.username}`)
-      } else {
-        showToast('success', `Você agora segue @${user.username}`)
-      }
-
-      await onFollowToggle(user.id) // Simula API call
-      setIsFollowing(!isFollowing)
-    } catch {
-      if (user.isFollowing) {
-        showToast('error', `Erro ao deixar de seguir @${user.username}`)
-      } else {
-        showToast('error', `Erro ao seguir @${user.username}`)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
     <S.HeaderContainer>
       <S.Banner $imageUrl={user.banner} />
@@ -48,21 +20,21 @@ const ProfileHeader = ({
       <S.ProfileInfo>
         <S.AvatarSection>
           <S.AvatarWrapper>
-            <Avatar src={user.avatar} alt={user.displayName} size="large" />
+            <Avatar src={user.avatar} alt={user.firstName} size="large" />
           </S.AvatarWrapper>
 
-          {!user.isOwnProfile && (
+          {!isOwnProfile && (
             <Button
               type="button"
               variant={user.isFollowing ? 'outline' : 'secondary'}
-              onClick={handleFollowClick}
-              loading={isLoading}
+              onClick={onFollowToggle}
+              loading={isFollowLoading}
             >
               {user.isFollowing ? 'Seguindo' : 'Seguir'}
             </Button>
           )}
 
-          {user.isOwnProfile && (
+          {isOwnProfile && (
             <Button type="button" variant="outline" onClick={onEditProfile}>
               Editar perfil
             </Button>
@@ -70,7 +42,9 @@ const ProfileHeader = ({
         </S.AvatarSection>
 
         <S.UserNames>
-          <S.DisplayName>{user.displayName}</S.DisplayName>
+          <S.DisplayName>
+            {user.firstName} {user.lastName}
+          </S.DisplayName>
           <S.Username>@{user.username}</S.Username>
         </S.UserNames>
 
@@ -96,15 +70,17 @@ const ProfileHeader = ({
           )}
 
           {/* Data de nascimento */}
-          <S.MetadataItem>
-            <Cake size={18} strokeWidth={2} />
-            Nascido(a) em {formatDate(user.birthDate, 'full')}
-          </S.MetadataItem>
+          {user.birthDate && (
+            <S.MetadataItem>
+              <Cake size={18} strokeWidth={2} />
+              Nascido(a) em {formatDate(user.birthDate, 'full')}
+            </S.MetadataItem>
+          )}
 
           {/* Data de entrada */}
           <S.MetadataItem>
             <Calendar size={18} strokeWidth={2} />
-            Entrou em {formatDate(user.joinedAt, 'joined')}
+            Entrou em {formatDate(user.createdAt, 'joined')}
           </S.MetadataItem>
         </S.Metadata>
 

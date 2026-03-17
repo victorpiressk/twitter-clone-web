@@ -1,25 +1,35 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Twitter } from 'lucide-react'
+import { setCredentials } from '../../../../store/slices/auth/authSlice'
+import { useAppDispatch } from '../../../../store/hooks'
 import { useToast } from '../../../../hooks/useToast'
-import { useAuth } from '../../../../hooks/useAuth'
-import type { RegisterData } from '../../../../contexts/AuthContext'
 import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
-import { Twitter } from 'lucide-react'
+import { transformApiError } from '../../../../utils/transformers/error'
 import type {
   RegisterModalProps,
   RegisterStep,
   ContactType,
   RegisterFormData
 } from './types'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
+import type { SerializedError } from '@reduxjs/toolkit'
 import * as S from './styles'
+import { useRegisterMutation } from '../../../../store/slices/api/auth.api'
 
 const RegisterModal = ({
   isOpen,
   onClose,
   onRegisterSuccess
 }: RegisterModalProps) => {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { showToast } = useToast()
-  const { register } = useAuth()
+
+  // ✅ RTK Query mutation
+  const [register, { isLoading: isSubmitting }] = useRegisterMutation()
+
   const [step, setStep] = useState<RegisterStep>('basic')
   const [contactType, setContactType] = useState<ContactType>('phone')
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -28,13 +38,15 @@ const RegisterModal = ({
     birthDate: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    passwordConfirm: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [focusedField, setFocusedField] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Validação Etapa 1
+  // ============================================
+  // VALIDAÇÕES
+  // ============================================
+
   const validateBasicInfo = () => {
     const newErrors: Record<string, string> = {}
 
@@ -67,7 +79,6 @@ const RegisterModal = ({
     return Object.keys(newErrors).length === 0
   }
 
-  // Validação Etapa 2
   const validateCompleteInfo = () => {
     const newErrors: Record<string, string> = {}
 
@@ -83,15 +94,18 @@ const RegisterModal = ({
       newErrors.password = 'Senha deve ter no mínimo 6 caracteres'
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'As senhas não coincidem'
+    if (formData.password !== formData.passwordConfirm) {
+      newErrors.passwordConfirm = 'As senhas não coincidem'
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
-  // Handler Etapa 1
+  // ============================================
+  // HANDLERS
+  // ============================================
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -100,46 +114,59 @@ const RegisterModal = ({
     }
   }
 
-  // Handler Etapa 2
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateCompleteInfo()) return
 
-    setIsSubmitting(true)
-
     try {
-      // Simula registro (API futura)
-      const userData: RegisterData = {
-        name: formData.name,
-        contact: formData.contact,
-        birthDate: formData.birthDate,
+      // Separa nome em firstName e lastName
+      const nameParts = formData.name.trim().split(' ')
+      const firstName = nameParts[0]
+      const lastName = nameParts.slice(1).join(' ') || ''
+
+      const payload = {
         username: formData.username,
-        password: formData.password
+        email: contactType === 'email' ? formData.contact : '',
+        phone: contactType === 'phone' ? formData.contact : '',
+        password: formData.password,
+        passwordConfirm: formData.passwordConfirm,
+        firstName,
+        lastName,
+        birthDate: formData.birthDate
       }
 
-      await register(userData)
+      // Chama mutation do RTK Query
+      const result = await register(payload).unwrap()
+
+      // Salva credenciais no Redux (já persiste no localStorage)
+      dispatch(
+        setCredentials({
+          user: result.user,
+          token: result.token
+        })
+      )
 
       showToast('success', 'Conta criada com sucesso!')
-      onRegisterSuccess()
-      onClose()
 
-      // Reset
-      setFormData({
-        name: '',
-        contact: '',
-        birthDate: '',
-        username: '',
-        password: '',
-        confirmPassword: ''
-      })
-      setStep('basic')
-      setContactType('phone')
-      setErrors({})
-    } catch {
-      showToast('error', 'Erro ao criar conta. Tente novamente.')
-    } finally {
-      setIsSubmitting(false)
+      // Callbacks e limpeza
+      onRegisterSuccess?.()
+      handleModalClose()
+
+      // Redireciona para home
+      navigate('/home')
+    } catch (err: unknown) {
+      // O unwrap() do RTK Query lança o erro no formato FetchBaseQueryError | SerializedError
+      // Passamos para o transformer que já sabe lidar com o tipo unknown/any internamente
+      const { message, fields } = transformApiError(
+        err as FetchBaseQueryError | SerializedError
+      )
+
+      showToast('error', message)
+
+      if (Object.keys(fields).length > 0) {
+        setErrors(fields)
+      }
     }
   }
 
@@ -158,6 +185,7 @@ const RegisterModal = ({
 
   const handleModalClose = () => {
     onClose()
+
     // Reset após fechar
     setTimeout(() => {
       setStep('basic')
@@ -168,17 +196,19 @@ const RegisterModal = ({
         birthDate: '',
         username: '',
         password: '',
-        confirmPassword: ''
+        passwordConfirm: ''
       })
       setErrors({})
     }, 300)
   }
 
-  // Verifica se pode avançar (Etapa 1)
+  // ============================================
+  // RENDER
+  // ============================================
+
   const canProceed =
     formData.name.trim() && formData.contact.trim() && formData.birthDate
 
-  // Footer dinâmico
   const footer =
     step === 'basic' ? (
       <S.Footer>
@@ -196,7 +226,7 @@ const RegisterModal = ({
         <Button
           type="submit"
           variant="secondary"
-          loading={isSubmitting}
+          loading={isSubmitting} // ← vem do RTK Query
           onClick={handleSubmit}
         >
           Criar conta
@@ -347,25 +377,25 @@ const RegisterModal = ({
             {/* Confirmar Senha */}
             <S.FloatingInputContainer>
               <S.FloatingLabel
-                $hasValue={!!formData.confirmPassword}
-                $isFocused={focusedField === 'confirmPassword'}
+                $hasValue={!!formData.passwordConfirm}
+                $isFocused={focusedField === 'passwordConfirm'}
               >
                 Confirmar senha
               </S.FloatingLabel>
               <S.FloatingInput
                 type="password"
-                value={formData.confirmPassword}
+                value={formData.passwordConfirm}
                 onChange={(e) =>
-                  handleChange('confirmPassword', e.target.value)
+                  handleChange('passwordConfirm', e.target.value)
                 }
-                onFocus={() => setFocusedField('confirmPassword')}
+                onFocus={() => setFocusedField('passwordConfirm')}
                 onBlur={() => setFocusedField(null)}
-                $hasValue={!!formData.confirmPassword}
-                $isFocused={focusedField === 'confirmPassword'}
-                $hasError={!!errors.confirmPassword}
+                $hasValue={!!formData.passwordConfirm}
+                $isFocused={focusedField === 'passwordConfirm'}
+                $hasError={!!errors.passwordConfirm}
               />
-              {errors.confirmPassword && (
-                <S.InputError>{errors.confirmPassword}</S.InputError>
+              {errors.passwordConfirm && (
+                <S.InputError>{errors.passwordConfirm}</S.InputError>
               )}
             </S.FloatingInputContainer>
           </S.Form>

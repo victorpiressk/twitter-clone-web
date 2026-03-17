@@ -1,4 +1,4 @@
-import type { UserProfileData } from './components/AvatarProfilePopover/types'
+import type { UserCardWithStats } from '../../../types/domain/models'
 
 export type AvatarProps = {
   src?: string | null
@@ -6,6 +6,6 @@ export type AvatarProps = {
   size?: 'small' | 'medium' | 'large'
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
   showProfilePopover?: boolean
-  userProfileData?: UserProfileData
-  onFollowToggle?: (userId: string) => void
+  userProfileData?: UserCardWithStats
+  onFollowToggle?: () => void
 }

@@ -1,26 +1,24 @@
 import { useCallback, useRef, useState } from 'react'
-import { useToast } from './useToast'
-import type { MediaFile } from '../components/common/Forms/MediaPreview/types'
-import type { Location } from '../components/common/Forms/FormActions/components/MediaActions/LocationPicker/constants/mockLocations'
-import type { Poll } from '../components/common/Forms/FormActions/components/MediaActions/PollCreator/types'
-import { createMediaFile, validateMedia } from '../utils/mediaHelpers'
+import { useCreatePost } from './'
+import { createMediaFile } from '../utils/mediaHelpers'
+import type { Poll, Location } from '../types/domain/models'
+import type { PostMediaWithFile } from '../utils/mediaHelpers'
+
+// ============================================
+// TYPES
+// ============================================
+
+export type FormModalType = 'create' | 'comment' | 'quote' | 'edit'
 
 export type UseFormModalConfig = {
-  successMessage: string
-  errorMessage: string
-  onSubmit: (
-    content: string,
-    medias?: MediaFile[],
-    location?: Location,
-    poll?: Poll,
-    scheduledFor?: Date
-  ) => Promise<void> | void
+  type: FormModalType
+  targetPostId?: number
 }
 
 export type UseFormModalReturn = {
   // Estado
   content: string
-  medias: MediaFile[]
+  medias: PostMediaWithFile[]
   location: Location | null
   poll: Poll | null
   scheduledFor: Date | null
@@ -28,7 +26,7 @@ export type UseFormModalReturn = {
 
   // Handlers
   handleContentChange: (value: string) => void
-  handleMediasChange: (newMedias: MediaFile[]) => void
+  handleMediasChange: (newMedias: PostMediaWithFile[]) => void
   handleMediaUpload: (newFiles: File[]) => void
   handleRemoveMedia: (id: string) => void
   handleEmojiSelect: (emoji: string) => void
@@ -45,180 +43,154 @@ export type UseFormModalReturn = {
   isDisabled: boolean
 }
 
+// ============================================
+// HOOK
+// ============================================
+
 export const useFormModal = (
   config: UseFormModalConfig
 ): UseFormModalReturn => {
-  const { showToast } = useToast()
-  const { successMessage, errorMessage, onSubmit } = config
+  const { type, targetPostId } = config
 
-  // Estado local
+  const { createPost, quoteTweet, commentPost, updatePost, isCreating } =
+    useCreatePost()
+
   const [content, setContent] = useState('')
-  const [medias, setMedias] = useState<MediaFile[]>([])
+  const [medias, setMedias] = useState<PostMediaWithFile[]>([])
   const [location, setLocation] = useState<Location | null>(null)
   const [poll, setPoll] = useState<Poll | null>(null)
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Handler: Mudança de conteúdo
   const handleContentChange = useCallback((value: string) => {
     setContent(value)
   }, [])
 
-  // Handler: Mudança direta de mídias (controle direto do array)
-  const handleMediasChange = useCallback((newMedias: MediaFile[]) => {
+  const handleMediasChange = useCallback((newMedias: PostMediaWithFile[]) => {
     setMedias(newMedias)
   }, [])
 
-  // Handler: Upload de mídias (funciona para imagem, GIF, vídeo)
-  const handleMediaUpload = useCallback(
-    (newFiles: File[]) => {
-      const validMedias: MediaFile[] = []
+  // ✅ SIMPLIFICADO: usa createMediaFile
+  const handleMediaUpload = useCallback((newFiles: File[]) => {
+    const validMedias: PostMediaWithFile[] = newFiles.map((file) =>
+      createMediaFile(file)
+    )
 
-      for (const file of newFiles) {
-        // Valida antes de adicionar
-        const validation = validateMedia(file, [...medias, ...validMedias])
-
-        if (!validation.valid) {
-          showToast('error', validation.error!)
-          continue
-        }
-
-        const mediaFile = createMediaFile(file)
-        if (mediaFile) {
-          validMedias.push(mediaFile)
-        }
-      }
-
+    if (validMedias.length > 0) {
       setMedias((prev) => [...prev, ...validMedias])
-    },
-    [medias, showToast]
-  )
+    }
+  }, [])
 
-  // Handler: Remover mídia
   const handleRemoveMedia = useCallback((id: string) => {
     setMedias((prev) => {
-      const updated = prev.filter((m) => m.id !== id)
       const removed = prev.find((m) => m.id === id)
-
-      // Libera memória do preview
-      if (removed) {
-        URL.revokeObjectURL(removed.preview)
-      }
-
-      return updated
+      if (removed) URL.revokeObjectURL(removed.url)
+      return prev.filter((m) => m.id !== id)
     })
   }, [])
 
-  // Handler: Selecionar emoji
   const handleEmojiSelect = useCallback((emoji: string) => {
     setContent((prev) => prev + emoji)
-    setTimeout(() => {
-      textareaRef.current?.focus()
-    }, 0)
+    setTimeout(() => textareaRef.current?.focus(), 0)
   }, [])
 
-  // Handlers: Location
-  const handleLocationSelect = useCallback((loc: Location) => {
-    setLocation(loc)
-  }, [])
+  const handleLocationSelect = useCallback(
+    (loc: Location) => setLocation(loc),
+    []
+  )
+  const handleRemoveLocation = useCallback(() => setLocation(null), [])
 
-  const handleRemoveLocation = useCallback(() => {
-    setLocation(null)
-  }, [])
-
-  // Handlers de Poll
   const handlePollCreate = useCallback(
     (pollData: Poll) => {
       setPoll(pollData)
-
-      // Limpa mídia ao criar poll (regra: poll OU mídia)
       if (medias.length > 0) {
-        medias.forEach((m) => URL.revokeObjectURL(m.preview))
+        medias.forEach((m) => URL.revokeObjectURL(m.url))
         setMedias([])
       }
     },
     [medias]
   )
 
-  const handleRemovePoll = useCallback(() => {
-    setPoll(null)
-  }, [])
+  const handleRemovePoll = useCallback(() => setPoll(null), [])
+  const handleSchedule = useCallback(
+    (scheduledDate: Date) => setScheduledFor(scheduledDate),
+    []
+  )
+  const handleRemoveSchedule = useCallback(() => setScheduledFor(null), [])
 
-  // Handlers de Schedule
-  const handleSchedule = useCallback((scheduledDate: Date) => {
-    setScheduledFor(scheduledDate)
-  }, [])
-
-  const handleRemoveSchedule = useCallback(() => {
-    setScheduledFor(null)
-  }, [])
-
-  // Handler: Submit do formulário
   const handleSubmit = useCallback(async () => {
     if (!content.trim() && medias.length === 0) return
 
-    setIsSubmitting(true)
-
     try {
-      await onSubmit(
-        content.trim(),
-        medias || undefined,
-        location || undefined,
-        poll || undefined,
-        scheduledFor || undefined
-      )
-      showToast('success', successMessage)
+      const files =
+        medias.length > 0
+          ? medias
+              .map((m) => m._file)
+              .filter((f): f is File => f instanceof File)
+          : undefined
 
-      // Cleanup após sucesso
+      switch (type) {
+        case 'create':
+          await createPost(content.trim(), files)
+          break
+        case 'comment':
+          if (!targetPostId) throw new Error('targetPostId obrigatório')
+          await commentPost(targetPostId, content.trim(), files)
+          break
+        case 'quote':
+          if (!targetPostId) throw new Error('targetPostId obrigatório')
+          await quoteTweet(targetPostId, content.trim(), files)
+          break
+        case 'edit':
+          console.log('🔍 QUOTE - targetPostId:', targetPostId)
+          console.log('🔍 QUOTE - content:', content.trim())
+          console.log('🔍 QUOTE - files:', files)
+          if (!targetPostId) throw new Error('targetPostId obrigatório')
+          await updatePost(targetPostId, content.trim(), files)
+          break
+        default:
+          throw new Error(`Tipo desconhecido: ${type}`)
+      }
+
       setContent('')
-      medias.forEach((m) => URL.revokeObjectURL(m.preview))
+      medias.forEach((m) => URL.revokeObjectURL(m.url))
       setMedias([])
       setLocation(null)
       setPoll(null)
       setScheduledFor(null)
     } catch (error) {
-      showToast('error', errorMessage)
-      console.error('Erro ao enviar formulário:', error)
-    } finally {
-      setIsSubmitting(false)
+      console.error('Erro ao processar:', error)
     }
   }, [
+    type,
+    targetPostId,
     content,
     medias,
-    location,
-    poll,
-    scheduledFor,
-    onSubmit,
-    successMessage,
-    errorMessage,
-    showToast
+    createPost,
+    commentPost,
+    quoteTweet,
+    updatePost
   ])
 
-  // Handler: Fechar modal (cleanup sem submit)
   const handleClose = useCallback(() => {
     setContent('')
-    medias.forEach((m) => URL.revokeObjectURL(m.preview))
+    medias.forEach((m) => URL.revokeObjectURL(m.url))
     setMedias([])
     setLocation(null)
     setPoll(null)
     setScheduledFor(null)
   }, [medias])
 
-  // Validação
   const isDisabled =
     (!content.trim() && medias.length === 0) || content.length > 280
 
   return {
-    // Estado
     content,
     medias,
     location,
     poll,
     scheduledFor,
-    isSubmitting,
-
-    // Handlers
+    isSubmitting: isCreating,
     handleContentChange,
     handleMediasChange,
     handleMediaUpload,
@@ -232,8 +204,6 @@ export const useFormModal = (
     handleRemoveSchedule,
     handleSubmit,
     handleClose,
-
-    // Validação
     isDisabled
   }
 }

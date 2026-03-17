@@ -6,7 +6,7 @@ export const HeaderContainer = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 `
 
-export const Banner = styled.div<{ $imageUrl?: string }>`
+export const Banner = styled.div<{ $imageUrl?: string | null }>`
   width: 100%;
   height: 200px;
   background-color: ${(props) => props.theme.colors.background.tertiary};

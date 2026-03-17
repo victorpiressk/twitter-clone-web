@@ -1,17 +1,22 @@
+// src/components/routes/ProtectedRoute.tsx
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '../../../hooks/useAuth'
+import { useAppSelector } from '../../../store/hooks'
+import { selectIsAuthenticated } from '../../../store/slices/auth/authSlice'
+import { useSyncFollows } from '../../../hooks/useSyncFollows'
 
+/**
+ * Componente de rota protegida
+ * Redireciona para / se não estiver autenticado
+ */
 const ProtectedRoute = () => {
-  const { isAuthenticated, isInitialLoading } = useAuth()
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
-  if (isInitialLoading) return <p>Carregando...</p> // Ou um Spinner/Skeleton
+  useSyncFollows()
 
   if (!isAuthenticated) {
-    // Se não estiver logado, manda para o Login
     return <Navigate to="/" replace />
   }
 
-  // Se estiver logado, renderiza o que estiver dentro dele (as rotas filhas)
   return <Outlet />
 }
 

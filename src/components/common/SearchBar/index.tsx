@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
+import { useGlobalSearchQuery } from '../../../store/slices/api/search.api'
 import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
 import type {
   SearchPopoverState,
-  SearchHistoryItem,
-  SearchSuggestion,
-  SearchUserResult
+  SearchHistoryItem
 } from './components/SearchPopover/types'
 import type { SearchBarProps } from './types'
 import * as S from './styles'
@@ -17,80 +17,72 @@ const SearchBar = ({
   value: externalValue = '',
   onSearch
 }: SearchBarProps) => {
+  const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isClearModalOpen, setIsClearModalOpen] = useState(false)
   const searchFormRef = useRef<HTMLFormElement>(null)
 
-  // ← Sincroniza com prop externa
+  // ✅ NOVO: Debounce (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchValue.trim())
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchValue])
+
   useEffect(() => {
     setSearchValue(externalValue)
   }, [externalValue])
 
-  // Mock histórico (depois vem do localStorage/API)
-  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([
-    { id: '1', type: 'search', text: 'react hooks' },
-    { id: '2', type: 'search', text: 'typescript' },
-    { id: '3', type: 'user', text: 'Victor Pires', username: 'victor' }
-  ])
+  // busca com múltiplas palavras:
+  const queries = debouncedQuery.trim().split(/\s+/) // Split por espaços
+  const mainQuery = queries[0] // Primeira palavra
 
-  // Mock dados para busca (depois vem da API)
-  const allSuggestions: SearchSuggestion[] = [
-    { id: '1', text: 'react' },
-    { id: '2', text: 'react hooks' },
-    { id: '3', text: 'react native' },
-    { id: '4', text: 'typescript' },
-    { id: '5', text: 'javascript' }
-  ]
+  const { data: searchData, isLoading } = useGlobalSearchQuery(
+    { q: mainQuery, limit: 10 }, // ← Busca só primeira palavra, mais resultados
+    { skip: !mainQuery || mainQuery.length < 2 }
+  )
 
-  const allUsers: SearchUserResult[] = [
-    {
-      id: '1',
-      displayName: 'React Brasil',
-      username: 'reactbrasil',
-      bio: 'Comunidade brasileira de React'
-    },
-    {
-      id: '2',
-      displayName: 'React Community',
-      username: 'reactjs',
-      bio: 'Official React community'
-    },
-    {
-      id: '3',
-      displayName: 'TypeScript',
-      username: 'typescript',
-      bio: 'TypeScript is a superset of JavaScript'
-    },
-    {
-      id: '4',
-      displayName: 'Victor Pires',
-      username: 'victor',
-      bio: 'Desenvolvedor Full Stack'
+  // ✅ FILTRAR no frontend (se tiver múltiplas palavras):
+  const filteredResults = useMemo(() => {
+    if (!searchData || queries.length === 1) return searchData
+
+    const searchTerms = queries.map((q) => q.toLowerCase())
+
+    return {
+      users: searchData.users.filter((user) => {
+        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase()
+        const username = user.username.toLowerCase()
+
+        // Todas as palavras devem estar no nome OU username
+        return searchTerms.every(
+          (term) => fullName.includes(term) || username.includes(term)
+        )
+      }),
+      posts: searchData.posts.filter((post) => {
+        const content = post.content.toLowerCase()
+        return searchTerms.every((term) => content.includes(term))
+      }),
+      hashtags: searchData.hashtags // Hashtags não precisam filtrar
     }
-  ]
+  }, [searchData, queries])
 
-  // Filtra sugestões baseado no searchValue
-  const getFilteredSuggestions = (): SearchSuggestion[] => {
-    if (!searchValue.trim()) return []
-    return allSuggestions
-      .filter((s) => s.text.toLowerCase().includes(searchValue.toLowerCase()))
-      .slice(0, 3)
-  }
+  // ✅ NOVO: Histórico no localStorage
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>(
+    () => {
+      const saved = localStorage.getItem('searchHistory')
+      return saved ? JSON.parse(saved) : []
+    }
+  )
 
-  // Filtra usuários baseado no searchValue
-  const getFilteredUsers = (): SearchUserResult[] => {
-    if (!searchValue.trim()) return []
-    return allUsers
-      .filter(
-        (u) =>
-          u.displayName.toLowerCase().includes(searchValue.toLowerCase()) ||
-          u.username.toLowerCase().includes(searchValue.toLowerCase())
-      )
-      .slice(0, 3)
-  }
+  // ✅ Salvar no localStorage quando mudar
+  useEffect(() => {
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory))
+  }, [searchHistory])
 
-  // Determina o estado do Popover
   const getPopoverState = (): SearchPopoverState => {
     if (searchValue.trim()) {
       return 'searching'
@@ -103,8 +95,20 @@ const SearchBar = ({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (onSearch && searchValue.trim()) {
-      onSearch(searchValue.trim())
+    const query = searchValue.trim()
+
+    if (query) {
+      // Adicionar ao histórico
+      addToHistory({ type: 'search', text: query })
+
+      // Navegar para página de resultados ou callback
+      if (onSearch) {
+        onSearch(query)
+      } else {
+        navigate(`/search?q=${encodeURIComponent(query)}`)
+      }
+
+      setIsPopoverOpen(false)
     }
   }
 
@@ -113,6 +117,22 @@ const SearchBar = ({
       setIsPopoverOpen(true)
       onFocus?.()
     }
+  }
+
+  const addToHistory = (item: {
+    type: 'search' | 'user'
+    text: string
+    username?: string
+  }) => {
+    setSearchHistory((prev) => {
+      // Remove duplicados
+      const filtered = prev.filter(
+        (h) => h.type === item.type && h.text !== item.text
+      )
+
+      // Adiciona no topo, máximo 10 itens
+      return [{ id: Date.now().toString(), ...item }, ...filtered].slice(0, 10)
+    })
   }
 
   const handleRemoveHistoryItem = (id: string) => {
@@ -126,6 +146,40 @@ const SearchBar = ({
   const handleOpenClearModal = () => {
     setIsPopoverOpen(false)
     setIsClearModalOpen(true)
+  }
+
+  const handleUserClick = (username: string, displayName: string) => {
+    // Adicionar ao histórico
+    addToHistory({
+      type: 'user',
+      text: displayName,
+      username
+    })
+
+    // Navegar para perfil
+    navigate(`/${username}`)
+    setIsPopoverOpen(false)
+    setSearchValue('')
+  }
+
+  const handleSuggestionClick = (text: string) => {
+    setSearchValue(text)
+    setDebouncedQuery(text)
+    addToHistory({ type: 'search', text })
+  }
+
+  const handlePostClick = (postId: number, username: string) => {
+    navigate(`/${username}/status/${postId}`)
+    setIsPopoverOpen(false)
+    setSearchValue('')
+  }
+
+  // ✅ NOVO: Handler para hashtags
+  const handleHashtagClick = (hashtagName: string) => {
+    // Navega para Explore com query
+    navigate(`/explore?q=${encodeURIComponent(hashtagName)}&tab=trending`)
+    setIsPopoverOpen(false)
+    setSearchValue('')
   }
 
   return (
@@ -151,7 +205,10 @@ const SearchBar = ({
           {searchValue && (
             <S.ClearButton
               type="button"
-              onClick={() => setSearchValue('')}
+              onClick={() => {
+                setSearchValue('')
+                setDebouncedQuery('')
+              }}
               aria-label="Limpar busca"
             >
               <X size={12} strokeWidth={2} />
@@ -160,7 +217,6 @@ const SearchBar = ({
         </S.SearchForm>
       </S.SearchBarContainer>
 
-      {/* Popover de busca */}
       <SearchPopover
         isOpen={isPopoverOpen}
         onClose={() => setIsPopoverOpen(false)}
@@ -170,12 +226,19 @@ const SearchBar = ({
         onRemoveHistoryItem={handleRemoveHistoryItem}
         onClearHistory={handleClearHistory}
         onOpenClearModal={handleOpenClearModal}
-        searchSuggestions={getFilteredSuggestions()}
-        searchResults={getFilteredUsers()}
+        searchResults={{
+          users: filteredResults?.users || [],
+          posts: filteredResults?.posts || [],
+          hashtags: filteredResults?.hashtags || []
+        }}
+        onUserClick={handleUserClick}
+        onSuggestionClick={handleSuggestionClick}
+        onPostClick={handlePostClick}
+        onHashtagClick={handleHashtagClick}
+        isLoading={isLoading}
         variant={variant}
       />
 
-      {/* Modal de Limpar tudo */}
       <ClearSearchModal
         isOpen={isClearModalOpen}
         onClose={() => setIsClearModalOpen(false)}

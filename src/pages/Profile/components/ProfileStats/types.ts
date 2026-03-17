@@ -1,5 +1,5 @@
-import type { UserProfile } from '../../types'
+import type { UserCardWithStats } from '../../../../types/domain/models'
 
 export type ProfileStatsProps = {
-  user: UserProfile
+  user: UserCardWithStats
 }
