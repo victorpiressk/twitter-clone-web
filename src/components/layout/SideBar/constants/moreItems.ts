@@ -12,7 +12,8 @@ export const MORE_ITEMS = [
     id: 'about',
     label: 'Sobre o projeto',
     icon: Info,
-    action: 'custom' as const
+    action: 'external' as const,
+    url: 'https://github.com/victorpiressk/twitter-clone-web#-twitter-clone---frontend-web'
   },
   {
     id: 'github',
@@ -25,6 +26,7 @@ export const MORE_ITEMS = [
     id: 'docs',
     label: 'Documentação da API',
     icon: Dock,
-    action: 'custom' as const
+    action: 'external' as const,
+    url: 'https://github.com/victorpiressk/twitter-clone-api#-twitter-clone---backend-api'
   }
 ] as const

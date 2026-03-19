@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import {
+  breakpoints,
   colors,
   fontSizes,
   fontWeights,
@@ -8,6 +9,10 @@ import {
 
 export const ModalContent = styled.div`
   padding: 20px 80px;
+
+  @media (max-width: ${breakpoints.tablet}) {
+    padding: 20px;
+  }
 `
 
 export const Header = styled.div`

@@ -1,11 +1,22 @@
 import styled from 'styled-components'
-import { colors } from '../../styles/globalStyles'
+import { breakpoints, fontWeights } from '../../styles/globalStyles'
 
 export const HomeContainer = styled.div`
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
   min-height: 100vh;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   flex-shrink: 0;
+
+  @media (max-width: ${breakpoints.desktop}) {
+    max-width: 100%;
+  }
+`
+
+export const PostFormWrapper = styled.div`
+  @media (max-width: ${breakpoints.mobile}) {
+    display: none;
+  }
 `
 
 export const EmptyState = styled.div`
@@ -19,7 +30,7 @@ export const EmptyState = styled.div`
 
 export const EmptyStateTitle = styled.h3`
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: ${fontWeights.bold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin-bottom: 8px;
 `
@@ -29,36 +40,6 @@ export const EmptyStateText = styled.p`
   color: ${({ theme }) => theme.colors.text.secondary};
   max-width: 400px;
 `
-
-export const ErrorState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-`
-
-export const ErrorStateText = styled.p`
-  font-size: 0.938rem;
-  color: ${colors.error};
-`
-
-export const PullToRefresh = styled.div<{ $distance: number }>`
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%) translateY(${({ $distance }) => $distance - 40}px);
-  padding: 12px 24px;
-  background: ${({ theme }) => theme.colors.background.secondary};
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.text.secondary};
-  z-index: 10;
-  opacity: ${({ $distance }) => Math.min($distance / 80, 1)};
-  transition: opacity 0.2s;
-`
-
-// src/pages/Home/styles.ts - Adicionar esses estilos
 
 export const LoadingMore = styled.div`
   display: flex;

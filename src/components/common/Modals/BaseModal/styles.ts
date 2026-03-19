@@ -38,7 +38,9 @@ export const Overlay = styled.div<OverlayProps>`
   justify-content: center;
 
   background-color: ${(props) =>
-    props.$showOverlay ? 'rgba(0, 0, 0, 0.4)' : 'transparent'};
+    props.$showOverlay
+      ? `${props.theme.colors.background.modalBlur}`
+      : 'transparent'};
 
   animation: ${fadeIn} 0.2s ease-out;
 `

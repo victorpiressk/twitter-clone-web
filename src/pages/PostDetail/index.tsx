@@ -1,4 +1,3 @@
-// src/pages/PostDetail/index.tsx
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -7,7 +6,7 @@ import {
   useGetPostByIdQuery,
   useGetPostRepliesQuery
 } from '../../store/slices/api/posts'
-import { usePosts } from '../../hooks/usePosts' // ✅ Usa usePosts
+import { usePosts } from '../../hooks/usePosts'
 import {
   setPostDetail,
   selectPostDetail,
@@ -16,7 +15,7 @@ import {
 import PostCard from '../../components/common/Posts/PostCard'
 import PostList from '../../components/common/Posts/PostList'
 import InfoBar from '../../components/Layout/InfoBar'
-import BackButton from '../../components/common/BackButton'
+import PageHeader from '../../components/Layout/PageHeader'
 import PostDetailSkeleton from '../../components/common/Skeleton/components/PostDetailSkeleton'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import { ScrollToTop } from '../../hooks/'
@@ -30,7 +29,6 @@ const PostDetail = () => {
 
   const postIdNumber = Number(postId)
 
-  // ✅ Busca post principal
   const {
     data: postData,
     isLoading: isLoadingPost,
@@ -39,7 +37,6 @@ const PostDetail = () => {
     skip: !postIdNumber || isNaN(postIdNumber)
   })
 
-  // ✅ Busca replies usando usePosts
   const {
     posts: replies,
     isLoading: isLoadingReplies,
@@ -51,20 +48,16 @@ const PostDetail = () => {
     postId: postIdNumber
   })
 
-  // ✅ Busca replies data RAW (para useEffect)
   const { data: repliesDataRaw } = useGetPostRepliesQuery(
     { postId: postIdNumber },
     { skip: !postIdNumber || isNaN(postIdNumber) }
   )
 
-  // Redux state
   const postDetail = useAppSelector(selectPostDetail)
 
-  // 1. Memoriza os IDs
   const replyIds = useMemo(() => replies.map((r) => r.id), [replies])
   const replyIdsString = replyIds.join(',')
 
-  // 2. Desestruture o postData para ter variáveis estáveis
   const postIdData = postData?.id
   const isLiked = !!postData?.isLiked
   const isRetweeted = !!postData?.isRetweeted
@@ -102,7 +95,6 @@ const PostDetail = () => {
     postData
   ])
 
-  // ✅ Adiciona replies ao Redux quando dados da query mudam
   useEffect(() => {
     if (repliesDataRaw?.results) {
       repliesDataRaw.results.forEach((reply) => {
@@ -117,16 +109,13 @@ const PostDetail = () => {
       })
     }
   }, [repliesDataRaw, dispatch])
-  //    ↑ Depende de repliesDataRaw (da query direta), não de replies (do usePosts)
 
-  // ✅ Redireciona se 404
   useEffect(() => {
     if (postError || (!isLoadingPost && !postData)) {
       navigate('/home')
     }
   }, [isLoadingPost, postData, postError, navigate])
 
-  // Loading
   const isLoading = isLoadingPost || isLoadingReplies
 
   if (isLoading || !postDetail?.post) {
@@ -135,10 +124,7 @@ const PostDetail = () => {
         <ScrollToTop />
         <ContentWrapper>
           <S.PostDetailContainer>
-            <S.PostDetailHeader>
-              <BackButton />
-              <S.HeaderTitle>Post</S.HeaderTitle>
-            </S.PostDetailHeader>
+            <PageHeader variant="post-detail" onBack={() => navigate(-1)} />
             <PostDetailSkeleton />
             <S.CommentsSection>
               <PostListSkeleton count={5} />
@@ -159,15 +145,10 @@ const PostDetail = () => {
       <ScrollToTop />
       <ContentWrapper>
         <S.PostDetailContainer>
-          <S.PostDetailHeader>
-            <BackButton />
-            <S.HeaderTitle>Post</S.HeaderTitle>
-          </S.PostDetailHeader>
+          <PageHeader variant="post-detail" onBack={() => navigate(-1)} />
 
-          {/* Post principal */}
           <PostCard variant="detailed" postId={postIdNumber} />
 
-          {/* Replies */}
           <S.CommentsSection>
             <InfiniteScroll
               dataLength={replies.length}

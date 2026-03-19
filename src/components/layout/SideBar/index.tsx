@@ -2,7 +2,7 @@
 
 import { useState, useRef, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Twitter, MoreHorizontal } from 'lucide-react'
+import { Twitter, MoreHorizontal, Feather } from 'lucide-react'
 import Button from '../../common/Button'
 import Avatar from '../../common/Avatar'
 import Popover from '../../common/Popovers/BasePopover'
@@ -12,8 +12,8 @@ import { useToast } from '../../../hooks/useToast'
 import { useAppSelector } from '../../../store/hooks'
 import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
 import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
-import * as S from './styles'
 import { useLogoutMutation } from '../../../store/slices/api/auth.api'
+import * as S from './styles'
 
 const SideBar = () => {
   const location = useLocation()
@@ -56,9 +56,6 @@ const SideBar = () => {
         break
       case 'external':
         window.open(item.url!, '_blank')
-        break
-      case 'custom':
-        console.log(`${item.id} clicked`)
         break
     }
     setIsMoreOpen(false)
@@ -121,8 +118,8 @@ const SideBar = () => {
               )
             })}
 
-            {/* Botão Mais */}
-            <li>
+            {/* Botão Mais — apenas em desktop */}
+            <S.MoreButtonWrapper>
               <S.SideButton
                 ref={moreButtonRef}
                 type="button"
@@ -130,9 +127,27 @@ const SideBar = () => {
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
               >
                 <MoreHorizontal size={24} strokeWidth={2} />
-                <span>Mais</span>
+                <S.HideWhenCollapsed>Mais</S.HideWhenCollapsed>
               </S.SideButton>
-            </li>
+            </S.MoreButtonWrapper>
+
+            {/* MORE_ITEMS diretos — apenas quando colapsado */}
+            <S.CollapsedMoreItems>
+              {MORE_ITEMS.map((item) => {
+                const Icon = item.icon
+                return (
+                  <li key={item.id}>
+                    <S.SideButton
+                      type="button"
+                      $variant="ghost"
+                      onClick={() => handleMoreItemClick(item)}
+                    >
+                      <Icon size={24} strokeWidth={2} />
+                    </S.SideButton>
+                  </li>
+                )
+              })}
+            </S.CollapsedMoreItems>
 
             {/* Botão Postar */}
             <li>
@@ -141,7 +156,10 @@ const SideBar = () => {
                 $variant="secondary"
                 onClick={() => setIsCreatePostModalOpen(true)}
               >
-                Postar
+                <S.PostButtonIcon>
+                  <Feather size={22} />
+                </S.PostButtonIcon>
+                <S.PostButtonText>Postar</S.PostButtonText>
               </S.SideButton>
             </li>
           </S.NavList>

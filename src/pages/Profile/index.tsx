@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useAppSelector } from '../../store/hooks'
 import { selectCurrentUser } from '../../store/slices/auth/authSlice'
@@ -9,23 +9,30 @@ import { useUserActions } from '../../hooks/useUserActions'
 import { useToast } from '../../hooks/useToast'
 import { usePosts } from '../../hooks/usePosts'
 import ProfileHeader from './components/ProfileHeader'
-import ProfileTabs from './components/ProfileTabs'
 import EditProfileModal from './components/EditProfileModal'
 import InfoBar from '../../components/Layout/InfoBar'
-import BackButton from '../../components/common/BackButton'
+import PageHeader from '../../components/Layout/PageHeader'
+import Tabs from '../../components/common/Tabs'
 import PostCard from '../../components/common/Posts/PostCard'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import ProfileHeaderSkeleton from '../../components/common/Skeleton/components/ProfileHeaderSkeleton'
-import type { ProfileTab } from './types'
 import type { UpdateUserRequest } from '../../types/domain/requests'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
+const PROFILE_TABS = [
+  { key: 'posts', label: 'Posts' },
+  { key: 'replies', label: 'Respostas' },
+  { key: 'media', label: 'Mídia' },
+  { key: 'likes', label: 'Curtidas' }
+]
+
 const Profile = () => {
   const { username } = useParams<{ username: string }>()
+  const navigate = useNavigate()
   const { showToast } = useToast()
 
-  const [activeTab, setActiveTab] = useState<ProfileTab>('posts')
+  const [activeTab, setActiveTab] = useState('posts')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const currentUser = useAppSelector(selectCurrentUser)
@@ -77,10 +84,7 @@ const Profile = () => {
     }
   }
 
-  // Edit Profile handlers
-  const handleEditProfile = () => {
-    setIsEditModalOpen(true)
-  }
+  const handleEditProfile = () => setIsEditModalOpen(true)
 
   const handleSaveProfile = async (data: UpdateUserRequest) => {
     if (!viewingUser) return
@@ -88,7 +92,6 @@ const Profile = () => {
     try {
       const formData = new FormData()
 
-      // Campos de texto
       if (data.firstName) formData.append('first_name', data.firstName)
       if (data.lastName) formData.append('last_name', data.lastName)
       if (data.bio) formData.append('bio', data.bio)
@@ -96,16 +99,13 @@ const Profile = () => {
       if (data.website) formData.append('website', data.website)
       if (data.birthDate) formData.append('birth_date', data.birthDate)
 
-      // ✅ Avatar: Se for File, adiciona
       if (data.avatar instanceof File) {
         formData.append('profile_image', data.avatar)
       }
 
-      // ✅ Banner: Se for File, adiciona / Se for null, remove (backend decide)
       if (data.banner instanceof File) {
         formData.append('banner', data.banner)
       } else if (data.banner === null) {
-        // Alguns backends aceitam string vazia para remover
         formData.append('banner', '')
       }
 
@@ -126,12 +126,11 @@ const Profile = () => {
     return (
       <ContentWrapper>
         <S.ProfileContainer>
-          <S.ProfileHeader>
-            <BackButton />
-            <S.HeaderInfo>
-              <S.HeaderTitle>Perfil</S.HeaderTitle>
-            </S.HeaderInfo>
-          </S.ProfileHeader>
+          <PageHeader
+            variant="profile"
+            title="Carregando..."
+            onBack={() => navigate(-1)}
+          />
           <ProfileHeaderSkeleton />
         </S.ProfileContainer>
         <InfoBar />
@@ -143,15 +142,12 @@ const Profile = () => {
     <>
       <ContentWrapper>
         <S.ProfileContainer>
-          <S.ProfileHeader>
-            <BackButton />
-            <S.HeaderInfo>
-              <S.HeaderTitle>
-                {viewingUser!.firstName} {viewingUser!.lastName}
-              </S.HeaderTitle>
-              <S.PostCount>{viewingUser!.stats.posts} posts</S.PostCount>
-            </S.HeaderInfo>
-          </S.ProfileHeader>
+          <PageHeader
+            variant="profile"
+            title={`${viewingUser!.firstName} ${viewingUser!.lastName}`}
+            subtitle={`${viewingUser!.stats.posts} posts`}
+            onBack={() => navigate(-1)}
+          />
 
           <ProfileHeader
             user={viewingUser!}
@@ -161,7 +157,11 @@ const Profile = () => {
             onEditProfile={handleEditProfile}
           />
 
-          <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <Tabs
+            tabs={PROFILE_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
           <S.TabContent>
             {isLoadingPosts ? (
@@ -202,7 +202,6 @@ const Profile = () => {
         <InfoBar />
       </ContentWrapper>
 
-      {/* Modal de Edição */}
       {viewingUser && isOwnProfile && (
         <EditProfileModal
           isOpen={isEditModalOpen}

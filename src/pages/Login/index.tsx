@@ -4,11 +4,20 @@ import RegisterModal from './components/RegisterModal'
 import LoginModal from './components/LoginModal'
 import GoogleIcon from '../../assets/icons/google-original.svg'
 import AppleIcon from '../../assets/icons/apple-original.svg'
+import { useToast } from '../../hooks'
 import * as S from './styles'
 
 const Login = () => {
+  const { showToast } = useToast()
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+
+  const handleSocialRegister = (provider: 'google' | 'apple') => {
+    showToast(
+      'info',
+      `Resgistrar com ${provider === 'google' ? 'Google' : 'Apple'} em breve!`
+    )
+  }
 
   return (
     <S.LoginPage>
@@ -29,12 +38,18 @@ const Login = () => {
 
           {/* Botões de Inscrição */}
           <S.SignupButtons>
-            <S.SocialButton $provider="google">
+            <S.SocialButton
+              $provider="google"
+              onClick={() => handleSocialRegister('google')}
+            >
               <img src={GoogleIcon} alt="Google" />
               Inscrever-se com o Google
             </S.SocialButton>
 
-            <S.SocialButton $provider="apple">
+            <S.SocialButton
+              $provider="apple"
+              onClick={() => handleSocialRegister('apple')}
+            >
               <img src={AppleIcon} alt="Apple" />
               Inscrever-se com a Apple
             </S.SocialButton>

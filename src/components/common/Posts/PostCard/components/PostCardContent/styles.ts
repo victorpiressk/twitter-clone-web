@@ -1,5 +1,10 @@
 import styled from 'styled-components'
-import { fontSizes, fontWeights } from '../../../../../../styles/globalStyles'
+import {
+  breakpoints,
+  fontSizes,
+  fontWeights,
+  truncate
+} from '../../../../../../styles/globalStyles'
 import type { PostCardVariant } from '../../types'
 
 export const PostContent = styled.div`
@@ -12,6 +17,14 @@ export const PostHeader = styled.div`
   align-items: center;
   gap: 4px;
   margin-bottom: 4px;
+
+  @media (max-width: ${breakpoints.mobile}) {
+    span {
+      ${truncate}
+      min-width: 0;
+      flex: 1;
+    }
+  }
 `
 
 export const PostHeaderStacked = styled.div`
@@ -48,7 +61,7 @@ export const Username = styled.span`
   color: ${(props) => props.theme.colors.text.secondary};
 `
 
-export const Separator = styled.span`
+export const Separator = styled.div`
   color: ${(props) => props.theme.colors.text.secondary};
 `
 

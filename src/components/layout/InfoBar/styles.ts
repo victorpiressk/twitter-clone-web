@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { transitions } from '../../../styles/globalStyles'
+import { breakpoints, transitions } from '../../../styles/globalStyles'
 
 interface ContainerProps {
   $topOffset: number
@@ -20,8 +20,8 @@ export const InfoBarContainer = styled.aside<ContainerProps>`
 
   transition: ${transitions.fast};
 
-  @media (max-width: 1024px) {
-    display: none; /* Some igual no original */
+  @media (max-width: ${breakpoints.desktop}) {
+    display: none;
   }
 `
 export const ContentWrapper = styled.div`

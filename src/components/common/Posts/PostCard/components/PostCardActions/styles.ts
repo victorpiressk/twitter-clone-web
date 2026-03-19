@@ -10,14 +10,14 @@ export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   display: flex;
   justify-content: ${({ $variant }) =>
     $variant === 'detailed' ? 'space-around' : 'space-between'};
-  max-width: ${({ $variant }) => ($variant === 'detailed' ? '100%' : '425px')};
+  max-width: 100%;
   margin-top: 12px;
 
   /* No modo default, adiciona margem à esquerda para alinhar com o conteúdo */
   ${({ $variant }) =>
     $variant === 'default' &&
     css`
-      margin-left: 52px; /* Avatar (40px) + gap (12px) = 52px */
+      margin: 12px 52px 0;
     `}
 `
 

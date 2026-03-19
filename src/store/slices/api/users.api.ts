@@ -213,6 +213,49 @@ export const usersApi = baseApi.injectEndpoints({
         method: 'DELETE'
       }),
       invalidatesTags: ['Follow', 'User']
+    }),
+
+    updateAccount: builder.mutation<
+      User,
+      {
+        id: number
+        data: {
+          email?: string
+          phone?: string
+          username?: string
+          current_password: string
+        }
+      }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/users/${id}/account/`,
+        method: 'PATCH',
+        body: data
+      }),
+      transformResponse: (response: BackendUser): User =>
+        transformUser(response),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: 'User', id },
+        'User'
+      ]
+    }),
+
+    changePassword: builder.mutation<
+      void,
+      {
+        id: number
+        data: {
+          current_password: string
+          new_password: string
+          new_password_confirm: string
+        }
+      }
+    >({
+      query: ({ id, data }) => ({
+        url: `/api/users/${id}/change-password/`,
+        method: 'POST',
+        body: data
+      })
     })
   })
 })
@@ -225,6 +268,8 @@ export const {
   useGetUsersQuery,
   useGetUserByIdQuery,
   useUpdateUserMutation,
+  useUpdateAccountMutation,
+  useChangePasswordMutation,
   useGetUserFollowersQuery,
   useGetUserFollowingQuery,
   useGetMyFollowsQuery,

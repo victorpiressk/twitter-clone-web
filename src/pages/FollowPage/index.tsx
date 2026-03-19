@@ -1,5 +1,3 @@
-// src/pages/FollowPage/index.tsx
-
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAppSelector } from '../../store/hooks'
@@ -9,59 +7,56 @@ import {
   useGetUserFollowersQuery,
   useGetUserFollowingQuery
 } from '../../store/slices/api/users.api'
-import FollowTabs from './components/FollowTabs'
+import PageHeader from '../../components/Layout/PageHeader'
 import FollowUserCard from './components/FollowUserCard'
-import BackButton from '../../components/common/BackButton'
 import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import { ContentWrapper } from '../../styles/globalStyles'
 import InfoBar from '../../components/Layout/InfoBar'
 import { ScrollToTop } from '../../hooks/useScrollToTop'
-import type { FollowTab } from './types'
 import * as S from './styles'
+
+const FOLLOW_TABS = [
+  { key: 'followers', label: 'Seguidores' },
+  { key: 'following', label: 'Seguindo' }
+]
 
 const FollowPage = () => {
   const { username } = useParams<{ username: string }>()
-  const [activeTab, setActiveTab] = useState<FollowTab>('followers')
+  const [activeTab, setActiveTab] = useState('followers')
 
   const currentUser = useAppSelector(selectCurrentUser)
-
-  // ✅ Hook centraliza TODA a lógica de busca/sync/404
   const { viewingUser, isLoading: isLoadingUser } = useViewingUser(username)
 
-  // ✅ Busca seguidores
   const { data: followersData, isLoading: isLoadingFollowers } =
     useGetUserFollowersQuery(
       { userId: viewingUser?.id ?? 0 },
       { skip: !viewingUser || activeTab !== 'followers' }
     )
 
-  // ✅ Busca seguindo
   const { data: followingData, isLoading: isLoadingFollowing } =
     useGetUserFollowingQuery(
       { userId: viewingUser?.id ?? 0 },
       { skip: !viewingUser || activeTab !== 'following' }
     )
 
-  // ✅ Dados da aba ativa
   const activeData = activeTab === 'followers' ? followersData : followingData
   const isLoading =
     isLoadingUser ||
     (activeTab === 'followers' ? isLoadingFollowers : isLoadingFollowing)
 
-  // ✅ Verifica se é próprio perfil
   const isOwnProfile = currentUser?.id === viewingUser?.id
 
-  // ✅ Loading
   if (isLoadingUser || !viewingUser) {
     return (
       <ContentWrapper>
         <S.FollowContainer>
-          <S.FollowHeader>
-            <BackButton />
-            <S.HeaderInfo>
-              <S.HeaderName>Carregando...</S.HeaderName>
-            </S.HeaderInfo>
-          </S.FollowHeader>
+          <PageHeader
+            variant="follow-page"
+            title="Carregando..."
+            tabs={FOLLOW_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
           <UserCardListSkeleton count={5} />
         </S.FollowContainer>
         <InfoBar />
@@ -74,17 +69,14 @@ const FollowPage = () => {
       <ScrollToTop />
       <ContentWrapper>
         <S.FollowContainer>
-          <S.FollowHeader>
-            <BackButton />
-            <S.HeaderInfo>
-              <S.HeaderName>
-                {viewingUser.firstName} {viewingUser.lastName}
-              </S.HeaderName>
-              <S.HeaderUsername>@{viewingUser.username}</S.HeaderUsername>
-            </S.HeaderInfo>
-          </S.FollowHeader>
-
-          <FollowTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <PageHeader
+            variant="follow-page"
+            title={`${viewingUser.firstName} ${viewingUser.lastName}`}
+            subtitle={`@${viewingUser.username}`}
+            tabs={FOLLOW_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
           <S.UserList>
             {isLoading ? (

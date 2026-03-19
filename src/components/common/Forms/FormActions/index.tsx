@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Send } from 'lucide-react'
 import Button from '../../Button'
 import ImageUpload from '../../ImageUpload'
 import PostCharCounter from '../CharCounter'
@@ -240,7 +241,10 @@ const PostFormActions = ({
           disabled={isDisabled}
           loading={loading}
         >
-          {submitLabel}
+          <S.SubmitLabel>{submitLabel}</S.SubmitLabel>
+          <S.SubmitIcon>
+            <Send size={16} strokeWidth={2} />
+          </S.SubmitIcon>
         </Button>
       </S.ActionGroup>
     </S.ActionsContainer>
