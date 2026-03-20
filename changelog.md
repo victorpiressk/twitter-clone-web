@@ -7,7 +7,155 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-## [0.1.6] - 2026-03-09
+## [0.2.0] - 2026-03-19
+
+### Added
+
+#### **Sistema de Temas**
+- Tema "Dim" (azulado escuro) adicionado
+- `ThemeContext` com suporte a 3 temas (light, dark, dim)
+- Hook `useTheme` separado do context (Fast Refresh)
+- Persistência de tema via localStorage
+- `AppThemeProvider` substituindo lógica antiga
+
+#### **Página de Configurações**
+- Rota `/settings` com layout duas colunas (nav + conteúdo)
+- **Tab Aparência:** seletor de tema visual
+- **Tab Sua Conta:** edição de email, telefone e username
+  - Fluxo em duas etapas (confirmação senha → edição)
+  - Validação e erros do servidor
+  - Integração `PATCH /api/users/{id}/account/`
+- **Tab Segurança:** alteração de senha
+  - Validações client-side (tamanho, confirmação, diferente da atual)
+  - Integração `POST /api/users/{id}/change-password/`
+- Campo `phone` adicionado aos tipos `User` e `BackendUser`
+- Mutations `updateAccount` e `changePassword` em `users.api.ts`
+
+#### **Componentes Mobile**
+- `MobileFooter` fixo (Home, Explore, Notificações, Mensagens)
+- `MobileFab` flutuante para criar post
+- `MobileDrawer` deslizante com navegação completa
+  - Avatar + perfil do usuário
+  - NAV_ITEMS filtrados
+  - MORE_ITEMS diretos
+  - Botão Sair
+- `MobileDrawerContext` e hook `useMobileDrawer`
+
+#### **PageHeader Unificado**
+- Componente centralizado para todas páginas
+- Suporte a tabs, avatar, back button
+- Variantes: main, profile, back
+- Props: `$hidden`, `$mainVariant`, `sticky`
+- `MobileTitle` para evitar duplicação
+
+#### **Componente Tabs Genérico**
+- `components/common/Tabs` reutilizável
+- Suporte a scroll horizontal nativo
+- Setas de navegação (ocultas em mobile)
+- Types genéricos (`TabItem`, `TabsProps`)
+
+#### **Hook useScrollDirection**
+- Detecta direção do scroll (up/down)
+- Usado para hide/show do PageHeader em mobile
+
+### Changed
+
+#### **Responsividade Tablet/Desktop**
+- `HeaderSection`: `flex: 0 0 88px` + `position: sticky`
+- `MainSection`: `flex: 1 1 auto` + `min-width: 0`
+- `ContentWrapper`: `width: 100%` no tablet/mobile
+- Containers: `max-width` em vez de `width` fixo
+- InfoBar some a partir de `1280px` (tablet)
+- Sidebar colapsada em mobile (68px)
+  - Botão "Postar" vira ícone
+  - "Mais" renderizado inline
+  - `MORE_ITEMS` visíveis quando colapsado
+
+#### **Migração para PageHeader**
+- 9 páginas migradas: Home, Explore, Notifications, Messages, Connect, FollowPage, PostDetail, Profile, Settings
+- Tabs locais removidas e substituídas por `PageHeader` + `Tabs`
+- Headers manuais removidos
+
+#### **Scroll Behavior**
+- Desktop: `position: sticky` nativo
+- Mobile: animação `transform` + `opacity`
+- `overflow-x: hidden` movido para não quebrar sticky
+
+#### **SearchBar**
+- Prop `sticky` para controle externo
+- Popover mobile: largura reduzida (445px → 320px)
+- Container não aplica sticky por padrão
+
+#### **PostFormActions**
+- Botão submit: texto no desktop, ícone `Send` no mobile
+
+### Fixed
+
+#### **Carregamento de Fontes**
+- `<link rel="preload">` para 4 fontes Chirp no `index.html`
+- `font-display: optional` nos `@font-face`
+- FOUT e layout shift corrigidos
+
+#### **Spinner de Botões**
+- Substituição de conteúdo (não adição ao lado)
+
+#### **Overflow e Layout**
+- `overflow-x: hidden` + `max-width: 100vw` em `html/body`
+- Sidebar: `height: 100dvh` corrige scroll mobile
+- `border-right` movido para `Aside` diretamente
+
+### Removed
+
+#### **Componentes Tabs Obsoletos**
+- `HomeTabs`, `NotificationTabs`, `ExploreTabs`
+- `ConnectTabs`, `FollowTabs`, `ProfileTabs`
+- Types: `ConnectTab`, `FollowTab`, `ProfileTab`, `ActiveTab`, `NotificationTab`, `ExploreTab`
+
+#### **Estilos Duplicados**
+- Headers manuais removidos de 9 páginas
+- Styles específicos consolidados no `PageHeader`
+
+#### **Componentes Descartados**
+- `MobileHeader` (substituído por `PageHeader`)
+- Botão de tema temporário no `App.tsx`
+
+### Technical
+
+#### **Breakpoints**
+- Mobile: `640px`
+- Tablet: `1024px`
+- Desktop: `1280px`
+
+#### **CSS Utilities**
+- Helper `truncate` reutilizável em `globalStyles`
+- Aplicado em `MobileDrawer` e `PostCard` mobile
+
+#### **Context Pattern**
+- `ThemeContext` + `useTheme` (separados)
+- `MobileDrawerContext` + `useMobileDrawer` (separados)
+- Fast Refresh funcionando corretamente
+
+#### **Performance**
+- Preload de fontes reduz FOUT
+- `font-display: optional` evita layout shift
+- Scroll nativo nos tabs (sem JavaScript)
+
+### Notes
+
+**Responsividade Completa:**
+- Mobile-first implementado
+- Tablet com ajustes específicos
+- Desktop totalmente funcional
+- Navegação consistente em todos breakpoints
+
+**Settings Page:**
+- Estrutura preparada para novas tabs
+- Validações robustas (client + server)
+- UX em duas etapas para segurança
+
+---
+
+## [0.1.6] - 2026-03-17
  
 ### Fixed
  

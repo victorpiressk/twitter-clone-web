@@ -1,5 +1,9 @@
 import styled from 'styled-components'
-import { colors, transitions } from '../../../../styles/globalStyles'
+import {
+  breakpoints,
+  colors,
+  transitions
+} from '../../../../styles/globalStyles'
 import { ButtonContainer } from '../../Button/styles'
 
 export const ActionsContainer = styled.div`
@@ -22,6 +26,10 @@ export const ActionGroup = styled.div`
 
   ${ButtonContainer} {
     margin-left: 12px;
+
+    @media (max-width: ${breakpoints.mobile}) {
+      padding: 8px;
+    }
   }
 `
 
@@ -51,8 +59,29 @@ export const IconButton = styled.button<{ $isActive?: boolean }>`
   svg {
     stroke: currentColor;
   }
+
+  @media (max-width: ${breakpoints.mobile}) {
+    width: 28px;
+    height: 28px;
+  }
 `
 
 export const IconButtonWrapper = styled.div`
   position: relative;
+`
+
+export const SubmitLabel = styled.span`
+  @media (max-width: ${breakpoints.mobile}) {
+    display: none;
+  }
+`
+
+export const SubmitIcon = styled.span`
+  display: none;
+
+  @media (max-width: ${breakpoints.mobile}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `

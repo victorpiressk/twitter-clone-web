@@ -1,5 +1,10 @@
 import styled from 'styled-components'
-import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
+import {
+  breakpoints,
+  fontSizes,
+  fontWeights,
+  truncate
+} from '../../../../styles/globalStyles'
 
 export const Container = styled.div`
   display: flex;
@@ -35,6 +40,14 @@ export const TopRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+
+  @media (max-width: ${breakpoints.mobile}) {
+    span {
+      ${truncate}
+      min-width: 0;
+      flex: 1;
+    }
+  }
 `
 
 export const AuthorName = styled.span`

@@ -1,5 +1,3 @@
-// src/pages/Explore/components/TrendingHashtagsList/index.tsx
-
 import { useNavigate } from 'react-router-dom'
 import type { TrendingHashtag } from '../../../../types/domain/models'
 import * as S from './styles'

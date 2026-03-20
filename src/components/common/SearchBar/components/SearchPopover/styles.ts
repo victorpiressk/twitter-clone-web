@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
 import {
+  breakpoints,
   colors,
   fontSizes,
   fontWeights
@@ -9,6 +10,10 @@ import { light } from '../../../../../styles/themes/light'
 const POPOVER_VARIANTS = {
   large: css`
     width: 445px;
+
+    @media (max-width: ${breakpoints.mobile}) {
+      width: 320px;
+    }
   `,
   small: css`
     width: 350px;

@@ -6,4 +6,5 @@ export type SearchBarProps = {
   variant?: SearchBarVariant
   onFocus?: () => void
   value?: string
+  sticky?: boolean
 }

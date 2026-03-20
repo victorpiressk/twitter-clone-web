@@ -47,7 +47,7 @@ const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
       <S.InfoBarContainer ref={sidebarRef} $topOffset={topOffset}>
         <S.ContentWrapper>
           {variant === 'default' ? (
-            <SearchBar variant="small" />
+            <SearchBar variant="small" sticky />
           ) : (
             <S.Separator />
           )}

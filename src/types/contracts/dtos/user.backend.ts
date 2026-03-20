@@ -4,6 +4,7 @@ export type BackendUser = {
   first_name: string
   last_name: string
   email: string
+  phone: string | null
   profile_image: string | null
   banner: string | null
   bio: string

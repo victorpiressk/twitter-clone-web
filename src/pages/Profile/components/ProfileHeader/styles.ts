@@ -2,9 +2,7 @@ import styled from 'styled-components'
 import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
 import { ButtonContainer } from '../../../../components/common/Button/styles'
 
-export const HeaderContainer = styled.div`
-  border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-`
+export const HeaderContainer = styled.div``
 
 export const Banner = styled.div<{ $imageUrl?: string | null }>`
   width: 100%;

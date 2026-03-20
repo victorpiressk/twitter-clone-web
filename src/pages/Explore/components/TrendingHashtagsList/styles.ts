@@ -1,5 +1,3 @@
-// src/pages/Explore/components/TrendingHashtagsList/styles.ts
-
 import styled from 'styled-components'
 import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
 

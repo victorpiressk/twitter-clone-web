@@ -1,34 +1,16 @@
 import styled from 'styled-components'
-import { fontSizes, fontWeights } from '../../styles/globalStyles'
+import { breakpoints, fontSizes, fontWeights } from '../../styles/globalStyles'
 
 export const ConnectContainer = styled.div`
   border-right: 1px solid ${(props) => props.theme.colors.border.primary};
   min-height: 100vh;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   flex-shrink: 0;
-`
 
-export const ConnectHeader = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  display: flex;
-  gap: 28px;
-
-  background-color: ${(props) => props.theme.colors.background.blur};
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  padding: 8px 8px;
-  align-items: center;
-`
-
-export const HeaderTitle = styled.h2`
-  font-size: ${fontSizes.xl};
-  font-weight: ${fontWeights.bold};
-  color: ${(props) => props.theme.colors.text.primary};
-  margin: 0;
+  @media (max-width: ${breakpoints.desktop}) {
+    max-width: 100%;
+  }
 `
 
 export const SectionTitle = styled.h3`

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from 'styled-components'
 import { colors, transitions } from '../../../styles/globalStyles'
 import { light } from '../../../styles/themes/light'
@@ -6,14 +7,19 @@ export type SearchFormProps = {
   $variant?: string
 }
 
-export const SearchBarContainer = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: ${(props) => props.theme.colors.background.primary};
-  padding-top: 4px;
+export const SearchBarContainer = styled.div<{ $sticky?: boolean }>`
+  ${({ $sticky }) =>
+    $sticky &&
+    `
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: ${(props: any) => props.theme.colors.background.primary};
+    padding-top: 4px;
+  `}
 
   flex: 1;
+  min-width: 0;
   width: 100%;
 `
 

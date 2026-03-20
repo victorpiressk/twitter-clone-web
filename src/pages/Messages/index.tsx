@@ -1,14 +1,16 @@
 import { Mail } from 'lucide-react'
+import { useMobileDrawer } from '../../hooks/useMobileDrawer'
+import PageHeader from '../../components/Layout/PageHeader'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
 const Messages = () => {
+  const { openDrawer } = useMobileDrawer()
+
   return (
     <ContentWrapper>
       <S.MessagesContainer>
-        <S.MessagesHeader>
-          <S.HeaderTitle>Mensagens</S.HeaderTitle>
-        </S.MessagesHeader>
+        <PageHeader variant="messages" onAvatarClick={openDrawer} />
 
         <S.PlaceholderContent>
           <S.PlaceholderIcon>

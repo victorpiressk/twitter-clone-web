@@ -9,6 +9,7 @@ import Notifications from '../pages/Notifications'
 import Connect from '../pages/Connect'
 import Messages from '../pages/Messages'
 import FollowPage from '../pages/FollowPage'
+import Settings from '../pages/Settings'
 import ProtectedRoute from '../components/common/ProtectedRoute'
 import { useAppSelector } from '../store/hooks'
 import { selectIsAuthenticated } from '../store/slices/auth/authSlice'
@@ -32,6 +33,7 @@ const AppRoutes = () => {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/connect" element={<Connect />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/settings" element={<Settings />} />
 
           <Route path="/:username/status/:postId" element={<PostDetail />} />
           <Route path="/:username" element={<Profile />} />

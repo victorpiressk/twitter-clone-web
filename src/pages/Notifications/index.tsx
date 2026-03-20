@@ -4,31 +4,35 @@ import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation
 } from '../../store/slices/api/notifications.api'
-import NotificationTabs from './components/NotificationTabs'
+import { useMobileDrawer } from '../../hooks/useMobileDrawer'
+import PageHeader from '../../components/Layout/PageHeader'
 import NotificationItem from './components/NotificationItem'
 import InfoBar from '../../components/Layout/InfoBar'
 import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
 import { ScrollToTop } from '../../hooks/useScrollToTop'
-import type { NotificationTab } from './types'
 import type { Notification } from '../../types/domain/models'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
+const NOTIFICATION_TABS = [
+  { key: 'all', label: 'Tudo' },
+  { key: 'mentions', label: 'Menções' }
+]
+
 const Notifications = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<NotificationTab>('all')
+  const { openDrawer } = useMobileDrawer()
+  const [activeTab, setActiveTab] = useState('all')
 
   const { data, isLoading, refetch } = useGetNotificationsQuery()
   const [markAsRead] = useMarkNotificationReadMutation()
 
-  // ✅ Refetch ao focar na tab
   useEffect(() => {
     const handleFocus = () => refetch()
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
   }, [refetch])
 
-  // ✅ Polling (30s)
   useEffect(() => {
     const interval = setInterval(() => refetch(), 30000)
     return () => clearInterval(interval)
@@ -52,7 +56,6 @@ const Notifications = () => {
 
   const getFilteredNotifications = () => {
     if (!data?.results) return []
-
     switch (activeTab) {
       case 'mentions':
         return data.results.filter(
@@ -70,14 +73,13 @@ const Notifications = () => {
       <ScrollToTop />
       <ContentWrapper>
         <S.NotificationsContainer>
-          <S.NotificationsHeader>
-            <S.HeaderTitle>Notificações</S.HeaderTitle>
-
-            <NotificationTabs
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
-          </S.NotificationsHeader>
+          <PageHeader
+            variant="notifications"
+            tabs={NOTIFICATION_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onAvatarClick={openDrawer}
+          />
 
           <S.NotificationsList>
             {isLoading ? (

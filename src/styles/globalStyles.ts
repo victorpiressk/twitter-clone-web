@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from 'styled-components'
+import styled, { createGlobalStyle, css } from 'styled-components'
 import { light } from './themes/light'
 import ChirpRegular from '../assets/fonts/chirp-regular-web.woff'
 import ChirpMedium from '../assets/fonts/chirp-medium-web.woff'
@@ -71,6 +71,7 @@ export const GlobalStyle = createGlobalStyle`
     src: url(${ChirpRegular}) format('woff');
     font-weight: 400;
     font-style: normal;
+    font-display: optional;
   }
 
   @font-face {
@@ -78,6 +79,7 @@ export const GlobalStyle = createGlobalStyle`
     src: url(${ChirpMedium}) format('woff');
     font-weight: 500;
     font-style: normal;
+    font-display: optional;
   }
 
   @font-face {
@@ -85,6 +87,7 @@ export const GlobalStyle = createGlobalStyle`
     src: url(${ChirpBold}) format('woff');
     font-weight: 700;
     font-style: normal;
+    font-display: optional;
   }
 
   @font-face {
@@ -92,6 +95,7 @@ export const GlobalStyle = createGlobalStyle`
     src: url(${ChirpHeavy}) format('woff');
     font-weight: 900;
     font-style: normal;
+    font-display: optional;
   }
 
   /* Reset CSS */
@@ -140,6 +144,18 @@ export const HeaderSection = styled.header`
   flex: 1 1 403px;
   justify-content: flex-end;
   z-index: 1;
+
+  @media (max-width: ${breakpoints.wide}) {
+    flex: 0 0 88px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  @media (max-width: ${breakpoints.mobile}) {
+    display: none;
+  }
 `
 
 export const MainSection = styled.main`
@@ -148,14 +164,25 @@ export const MainSection = styled.main`
   justify-content: flex-start;
 
   flex-direction: column;
+
+  @media (max-width: ${breakpoints.wide}) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 `
 
 export const ContentWrapper = styled.div`
   width: 1050px;
   display: flex;
-  justify-content: space-between;
+  gap: 40px;
 
-  @media (max-width: 1024px) {
-    width: 600px;
+  @media (max-width: ${breakpoints.wide}) {
+    width: 100%;
   }
+`
+
+export const truncate = css`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `

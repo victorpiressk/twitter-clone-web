@@ -17,13 +17,8 @@ const Button = ({
     onClick?.(e)
   }
 
-  // Renderiza Spinner + Children
-  const content = (
-    <>
-      {loading && <Spinner size="small" />}
-      {children}
-    </>
-  )
+  // Renderiza Spinner ou Children
+  const content = loading ? <Spinner size="small" /> : <>{children}</>
 
   if (type === 'submit' || type === 'button') {
     return (

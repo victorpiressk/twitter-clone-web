@@ -1,5 +1,10 @@
 import styled from 'styled-components'
-import { colors, fontSizes, fontWeights } from '../../styles/globalStyles'
+import {
+  breakpoints,
+  colors,
+  fontSizes,
+  fontWeights
+} from '../../styles/globalStyles'
 
 export const LoginPage = styled.div`
   display: flex;
@@ -14,7 +19,7 @@ export const MainContent = styled.div`
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     flex-direction: column;
   }
 `
@@ -33,7 +38,7 @@ export const LogoContainer = styled.div`
     color: ${(props) => props.theme.colors.text.primary};
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     svg {
       width: 50px;
       height: 50px;
@@ -58,7 +63,7 @@ export const Title = styled.h1`
   margin: 48px 0;
   line-height: 1.2;
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     font-size: ${fontSizes['4xl']}; // 40px
     margin-bottom: 32px;
   }
@@ -71,7 +76,7 @@ export const Subtitle = styled.h2`
   margin: 0 0 32px 0;
   line-height: 1.2;
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     font-size: ${fontSizes['2xl']}; // 24px
   }
 `
@@ -112,7 +117,7 @@ export const SocialButton = styled.button<{ $provider: 'google' | 'apple' }>`
     background-color: ${(props) => props.theme.colors.hover.primary};
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     width: 100%;
   }
 `
@@ -123,10 +128,15 @@ export const SignupDivisor = styled.div`
   align-items: center;
   font-size: ${fontSizes.md};
   font-weight: ${fontWeights.regular};
+  width: 300px;
+
+  @media (max-width: ${breakpoints.desktop}) {
+    width: 100%;
+  }
 
   div {
+    flex: 1;
     height: 1px;
-    width: 130px;
     margin: 0 4px;
     background-color: ${(props) => props.theme.colors.border.primary};
   }
@@ -148,7 +158,7 @@ export const SignupButton = styled.button`
     opacity: 0.9;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     width: 100%;
   }
 `
@@ -169,7 +179,7 @@ export const Terms = styled.p`
     }
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     max-width: 100%;
   }
 `
@@ -205,7 +215,7 @@ export const LoginButton = styled.button`
     background-color: ${(props) => props.theme.colors.hover.secondary};
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: ${breakpoints.desktop}) {
     width: 100%;
   }
 `

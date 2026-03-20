@@ -1,27 +1,28 @@
 import { useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { usePosts } from '../../hooks/usePosts'
+import { usePosts, type PostsType } from '../../hooks/usePosts'
+import { useMobileDrawer } from '../../hooks/useMobileDrawer'
 import InforBar from '../../components/Layout/InfoBar'
 import PostForm from './components/PostForm'
 import PostCard from '../../components/common/Posts/PostCard'
-import HomeTabs from './components/HomeTabs'
+import PageHeader from '../../components/Layout/PageHeader'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
 import { ScrollToTop } from '../../hooks'
-import type { ActiveTab } from './components/HomeTabs/types'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
+const HOME_TABS = [
+  { key: 'forYou', label: 'Para você' },
+  { key: 'following', label: 'Seguindo' }
+]
+
 const HomeLayout = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('forYou')
+  const [activeTab, setActiveTab] = useState('forYou')
+  const { openDrawer } = useMobileDrawer()
 
-  // ✅ Usa usePosts com type
   const { posts, isLoading, hasMore, loadMore, refresh } = usePosts({
-    type: activeTab // 'forYou' ou 'following'
+    type: activeTab as PostsType
   })
-
-  const handleRefresh = async () => {
-    await refresh()
-  }
 
   const isEmpty = !isLoading && posts.length === 0
 
@@ -30,9 +31,17 @@ const HomeLayout = () => {
       <ScrollToTop />
       <ContentWrapper>
         <S.HomeContainer>
-          <HomeTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <PageHeader
+            variant="home"
+            tabs={HOME_TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onAvatarClick={openDrawer}
+          />
 
-          <PostForm />
+          <S.PostFormWrapper>
+            <PostForm />
+          </S.PostFormWrapper>
 
           {isLoading ? (
             <PostListSkeleton count={5} />
@@ -60,7 +69,7 @@ const HomeLayout = () => {
                 </S.LoadingMore>
               }
               endMessage={<S.EndMessage>Você chegou ao fim!</S.EndMessage>}
-              refreshFunction={handleRefresh}
+              refreshFunction={refresh}
               pullDownToRefresh
               pullDownToRefreshThreshold={80}
               pullDownToRefreshContent={

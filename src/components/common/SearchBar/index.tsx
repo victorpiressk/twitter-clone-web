@@ -15,7 +15,8 @@ const SearchBar = ({
   variant = 'large',
   onFocus,
   value: externalValue = '',
-  onSearch
+  onSearch,
+  sticky = false
 }: SearchBarProps) => {
   const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState('')
@@ -184,7 +185,7 @@ const SearchBar = ({
 
   return (
     <>
-      <S.SearchBarContainer>
+      <S.SearchBarContainer $sticky={sticky}>
         <S.SearchForm
           ref={searchFormRef}
           onSubmit={handleSearch}

@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import {
+  breakpoints,
   colors,
   fontSizes,
   fontWeights,
@@ -13,6 +14,11 @@ export const ModalContent = styled.div<{ $step: string }>`
     props.$step === 'identifier' || props.$step === 'signup'
       ? '20px 32px 48px'
       : '20px 80px'};
+
+  @media (max-width: ${breakpoints.tablet}) {
+    margin: 0;
+    padding: 20px;
+  }
 `
 
 export const Header = styled.div`
@@ -229,5 +235,10 @@ export const Footer = styled.div`
     height: 54px;
     font-weight: ${fontWeights.heavy};
     margin-bottom: 16px;
+  }
+
+  @media (max-width: ${breakpoints.tablet}) {
+    margin: 0;
+    padding: 16px;
   }
 `

@@ -25,7 +25,7 @@ import type { BackendPostWithInteractions } from '../types/contracts/dtos'
 // TYPES
 // ============================================
 
-type PostsType =
+export type PostsType =
   | 'forYou' // /api/posts/ (todos)
   | 'following' // /api/posts/feed/ (seguindo)
   | 'replies' // /api/posts/{id}/replies/ (comentários)

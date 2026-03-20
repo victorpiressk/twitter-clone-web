@@ -1,5 +1,10 @@
 import styled, { css } from 'styled-components'
-import { colors, fontSizes, fontWeights } from '../../../styles/globalStyles'
+import {
+  breakpoints,
+  colors,
+  fontSizes,
+  fontWeights
+} from '../../../styles/globalStyles'
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
 import { light } from '../../../styles/themes/light'
@@ -31,18 +36,23 @@ export const Aside = styled.aside`
   top: 0;
   width: 275px;
   height: 100vh;
+  height: 100dvh;
+  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 
   padding: 0 8px 0 8px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 
   overflow-y: auto;
   overscroll-behavior-y: none;
   color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
 
-  @media (max-width: 1280px) {
+  @media (max-width: ${breakpoints.wide}) {
     width: 88px;
+  }
+
+  @media (max-width: ${breakpoints.mobile}) {
+    display: none;
   }
 `
 
@@ -74,7 +84,7 @@ export const NavList = styled.ul`
     }
   }
 
-  @media (max-width: 1280px) {
+  @media (max-width: ${breakpoints.wide}) {
     li {
       display: flex;
       justify-content: center;
@@ -121,19 +131,75 @@ export const SideButton = styled(ButtonContainer)<SideButtonProps>`
       margin: 0 16px 0 20px;
     }
 
-    @media (max-width: 1280px) {
+    @media (max-width: ${breakpoints.wide}) {
       span {
         display: none;
       }
+
+      ${$variant === 'secondary' &&
+      css`
+        width: 50px;
+        height: 50px;
+        padding: 12px;
+        border-radius: 9999px;
+      `}
     }
   `}
+`
+
+export const HideWhenCollapsed = styled.span`
+  margin: 0 16px 0 20px;
+
+  @media (max-width: ${breakpoints.wide}) {
+    display: none;
+  }
+`
+
+export const CollapsedMoreItems = styled.ul`
+  display: none;
+
+  @media (max-width: ${breakpoints.wide}) {
+    display: flex;
+    flex-direction: column;
+
+    li {
+      display: flex;
+      justify-content: center;
+    }
+  }
+`
+
+export const MoreButtonWrapper = styled.li`
+  @media (max-width: ${breakpoints.wide}) {
+    display: none !important;
+  }
+`
+
+export const PostButtonIcon = styled.div`
+  display: none;
+
+  svg {
+    stroke: currentColor;
+  }
+
+  @media (max-width: ${breakpoints.wide}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`
+
+export const PostButtonText = styled.span`
+  @media (max-width: ${breakpoints.wide}) {
+    display: none;
+  }
 `
 
 export const FooterButton = styled(ButtonContainer)`
   justify-content: space-between;
   margin-top: 12px;
 
-  @media (max-width: 1280px) {
+  @media (max-width: ${breakpoints.wide}) {
     justify-content: center;
   }
 `
@@ -145,7 +211,7 @@ export const UserNames = styled.div`
 
   padding: 0 11px;
 
-  @media (max-width: 1280px) {
+  @media (max-width: ${breakpoints.wide}) {
     display: none;
   }
 `
@@ -169,7 +235,7 @@ export const MoreIcon = styled.div`
   justify-content: flex-end;
   width: 100%;
 
-  @media (max-width: 1280px) {
+  @media (max-width: ${breakpoints.wide}) {
     display: none;
   }
 `
