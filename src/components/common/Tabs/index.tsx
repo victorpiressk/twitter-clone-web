@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Button from '../Button'
-import type { TabsProps } from './types'
 import * as S from './styles'
+import type { TabsProps } from './types'
 
 const Tabs = ({
   tabs,

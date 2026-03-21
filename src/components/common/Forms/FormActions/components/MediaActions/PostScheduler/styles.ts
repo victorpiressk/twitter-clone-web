@@ -55,7 +55,6 @@ export const CloseButton = styled.button`
 `
 
 export const DatePickerWrapper = styled.div`
-  /* Estilos do react-datepicker */
   .react-datepicker {
     font-family: inherit;
     border: 1px solid ${(props) => props.theme.colors.border.primary};

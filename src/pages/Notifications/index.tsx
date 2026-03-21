@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
+import InfoBar from '../../components/layout/InfoBar'
+import PageHeader from '../../components/layout/PageHeader'
+import { useMobileDrawer } from '../../hooks/useMobileDrawer'
+import { ScrollToTop } from '../../hooks/useScrollToTop'
 import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation
 } from '../../store/slices/api/notifications.api'
-import { useMobileDrawer } from '../../hooks/useMobileDrawer'
-import PageHeader from '../../components/Layout/PageHeader'
-import NotificationItem from './components/NotificationItem'
-import InfoBar from '../../components/Layout/InfoBar'
-import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
-import { ScrollToTop } from '../../hooks/useScrollToTop'
-import type { Notification } from '../../types/domain/models'
 import { ContentWrapper } from '../../styles/globalStyles'
+import NotificationItem from './components/NotificationItem'
 import * as S from './styles'
+import type { Notification } from '../../types/domain/models'
 
 const NOTIFICATION_TABS = [
   { key: 'all', label: 'Tudo' },
@@ -94,8 +94,10 @@ const Notifications = () => {
               ))
             ) : (
               <S.EmptyState>
-                <h3>Nenhuma notificação</h3>
-                <p>Quando alguém interagir com você, aparecerá aqui.</p>
+                <S.EmptyStateTitle>Nenhuma notificação</S.EmptyStateTitle>
+                <S.EmptyStateText>
+                  Quando alguém interagir com você, aparecerá aqui.
+                </S.EmptyStateText>
               </S.EmptyState>
             )}
           </S.NotificationsList>

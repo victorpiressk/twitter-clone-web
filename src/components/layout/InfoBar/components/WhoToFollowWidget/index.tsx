@@ -1,18 +1,18 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useUserActions } from '../../../../../hooks/useUserActions'
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks'
+import { useGetUsersQuery } from '../../../../../store/slices/api/users.api'
+import { selectCurrentUser } from '../../../../../store/slices/auth/authSlice'
 import {
   selectSuggestions,
   setSuggestions,
   setSuggestionsLoading
 } from '../../../../../store/slices/users/usersSlice'
-import { selectCurrentUser } from '../../../../../store/slices/auth/authSlice'
 import { selectFollowState } from '../../../../../store/slices/users/usersSlice'
-import { useGetUsersQuery } from '../../../../../store/slices/api/users.api'
 import Avatar from '../../../../common/Avatar'
 import Button from '../../../../common/Button'
-import { useUserActions } from '../../../../../hooks/useUserActions'
 import * as S from './styles'
-import { useEffect } from 'react'
 
 const WhoToFollowWidget = () => {
   const dispatch = useAppDispatch()
@@ -21,10 +21,9 @@ const WhoToFollowWidget = () => {
   const allSuggestions = useAppSelector(selectSuggestions)
   const followState = useAppSelector(selectFollowState)
 
-  // ✅ NOVO: Busca users automaticamente
   const { data: usersData, isLoading } = useGetUsersQuery()
 
-  // ✅ NOVO: Sincroniza com Redux quando recebe dados
+  // Sincroniza com Redux quando recebe dados
   useEffect(() => {
     dispatch(setSuggestionsLoading(isLoading))
   }, [isLoading, dispatch])
@@ -33,14 +32,14 @@ const WhoToFollowWidget = () => {
     if (usersData && currentUser) {
       const users = Array.isArray(usersData) ? usersData : usersData.results
 
-      // Filtrar usuário logado
+      // Filtra usuário logado
       const filteredUsers = users.filter((user) => user.id !== currentUser.id)
 
       dispatch(setSuggestions(filteredUsers))
     }
   }, [usersData, currentUser, dispatch])
 
-  // ✅ Filtrar: remover usuário logado + quem já está seguindo
+  // Remover usuário logado + quem já está seguindo
   const suggestions = allSuggestions
     .filter((user) => user !== null && user.id !== currentUser?.id)
     .filter(
@@ -49,7 +48,6 @@ const WhoToFollowWidget = () => {
     )
     .slice(0, 3) // Mostrar apenas 3 sugestões
 
-  // ✅ Não renderizar se lista vazia
   if (suggestions.length === 0) {
     return null
   }
@@ -96,7 +94,6 @@ type SuggestionItemProps = {
 }
 
 const SuggestionItem = ({ user, onUserClick }: SuggestionItemProps) => {
-  // ✅ Hook cuida de toda lógica de follow
   const { isFollowing, isLoading, followUser, unfollowUser } = useUserActions(
     user.id
   )

@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Grid } from '@giphy/react-components'
 import { GiphyFetch } from '@giphy/js-fetch-api'
-import type { IGif } from '@giphy/js-types'
+import { Grid } from '@giphy/react-components'
 import BasePopover from '../../../../../Popovers/BasePopover'
-import type { GifPickerProps } from './types'
 import * as S from './styles'
+import type { GifPickerProps } from './types'
+import type { IGif } from '@giphy/js-types'
 
-// Demo API Key (substituir por sua própria key em produção)
+// Demo API Key
 const GIPHY_API_KEY = 'Gc7131jiJuvI7IdN0HZ1D7nh0ow5BU6g'
 
 const giphyFetch = new GiphyFetch(GIPHY_API_KEY)
@@ -19,7 +19,6 @@ const GifPickerComponent = ({
 }: GifPickerProps) => {
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Função de busca (trending ou search)
   const fetchGifs = (offset: number) => {
     if (searchTerm.trim()) {
       return giphyFetch.search(searchTerm, { offset, limit: 10 })
@@ -30,7 +29,7 @@ const GifPickerComponent = ({
   const handleGifClick = (gif: IGif, e: React.SyntheticEvent) => {
     e.preventDefault()
     const gifUrl = gif.images.original.url
-    const gifId = gif.id.toString() // ✅ Converter para string
+    const gifId = gif.id.toString()
     onGifSelect(gifUrl, gifId)
     onClose()
   }
@@ -53,7 +52,7 @@ const GifPickerComponent = ({
 
         <S.GifGridWrapper>
           <Grid
-            key={searchTerm} // Force re-render on search change
+            key={searchTerm}
             width={400}
             columns={2}
             fetchGifs={fetchGifs}

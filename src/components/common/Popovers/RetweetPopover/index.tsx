@@ -1,7 +1,7 @@
 import { Repeat, Edit3 } from 'lucide-react'
 import BasePopover from '../BasePopover'
-import type { RetweetPopoverProps } from './types'
 import * as S from './styles'
+import type { RetweetPopoverProps } from './types'
 
 const RetweetPopover = ({
   isOpen,
@@ -21,7 +21,6 @@ const RetweetPopover = ({
     onClose()
   }
 
-  // ✅ Só mostra "Desfazer" se for retweet SIMPLES (não quote)
   const isSimpleRetweet = isRetweeted
 
   return (

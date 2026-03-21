@@ -1,10 +1,10 @@
 import { MapPin, Link as LinkIcon, Calendar, Cake } from 'lucide-react'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
-import ProfileStats from '../ProfileStats'
 import { formatDate } from '../../../../utils/formatDate'
-import type { ProfileHeaderProps } from './types'
+import ProfileStats from '../ProfileStats'
 import * as S from './styles'
+import type { ProfileHeaderProps } from './types'
 
 const ProfileHeader = ({
   user,

@@ -17,7 +17,7 @@ export const PostCardContainer = styled.article<{
 }>`
   position: relative;
   display: flex;
-  flex-direction: column; /* ← SEMPRE column (actions ficam abaixo) */
+  flex-direction: column;
   padding: 16px;
   transition: ${transitions.fast};
 
@@ -31,7 +31,6 @@ export const PostCardContainer = styled.article<{
     `}
 `
 
-/* NOVO: Container para Avatar + Content (apenas no modo default) */
 export const PostMainContent = styled.div`
   display: flex;
   gap: 12px;
@@ -106,7 +105,6 @@ export const PostText = styled.p<{ $variant: PostCardVariant }>`
   word-wrap: break-word;
 `
 
-/* ALTERADO: Actions agora ficam SEMPRE abaixo do conteúdo */
 export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   display: flex;
   justify-content: ${({ $variant }) =>
@@ -114,11 +112,10 @@ export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   max-width: ${({ $variant }) => ($variant === 'detailed' ? '100%' : '425px')};
   margin-top: 12px;
 
-  /* No modo default, adiciona margem à esquerda para alinhar com o conteúdo */
   ${({ $variant }) =>
     $variant === 'default' &&
     css`
-      margin-left: 52px; /* Avatar (40px) + gap (12px) = 52px */
+      margin-left: 52px;
     `}
 `
 

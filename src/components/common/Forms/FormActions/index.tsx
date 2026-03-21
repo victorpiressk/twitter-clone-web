@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Send } from 'lucide-react'
+import { useToast } from '../../../../hooks'
 import Button from '../../Button'
 import ImageUpload from '../../ImageUpload'
 import PostCharCounter from '../CharCounter'
@@ -8,10 +9,10 @@ import GifPicker from './components/MediaActions/GifPicker'
 import LocationPicker from './components/MediaActions/LocationPicker'
 import PollCreator from './components/MediaActions/PollCreator'
 import PostScheduler from './components/MediaActions/PostScheduler'
-import type { Poll, Location } from '../../../../types/domain/models'
 import { MEDIA_BUTTONS } from './constants/mediaButtons'
-import type { PostFormActionsProps } from './types'
 import * as S from './styles'
+import type { PostFormActionsProps } from './types'
+import type { Poll, Location } from '../../../../types/domain/models'
 
 const PostFormActions = ({
   content,
@@ -29,9 +30,10 @@ const PostFormActions = ({
   onPollCreate,
   onSchedule
 }: PostFormActionsProps) => {
+  const { showToast } = useToast()
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Refs para cada botão (para BasePopover posicionar corretamente)
+  // Refs individuais por botão para o BasePopover calcular o posicionamento
   const emojiButtonRef = useRef<HTMLButtonElement>(null)
   const gifButtonRef = useRef<HTMLButtonElement>(null)
   const pollButtonRef = useRef<HTMLButtonElement>(null)
@@ -67,51 +69,38 @@ const PostFormActions = ({
     }
   }
 
-  // Handler de emoji (fecha picker + callback)
   const handleEmojiSelectInternal = (emoji: string) => {
     onEmojiSelect(emoji)
   }
 
-  // Handler de GIF - agora converte para File e usa onMediaUpload
   const handleGifSelect = async (gifUrl: string, gifId: string) => {
     try {
-      // Busca o GIF como blob
       const response = await fetch(gifUrl)
       const blob = await response.blob()
-
-      // Converte blob para File
+      // GIF é tratado como File para reutilizar o mesmo fluxo de upload de mídia
       const file = new File([blob], `${gifId}.gif`, { type: 'image/gif' })
-
-      // Usa o mesmo handler de upload (já com validação)
       onMediaUpload([file])
-
-      // Fecha o picker
       setOpenPicker(null)
-    } catch (error) {
-      console.error('Erro ao buscar GIF:', error)
-      // Opcionalmente: mostrar toast de erro aqui
+    } catch {
+      showToast('error', 'Erro ao carregar o GIF. Tente novamente.')
     }
   }
 
-  // Handler de Location
   const handleLocationSelectInternal = (location: Location) => {
     onLocationSelect(location)
     setOpenPicker(null)
   }
 
-  // Handler de Poll
   const handlePollCreateInternal = (pollData: Poll) => {
     onPollCreate(pollData)
     setOpenPicker(null)
   }
 
-  // Handler de Schedule
   const handleScheduleInternal = (scheduledDate: Date) => {
     onSchedule(scheduledDate)
     setOpenPicker(null)
   }
 
-  // Função helper para pegar a ref correta baseada na action
   const getButtonRef = (action: string) => {
     switch (action) {
       case 'emoji':
@@ -132,7 +121,7 @@ const PostFormActions = ({
   return (
     <S.ActionsContainer>
       <S.MediaIcons>
-        {/* ImageUpload (escondido, apenas funcionalidade) */}
+        {/* Input de arquivo oculto — acionado via ref pelo botão de mídia */}
         <ImageUpload
           onImagesChange={onMediaUpload}
           maxImages={maxMedias}
@@ -140,7 +129,6 @@ const PostFormActions = ({
           inputRef={inputRef}
         />
 
-        {/* Renderiza botões dinamicamente */}
         {MEDIA_BUTTONS.map((button) => {
           const Icon = button.icon
           const isMediaButton = button.action === 'media'
@@ -149,17 +137,13 @@ const PostFormActions = ({
           const isActive = openPicker === button.action
           const buttonRef = getButtonRef(button.action)
 
-          // Lógica de desabilitar ActionButtons
           let isButtonDisabled = false
 
-          if (isMediaButton) {
-            // Media desabilita se: 4 medias OU tem Poll
-            isButtonDisabled = medias.length >= maxMedias || !!poll
-          } else if (isGifButton) {
-            // GIF desabilita se: 4 medias OU tem Poll
+          // Mídia e GIF desabilitam quando há poll ativo ou limite atingido
+          if (isMediaButton || isGifButton) {
             isButtonDisabled = medias.length >= maxMedias || !!poll
           } else if (isPollButton) {
-            // Poll desabilita se: tem medias
+            // Poll desabilita quando há mídia anexada
             isButtonDisabled = medias.length > 0
           }
 
@@ -177,7 +161,6 @@ const PostFormActions = ({
                 <Icon size={20} strokeWidth={2} />
               </S.IconButton>
 
-              {/* Renderiza EmojiPicker quando ativo */}
               {button.action === 'emoji' && openPicker === 'emoji' && (
                 <EmojiPicker
                   isOpen={openPicker === 'emoji'}
@@ -187,7 +170,6 @@ const PostFormActions = ({
                 />
               )}
 
-              {/* Renderiza GifPicker quando ativo */}
               {button.action === 'gif' && openPicker === 'gif' && (
                 <GifPicker
                   isOpen={openPicker === 'gif'}
@@ -197,7 +179,6 @@ const PostFormActions = ({
                 />
               )}
 
-              {/* Renderiza LocationPicker quando ativo */}
               {button.action === 'location' && openPicker === 'location' && (
                 <LocationPicker
                   isOpen={openPicker === 'location'}
@@ -207,7 +188,6 @@ const PostFormActions = ({
                 />
               )}
 
-              {/* Renderiza PollCreator quando ativo */}
               {button.action === 'poll' && openPicker === 'poll' && (
                 <PollCreator
                   isOpen={openPicker === 'poll'}
@@ -217,7 +197,6 @@ const PostFormActions = ({
                 />
               )}
 
-              {/* Renderiza PostScheduler quando ativo */}
               {button.action === 'schedule' && openPicker === 'schedule' && (
                 <PostScheduler
                   isOpen={openPicker === 'schedule'}

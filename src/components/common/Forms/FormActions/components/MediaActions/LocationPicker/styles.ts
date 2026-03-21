@@ -40,7 +40,6 @@ export const LocationList = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* Scrollbar customizado */
   &::-webkit-scrollbar {
     width: 8px;
   }
@@ -77,13 +76,6 @@ export const LocationItem = styled.button`
   &:active {
     background-color: ${(props) => props.theme.colors.background.secondary};
   }
-`
-
-export const EmptyState = styled.div`
-  padding: 32px 16px;
-  text-align: center;
-  color: ${(props) => props.theme.colors.text.secondary};
-  font-size: ${fontSizes.md};
 `
 
 export const Header = styled.div`

@@ -15,6 +15,4 @@ export const PopoverContainer = styled.div<PopoverContainerProps>`
   overflow: hidden;
 `
 
-export const PopoverContent = styled.div`
-  /* Conteúdo do popover */
-`
+export const PopoverContent = styled.div``

@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components'
-import type { PostCardVariant } from '../../types'
 import {
   colors,
   fontSizes,
   transitions
 } from '../../../../../../styles/globalStyles'
+import type { PostCardVariant } from '../../types'
 
 export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   display: flex;
@@ -13,7 +13,6 @@ export const PostActions = styled.div<{ $variant: PostCardVariant }>`
   max-width: 100%;
   margin-top: 12px;
 
-  /* No modo default, adiciona margem à esquerda para alinhar com o conteúdo */
   ${({ $variant }) =>
     $variant === 'default' &&
     css`

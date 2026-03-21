@@ -1,19 +1,17 @@
-// src/components/common/Avatar/components/AvatarProfilePopover/index.tsx
-
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Avatar from '../../index'
+import { usePopoverStrategy } from '../../../../../hooks/usePopoverStrategy'
 import Button from '../../../Button'
 import BasePopover from '../../../Popovers/BasePopover'
-import { usePopoverStrategy } from '../../../../../hooks/usePopoverStrategy'
-import type { AvatarProfilePopoverProps } from './types'
+import Avatar from '../../index'
 import * as S from './styles'
+import type { AvatarProfilePopoverProps } from './types'
 
 const AvatarProfilePopover = ({
   isOpen,
   userData,
   triggerRef,
-  onFollowToggle, // ← Apenas repassa, não executa lógica
+  onFollowToggle,
   onClose,
   onMouseEnter,
   onMouseLeave
@@ -27,10 +25,9 @@ const AvatarProfilePopover = ({
     onClose()
   }
 
-  // ✅ SIMPLIFICADO: Apenas repassa para o componente pai
   const handleFollowClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    onFollowToggle() // ← Componente pai cuida da lógica
+    onFollowToggle()
   }
 
   const handleFollowingClick = () => {

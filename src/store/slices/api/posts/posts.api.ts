@@ -1,9 +1,15 @@
+import {
+  transformPost,
+  transformPostWithInteractions
+} from '../../../../utils/transformers/entities'
+import { transformCreatePostRequest } from '../../../../utils/transformers/requests'
 import { baseApi } from '../base.api'
 import type {
   BackendPost,
   BackendPostWithInteractions
 } from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
+import type { PaginationParams } from '../../../../types/contracts/shared'
 import type {
   Post,
   PostWithInteractions
@@ -13,12 +19,10 @@ import type {
   UpdatePostRequest
 } from '../../../../types/domain/requests'
 import type { PaginatedResponse } from '../../../../types/domain/responses'
-import {
-  transformPost,
-  transformPostWithInteractions
-} from '../../../../utils/transformers/entities'
-import { transformCreatePostRequest } from '../../../../utils/transformers/requests'
-import type { PaginationParams } from '../../../../types/contracts/shared'
+
+// ============================================
+// TYPES
+// ============================================
 
 export type GetPostsParams = PaginationParams & {
   author?: number
@@ -35,7 +39,7 @@ export type GetPostsParams = PaginationParams & {
 export const postsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // POSTAGENS
+    // GET POSTS
     // ============================================
 
     getPosts: builder.query<
@@ -50,14 +54,8 @@ export const postsApi = baseApi.injectEndpoints({
         response: BackendPaginatedResponse<BackendPostWithInteractions>
       ): PaginatedResponse<PostWithInteractions> => {
         if (!response || !response.results) {
-          return {
-            count: 0,
-            next: null,
-            previous: null,
-            results: []
-          }
+          return { count: 0, next: null, previous: null, results: [] }
         }
-
         return {
           count: response.count,
           next: response.next,
@@ -77,13 +75,16 @@ export const postsApi = baseApi.injectEndpoints({
           : [{ type: 'Post', id: 'LIST' }]
     }),
 
+    // ============================================
+    // GET FEED
+    // ============================================
+
     getFeed: builder.query<PaginatedResponse<PostWithInteractions>, void>({
       query: () => '/api/posts/feed/',
       transformResponse: (
         response: BackendPostWithInteractions[]
       ): PaginatedResponse<PostWithInteractions> => {
         const results = Array.isArray(response) ? response : []
-
         return {
           count: results.length,
           next: null,
@@ -103,6 +104,10 @@ export const postsApi = baseApi.injectEndpoints({
           : [{ type: 'Post', id: 'FEED' }]
     }),
 
+    // ============================================
+    // GET POST BY ID
+    // ============================================
+
     getPostById: builder.query<PostWithInteractions, number>({
       query: (id) => `/api/posts/${id}/`,
       transformResponse: (
@@ -111,11 +116,15 @@ export const postsApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'Post', id }]
     }),
 
+    // ============================================
+    // CREATE POST
+    // ============================================
+
     createPost: builder.mutation<Post, CreatePostRequest>({
       query: (body) => {
         const transformed = transformCreatePostRequest(body)
-
         const formData = new FormData()
+
         formData.append('content', transformed.content)
 
         if (transformed.media_files) {
@@ -136,41 +145,30 @@ export const postsApi = baseApi.injectEndpoints({
           formData.append('scheduled_for', transformed.scheduled_for)
         }
 
-        // Verificação rigorosa: aceita o número 0, mas pula null/undefined
-        if (
-          transformed.in_reply_to !== undefined &&
-          transformed.in_reply_to !== null
-        ) {
+        // Aceita o número 0, mas pula null/undefined
+        if (transformed.in_reply_to != null) {
           formData.append('in_reply_to', String(transformed.in_reply_to))
         }
 
-        if (
-          transformed.retweet_of !== undefined &&
-          transformed.retweet_of !== null
-        ) {
-          console.log(
-            '🔍 Adicionando retweet_of ao FormData:',
-            transformed.retweet_of
-          )
+        if (transformed.retweet_of != null) {
           formData.append('retweet_of', String(transformed.retweet_of))
         }
 
-        return {
-          url: '/api/posts/',
-          method: 'POST',
-          body: formData
-        }
+        return { url: '/api/posts/', method: 'POST', body: formData }
       },
       transformResponse: (response: BackendPost): Post =>
         transformPost(response),
       invalidatesTags: (_result, _error, arg) => [
         { type: 'Post' as const, id: 'LIST' },
-        // Se o post tiver um in_reply_to, invalidamos as replies daquele post pai
         ...(arg.inReplyTo
           ? [{ type: 'Comment' as const, id: arg.inReplyTo }]
           : [])
       ]
     }),
+
+    // ============================================
+    // UPDATE POST
+    // ============================================
 
     updatePost: builder.mutation<Post, { id: number; data: UpdatePostRequest }>(
       {
@@ -179,11 +177,13 @@ export const postsApi = baseApi.injectEndpoints({
           method: 'PATCH',
           body: data
         }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transformResponse: (response: any) => response,
         invalidatesTags: (_result, _error, { id }) => [{ type: 'Post', id }]
       }
     ),
+
+    // ============================================
+    // DELETE POST
+    // ============================================
 
     deletePost: builder.mutation<void, number>({
       query: (id) => ({

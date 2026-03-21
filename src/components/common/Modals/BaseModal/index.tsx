@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useModalScrollLock } from '../../../../hooks/useModalScrollLock'
-import ModalHeader from './components/ModalHeader'
 import ModalFooter from './components/ModalFooter'
-import type { ModalProps } from './types'
+import ModalHeader from './components/ModalHeader'
 import * as S from './styles'
+import type { ModalProps } from './types'
 
 const Modal = ({
   isOpen,

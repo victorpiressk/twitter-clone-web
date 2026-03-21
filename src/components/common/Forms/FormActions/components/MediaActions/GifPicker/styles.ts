@@ -36,7 +36,6 @@ export const GifGridWrapper = styled.div`
   overflow-x: hidden;
   padding: 8px;
 
-  /* Scrollbar customizado */
   &::-webkit-scrollbar {
     width: 8px;
   }

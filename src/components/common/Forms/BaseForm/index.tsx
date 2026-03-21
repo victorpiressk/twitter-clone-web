@@ -1,13 +1,12 @@
-// src/components/common/Forms/BaseForm/BaseForm.tsx
 import Avatar from '../../Avatar'
 import Textarea from '../../Textarea'
-import MediaPreview from '../MediaPreview'
 import LocationPreview from '../LocationPreview'
+import MediaPreview from '../MediaPreview'
 import PollPreview from '../PollPreview'
 import SchedulePreview from '../SchedulePreview'
-import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
-import type { BaseFormProps } from './types'
 import * as S from './styles'
+import type { BaseFormProps } from './types'
+import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
 
 const BaseForm = ({
   userName,
@@ -34,7 +33,6 @@ const BaseForm = ({
     if (onRemoveMedia) {
       onRemoveMedia(id)
     } else {
-      // Fallback
       const updated = medias.filter((m) => m.id !== id)
       const removed = medias.find((m) => m.id === id)
 
@@ -48,7 +46,6 @@ const BaseForm = ({
 
   return (
     <S.Container $isModal={isModal}>
-      {/* ✅ CORRIGIDO: Renderiza extraContent para comments */}
       {extraContent && mode === 'comment' && (
         <S.ExtraContentWrapper>{extraContent}</S.ExtraContentWrapper>
       )}
@@ -66,17 +63,14 @@ const BaseForm = ({
             disabled={disabled}
           />
 
-          {/* MediaPreview */}
           {medias.length > 0 && (
             <MediaPreview medias={medias} onRemove={handleRemoveMedia} />
           )}
 
-          {/* ✅ CORRIGIDO: Renderiza extraContent para quotes também */}
           {extraContent && mode === 'quote' && (
             <S.ExtraContentWrapper>{extraContent}</S.ExtraContentWrapper>
           )}
 
-          {/* PollPreview */}
           {poll && onRemovePoll && (
             <PollPreview
               question={poll.question}
@@ -87,7 +81,6 @@ const BaseForm = ({
             />
           )}
 
-          {/* SchedulePreview */}
           {scheduledFor && onRemoveSchedule && (
             <SchedulePreview
               scheduledDate={scheduledFor}
@@ -96,7 +89,6 @@ const BaseForm = ({
             />
           )}
 
-          {/* LocationPreview */}
           {location && onRemoveLocation && (
             <LocationPreview
               locationName={location.name}

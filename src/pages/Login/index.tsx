@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Twitter } from 'lucide-react'
-import RegisterModal from './components/RegisterModal'
-import LoginModal from './components/LoginModal'
-import GoogleIcon from '../../assets/icons/google-original.svg'
 import AppleIcon from '../../assets/icons/apple-original.svg'
+import GoogleIcon from '../../assets/icons/google-original.svg'
 import { useToast } from '../../hooks'
+import LoginModal from './components/LoginModal'
+import RegisterModal from './components/RegisterModal'
 import * as S from './styles'
 
 const Login = () => {
@@ -30,10 +30,8 @@ const Login = () => {
 
         {/* Container 2: Formulário */}
         <S.FormContainer>
-          {/* Título */}
           <S.Title>Acontecendo agora</S.Title>
 
-          {/* Subtítulo */}
           <S.Subtitle>Inscreva-se hoje</S.Subtitle>
 
           {/* Botões de Inscrição */}
@@ -63,7 +61,6 @@ const Login = () => {
             </S.SignupButton>
           </S.SignupButtons>
 
-          {/* Termos */}
           <S.Terms>
             Ao se inscrever, você concorda com os{' '}
             <a href="#" target="_blank" rel="noopener noreferrer">
@@ -80,7 +77,6 @@ const Login = () => {
             .
           </S.Terms>
 
-          {/* Seção de Login */}
           <S.LoginSection>
             <S.LoginText>Já tem uma conta?</S.LoginText>
             <S.LoginButton onClick={() => setIsLoginModalOpen(true)}>
@@ -170,7 +166,6 @@ const Login = () => {
         </S.FooterContent>
       </S.Footer>
 
-      {/* Modals */}
       <RegisterModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}

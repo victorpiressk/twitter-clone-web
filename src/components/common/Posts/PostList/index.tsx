@@ -1,6 +1,6 @@
 import PostCard from '../PostCard'
-import type { PostListProps } from './types'
 import * as S from './styles'
+import type { PostListProps } from './types'
 
 const PostList = ({ posts, variant }: PostListProps) => {
   return (

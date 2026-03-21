@@ -1,14 +1,13 @@
-// src/components/common/Posts/PostCard/components/PostCardMenu/index.tsx
 import { useState, useRef } from 'react'
 import { MoreHorizontal, Edit2, Trash2 } from 'lucide-react'
+import { usePostActions } from '../../../../../../hooks/usePostActions'
 import { useAppSelector } from '../../../../../../store/hooks'
 import { selectCurrentUser } from '../../../../../../store/slices/auth/authSlice'
-import Popover from '../../../../../common/Popovers/BasePopover'
 import Modal from '../../../../../common/Modals/BaseModal'
-import { usePostActions } from '../../../../../../hooks/usePostActions'
-import type { PostCardMenuProps } from './types'
-import * as S from './styles'
+import Popover from '../../../../../common/Popovers/BasePopover'
 import Button from '../../../../Button'
+import * as S from './styles'
+import type { PostCardMenuProps } from './types'
 
 const PostCardMenu = ({ post, onEditClick }: PostCardMenuProps) => {
   const currentUser = useAppSelector(selectCurrentUser)
@@ -18,7 +17,6 @@ const PostCardMenu = ({ post, onEditClick }: PostCardMenuProps) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
 
-  // ✅ Só mostra menu se for o autor
   if (!currentUser || post.author.id !== currentUser.id) {
     return null
   }

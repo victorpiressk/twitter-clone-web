@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
-import type { InputProps } from './types'
 import * as S from './styles'
+import type { InputProps } from './types'
 
 const Input = ({
   type = 'text',

@@ -1,11 +1,11 @@
-import { baseApi } from './base.api'
 import {
   transformUser,
   transformPost,
   transformHashtag
 } from '../../../utils/transformers/entities'
-import type { SearchResult } from '../../../types/domain/responses'
+import { baseApi } from './base.api'
 import type { BackendSearchResult } from '../../../types/contracts/responses.backend'
+import type { SearchResult } from '../../../types/domain/responses'
 
 // ============================================
 // TYPES
@@ -23,7 +23,7 @@ type GlobalSearchParams = {
 export const searchApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // SEARCH
+    // GLOBAL SEARCH
     // ============================================
 
     globalSearch: builder.query<SearchResult, GlobalSearchParams>({

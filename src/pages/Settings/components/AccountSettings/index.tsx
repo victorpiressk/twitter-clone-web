@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useAppSelector } from '../../../../store/hooks'
-import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
-import { useUpdateAccountMutation } from '../../../../store/slices/api/users.api'
-import { useToast } from '../../../../hooks/useToast'
 import Button from '../../../../components/common/Button'
+import { useToast } from '../../../../hooks/useToast'
+import { useAppSelector } from '../../../../store/hooks'
+import { useUpdateAccountMutation } from '../../../../store/slices/api/users.api'
+import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
 import * as S from '../../styles'
 
 type Step = 'password' | 'fields'

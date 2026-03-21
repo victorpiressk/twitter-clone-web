@@ -1,7 +1,6 @@
 export const dark = {
   name: 'dark',
   colors: {
-    // Backgrounds
     background: {
       primary: '#000000',
       secondary: '#16181C',
@@ -11,7 +10,6 @@ export const dark = {
       modalBlur: 'rgba(255, 255, 255, 0.20)'
     },
 
-    // Textos
     text: {
       primary: '#E7E9EA',
       secondary: '#71767B',
@@ -19,19 +17,16 @@ export const dark = {
       reverse: '#0F1419'
     },
 
-    // Bordas
     border: {
       primary: '#2F3336',
       secondary: '#3E4144'
     },
 
-    // Estados
     hover: {
       primary: '#181818',
       secondary: 'rgba(255, 255, 255, 0.2)'
     },
 
-    // Sombras
     shadow: {
       primary: 'rgba(255, 255, 255, 0.2)',
       secondary: 'rgba(255, 255, 255, 0.1)'

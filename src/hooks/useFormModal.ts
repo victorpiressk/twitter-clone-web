@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
-import { useCreatePost } from './'
 import { createMediaFile } from '../utils/mediaHelpers'
+import { useCreatePost } from './'
 import type { Poll, Location } from '../types/domain/models'
 import type { PostMediaWithFile } from '../utils/mediaHelpers'
 
@@ -16,15 +16,12 @@ export type UseFormModalConfig = {
 }
 
 export type UseFormModalReturn = {
-  // Estado
   content: string
   medias: PostMediaWithFile[]
   location: Location | null
   poll: Poll | null
   scheduledFor: Date | null
   isSubmitting: boolean
-
-  // Handlers
   handleContentChange: (value: string) => void
   handleMediasChange: (newMedias: PostMediaWithFile[]) => void
   handleMediaUpload: (newFiles: File[]) => void
@@ -38,8 +35,6 @@ export type UseFormModalReturn = {
   handleRemoveSchedule: () => void
   handleSubmit: () => Promise<void>
   handleClose: () => void
-
-  // Validação
   isDisabled: boolean
 }
 
@@ -52,8 +47,16 @@ export const useFormModal = (
 ): UseFormModalReturn => {
   const { type, targetPostId } = config
 
+  // ============================================
+  // DEPENDENCIES
+  // ============================================
+
   const { createPost, quoteTweet, commentPost, updatePost, isCreating } =
     useCreatePost()
+
+  // ============================================
+  // STATE
+  // ============================================
 
   const [content, setContent] = useState('')
   const [medias, setMedias] = useState<PostMediaWithFile[]>([])
@@ -62,20 +65,18 @@ export const useFormModal = (
   const [scheduledFor, setScheduledFor] = useState<Date | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const handleContentChange = useCallback((value: string) => {
-    setContent(value)
-  }, [])
+  // ============================================
+  // MEDIA HANDLERS
+  // ============================================
 
   const handleMediasChange = useCallback((newMedias: PostMediaWithFile[]) => {
     setMedias(newMedias)
   }, [])
 
-  // ✅ SIMPLIFICADO: usa createMediaFile
   const handleMediaUpload = useCallback((newFiles: File[]) => {
     const validMedias: PostMediaWithFile[] = newFiles.map((file) =>
       createMediaFile(file)
     )
-
     if (validMedias.length > 0) {
       setMedias((prev) => [...prev, ...validMedias])
     }
@@ -89,15 +90,28 @@ export const useFormModal = (
     })
   }, [])
 
+  // ============================================
+  // CONTENT HANDLERS
+  // ============================================
+
+  const handleContentChange = useCallback((value: string) => {
+    setContent(value)
+  }, [])
+
   const handleEmojiSelect = useCallback((emoji: string) => {
     setContent((prev) => prev + emoji)
     setTimeout(() => textareaRef.current?.focus(), 0)
   }, [])
 
+  // ============================================
+  // EXTRA HANDLERS
+  // ============================================
+
   const handleLocationSelect = useCallback(
     (loc: Location) => setLocation(loc),
     []
   )
+
   const handleRemoveLocation = useCallback(() => setLocation(null), [])
 
   const handlePollCreate = useCallback(
@@ -112,11 +126,34 @@ export const useFormModal = (
   )
 
   const handleRemovePoll = useCallback(() => setPoll(null), [])
+
   const handleSchedule = useCallback(
     (scheduledDate: Date) => setScheduledFor(scheduledDate),
     []
   )
+
   const handleRemoveSchedule = useCallback(() => setScheduledFor(null), [])
+
+  // ============================================
+  // RESET
+  // ============================================
+
+  const reset = useCallback(() => {
+    setContent('')
+    medias.forEach((m) => URL.revokeObjectURL(m.url))
+    setMedias([])
+    setLocation(null)
+    setPoll(null)
+    setScheduledFor(null)
+  }, [medias])
+
+  const handleClose = useCallback(() => {
+    reset()
+  }, [reset])
+
+  // ============================================
+  // SUBMIT
+  // ============================================
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim() && medias.length === 0) return
@@ -142,9 +179,6 @@ export const useFormModal = (
           await quoteTweet(targetPostId, content.trim(), files)
           break
         case 'edit':
-          console.log('🔍 QUOTE - targetPostId:', targetPostId)
-          console.log('🔍 QUOTE - content:', content.trim())
-          console.log('🔍 QUOTE - files:', files)
           if (!targetPostId) throw new Error('targetPostId obrigatório')
           await updatePost(targetPostId, content.trim(), files)
           break
@@ -152,12 +186,7 @@ export const useFormModal = (
           throw new Error(`Tipo desconhecido: ${type}`)
       }
 
-      setContent('')
-      medias.forEach((m) => URL.revokeObjectURL(m.url))
-      setMedias([])
-      setLocation(null)
-      setPoll(null)
-      setScheduledFor(null)
+      reset()
     } catch (error) {
       console.error('Erro ao processar:', error)
     }
@@ -169,20 +198,20 @@ export const useFormModal = (
     createPost,
     commentPost,
     quoteTweet,
-    updatePost
+    updatePost,
+    reset
   ])
 
-  const handleClose = useCallback(() => {
-    setContent('')
-    medias.forEach((m) => URL.revokeObjectURL(m.url))
-    setMedias([])
-    setLocation(null)
-    setPoll(null)
-    setScheduledFor(null)
-  }, [medias])
+  // ============================================
+  // VALIDATION
+  // ============================================
 
   const isDisabled =
     (!content.trim() && medias.length === 0) || content.length > 280
+
+  // ============================================
+  // RETURN
+  // ============================================
 
   return {
     content,

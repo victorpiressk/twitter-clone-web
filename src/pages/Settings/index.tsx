@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { User, Lock, Palette } from 'lucide-react'
+import PageHeader from '../../components/layout/PageHeader'
 import { ContentWrapper } from '../../styles/globalStyles'
-import PageHeader from '../../components/Layout/PageHeader'
 import AccountSettings from './components/AccountSettings'
-import PasswordSettings from './components/PasswordSettings'
 import AppearanceSettings from './components/AppearanceSettings'
+import PasswordSettings from './components/PasswordSettings'
 import * as S from './styles'
 
 type SettingsTab = 'account' | 'password' | 'appearance'
@@ -37,7 +37,6 @@ const Settings = () => {
 
   return (
     <ContentWrapper>
-      {/* Menu — sempre visível em desktop, visível em mobile/tablet apenas quando sem tab selecionada */}
       <S.SettingsContainer $hidden={!!activeTab}>
         <PageHeader variant="settings" />
 
@@ -60,7 +59,6 @@ const Settings = () => {
         </S.NavList>
       </S.SettingsContainer>
 
-      {/* Conteúdo — sempre visível em desktop, visível em mobile/tablet apenas quando tab selecionada */}
       <S.ContentPanel $visible={!!activeTab}>
         {activeTabData && (
           <>

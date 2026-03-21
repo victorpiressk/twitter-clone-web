@@ -1,5 +1,5 @@
-import type { ImageUploadProps } from './types'
 import * as S from './styles'
+import type { ImageUploadProps } from './types'
 
 const ImageUpload = ({
   onImagesChange,

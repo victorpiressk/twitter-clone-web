@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
+import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
+import InfoBar from '../../components/layout/InfoBar'
+import PageHeader from '../../components/layout/PageHeader'
+import { ScrollToTop } from '../../hooks/useScrollToTop'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import { useGetUsersQuery } from '../../store/slices/api/users.api'
+import { selectCurrentUser } from '../../store/slices/auth/authSlice'
 import {
   selectSuggestions,
   selectSuggestionsLoading,
@@ -7,14 +13,8 @@ import {
   setSuggestionsLoading,
   selectFollowState
 } from '../../store/slices/users/usersSlice'
-import { selectCurrentUser } from '../../store/slices/auth/authSlice'
-import { useGetUsersQuery } from '../../store/slices/api/users.api'
-import UserSuggestionCard from './components/UserSuggestionCard'
 import { ContentWrapper } from '../../styles/globalStyles'
-import InfoBar from '../../components/Layout/InfoBar'
-import PageHeader from '../../components/Layout/PageHeader'
-import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
-import { ScrollToTop } from '../../hooks/useScrollToTop'
+import UserSuggestionCard from './components/UserSuggestionCard'
 import * as S from './styles'
 
 const CONNECT_TABS = [

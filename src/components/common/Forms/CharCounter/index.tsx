@@ -1,5 +1,5 @@
-import type { PostCharCounterProps } from './types'
 import * as S from './styles'
+import type { PostCharCounterProps } from './types'
 
 const PostCharCounter = ({
   currentLength,

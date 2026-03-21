@@ -1,8 +1,8 @@
 import { createContext, useEffect, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { light } from '../styles/themes/light'
 import { dark } from '../styles/themes/dark'
 import { dim } from '../styles/themes/dim'
+import { light } from '../styles/themes/light'
 
 export type ThemeName = 'light' | 'dark' | 'dim'
 

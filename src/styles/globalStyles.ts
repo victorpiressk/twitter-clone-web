@@ -1,11 +1,11 @@
 import styled, { createGlobalStyle, css } from 'styled-components'
-import { light } from './themes/light'
-import ChirpRegular from '../assets/fonts/chirp-regular-web.woff'
-import ChirpMedium from '../assets/fonts/chirp-medium-web.woff'
 import ChirpBold from '../assets/fonts/chirp-bold-web.woff'
 import ChirpHeavy from '../assets/fonts/chirp-heavy-web.woff'
+import ChirpMedium from '../assets/fonts/chirp-medium-web.woff'
+import ChirpRegular from '../assets/fonts/chirp-regular-web.woff'
+import { light } from './themes/light'
 
-// 🎨 Cores compartilhadas (usadas em ambos os temas)
+// Cores compartilhadas (usadas em ambos os temas)
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
@@ -28,7 +28,6 @@ export const colors = {
   }
 }
 
-// 📱 Breakpoints de responsividade
 export const breakpoints = {
   mobile: '640px',
   tablet: '768px',
@@ -36,14 +35,12 @@ export const breakpoints = {
   wide: '1280px'
 }
 
-// ⏱️ Transições
 export const transitions = {
   fast: '150ms ease-in-out',
   normal: '300ms ease-in-out',
   slow: '500ms ease-in-out'
 }
 
-// 🔤 Tamanhos de fonte
 export const fontSizes = {
   xs: '11px',
   sm: '13px',
@@ -56,7 +53,6 @@ export const fontSizes = {
   '5xl': '64px'
 }
 
-// 📏 Pesos de fonte
 export const fontWeights = {
   regular: 400,
   medium: 500,
@@ -64,7 +60,6 @@ export const fontWeights = {
   heavy: 900
 }
 
-// 🌍 Estilos globais
 export const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: 'Chirp';
@@ -98,7 +93,6 @@ export const GlobalStyle = createGlobalStyle`
     font-display: optional;
   }
 
-  /* Reset CSS */
   * {
     margin: 0;
     padding: 0;
@@ -107,14 +101,13 @@ export const GlobalStyle = createGlobalStyle`
     letter-spacing: 0.015em;
   }
 
-  /* ← FORÇAR SCROLLBAR SEMPRE VISÍVEL */
+  /* FORÇAR SCROLLBAR SEMPRE VISÍVEL */
   html {
     overflow: auto scroll;
     overscroll-behavior-y: none;
     color-scheme: ${(props) => (props.theme === light ? 'light' : 'dark')};
   }
 
-  /* Body */
   body {
     font-size: ${fontSizes['2xl']};
     font-weight: ${fontWeights.regular};
@@ -124,10 +117,29 @@ export const GlobalStyle = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Listas */
   ul, ol {
     list-style: none;
   }
+`
+
+export const pageContainer600 = css`
+  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
+  min-height: 100vh;
+  width: 100%;
+  max-width: 600px;
+  flex-shrink: 0;
+
+  @media (max-width: ${breakpoints.desktop}) {
+    max-width: 100%;
+  }
+`
+
+export const pageContainer414 = css`
+  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
+  min-height: 100vh;
+  width: 100%;
+  max-width: 414px;
+  flex-shrink: 0;
 `
 
 // Layout Principal

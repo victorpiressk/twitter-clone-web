@@ -1,7 +1,6 @@
 export const light = {
   name: 'light',
   colors: {
-    // Backgrounds
     background: {
       primary: '#FFFFFF',
       secondary: '#F7F9F9',
@@ -11,7 +10,6 @@ export const light = {
       modalBlur: 'rgba(0, 0, 0, 0.20)'
     },
 
-    // Textos
     text: {
       primary: '#0F1419',
       secondary: '#536471',
@@ -19,19 +17,16 @@ export const light = {
       reverse: '#E7E9EA'
     },
 
-    // Bordas
     border: {
       primary: '#EFF3F4',
       secondary: '#CFD9DE'
     },
 
-    // Estados
     hover: {
       primary: '#F7F9F9',
       secondary: 'rgba(101, 119, 134, 0.2)'
     },
 
-    // Sombras
     shadow: {
       primary: 'rgba(101, 119, 134, 0.2)',
       secondary: 'rgba(101, 119, 134, 0.15)'

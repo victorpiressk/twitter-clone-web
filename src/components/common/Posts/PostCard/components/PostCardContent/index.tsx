@@ -1,32 +1,28 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRenderHashtags } from '../../../../../../hooks/useRenderHashtags'
 import { useAppSelector } from '../../../../../../store/hooks'
 import { selectPostById } from '../../../../../../store/slices/posts/postsSlice'
-import { useRenderHashtags } from '../../../../../../hooks/useRenderHashtags'
+import { formatDate } from '../../../../../../utils/formatDate'
 import LocationPreview from '../../../../Forms/LocationPreview'
 import PollPreview from '../../../../Forms/PollPreview'
 import SchedulePreview from '../../../../Forms/SchedulePreview'
 import OriginalPostEmbed from '../../../OriginalPostEmbed'
-import { formatDate } from '../../../../../../utils/formatDate'
-import type { PostCardContentProps } from './types'
 import * as S from './styles'
+import type { PostCardContentProps } from './types'
 
 const PostCardContent = ({ post, variant }: PostCardContentProps) => {
   const navigate = useNavigate()
   const [hasVoted, setHasVoted] = useState(false)
 
-  // ✅ Hook SEMPRE é chamado (sem condicional)
   const retweetOfId = typeof post.retweetOf === 'number' ? post.retweetOf : null
 
-  // ✅ Busca post original do Redux (hook incondicionalmente)
   const originalPost = useAppSelector((state) =>
     retweetOfId ? selectPostById(state, retweetOfId) : null
   )
 
-  // ✅ NOVO: Renderizar hashtags clicáveis
   const contentWithHashtags = useRenderHashtags({ content: post.content })
 
-  // ✅ Safety check
   if (!post) return null
 
   const isQuoteTweet = !!post.retweetOf && !!post.content.trim()
@@ -40,8 +36,8 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
     navigate(`/${post.author.username}`)
   }
 
-  const handleVote = (optionIndex: number) => {
-    console.log('Votou na opção:', optionIndex)
+  const handleVote = () => {
+    // TODO: implementar votação via API
     setHasVoted(true)
   }
 
@@ -72,10 +68,8 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
         </S.PostHeader>
       )}
 
-      {/* Usa contentWithHashtags em vez de post.content */}
       <S.PostText $variant={variant}>{contentWithHashtags}</S.PostText>
 
-      {/* Mídias */}
       {post.media && post.media.length > 0 && (
         <S.ImagesGrid $count={post.media.length}>
           {post.media.map((media, idx) => (
@@ -84,12 +78,10 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
         </S.ImagesGrid>
       )}
 
-      {/* ✅ Quote Tweet - Usa originalPost do Redux */}
       {isQuoteTweet && originalPost && (
         <OriginalPostEmbed post={originalPost} />
       )}
 
-      {/* Poll */}
       {post.poll && (
         <PollPreview
           question={post.poll.question || ''}
@@ -108,7 +100,6 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
         />
       )}
 
-      {/* Schedule */}
       {post.scheduledFor && (
         <SchedulePreview
           scheduledDate={new Date(post.scheduledFor)}
@@ -116,7 +107,6 @@ const PostCardContent = ({ post, variant }: PostCardContentProps) => {
         />
       )}
 
-      {/* Location */}
       {post.location && (
         <LocationPreview locationName={post.location.name} variant="display" />
       )}

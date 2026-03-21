@@ -5,6 +5,7 @@ import {
   fontWeights
 } from '../../../../../styles/globalStyles'
 import { ButtonLink } from '../../../../common/Button/styles'
+export { EmptyState, EmptyStateText } from '../../../../../styles/feedStyles'
 
 export const Widget = styled.div`
   background-color: ${(props) => props.theme.colors.background.primary};
@@ -135,13 +136,6 @@ export const Separator = styled.span`
 `
 
 export const LoadingState = styled.div`
-  padding: 20px 16px;
-  text-align: center;
-  color: ${(props) => props.theme.colors.text.secondary};
-  font-size: ${fontSizes.sm};
-`
-
-export const EmptyState = styled.div`
   padding: 20px 16px;
   text-align: center;
   color: ${(props) => props.theme.colors.text.secondary};

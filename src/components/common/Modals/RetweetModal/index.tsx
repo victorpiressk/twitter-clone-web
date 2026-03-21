@@ -1,5 +1,5 @@
-import FormModal from '../FormModal'
 import OriginalPostEmbed from '../../Posts/OriginalPostEmbed'
+import FormModal from '../FormModal'
 import type { RetweetModalProps } from './types'
 
 const RetweetModal = ({

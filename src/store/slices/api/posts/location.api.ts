@@ -1,16 +1,16 @@
-import { baseApi } from '../base.api'
 import {
   transformLocation,
   transformPost
 } from '../../../../utils/transformers/entities'
-import type { Location, Post } from '../../../../types/domain/models'
+import { baseApi } from '../base.api'
 import type {
   BackendLocation,
   BackendPost
 } from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../../types/domain/responses'
 import type { PaginationParams } from '../../../../types/contracts/shared'
+import type { Location, Post } from '../../../../types/domain/models'
+import type { PaginatedResponse } from '../../../../types/domain/responses'
 
 // ============================================
 // TYPES
@@ -30,7 +30,7 @@ type GetNearbyLocationsParams = {
 export const locationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // LOCATIONS
+    // GET LOCATIONS
     // ============================================
 
     getLocations: builder.query<
@@ -52,12 +52,20 @@ export const locationApi = baseApi.injectEndpoints({
       providesTags: ['Location']
     }),
 
+    // ============================================
+    // GET LOCATION BY ID
+    // ============================================
+
     getLocationById: builder.query<Location, number>({
       query: (id) => `/api/locations/${id}/`,
       transformResponse: (response: BackendLocation): Location =>
         transformLocation(response),
       providesTags: (_result, _error, id) => [{ type: 'Location', id }]
     }),
+
+    // ============================================
+    // GET LOCATION POSTS
+    // ============================================
 
     getLocationPosts: builder.query<
       PaginatedResponse<Post>,
@@ -81,6 +89,10 @@ export const locationApi = baseApi.injectEndpoints({
       ]
     }),
 
+    // ============================================
+    // GET NEARBY LOCATIONS
+    // ============================================
+
     getNearbyLocations: builder.query<Location[], GetNearbyLocationsParams>({
       query: ({ latitude, longitude, radius = 10, limit = 20 }) => ({
         url: '/api/locations/nearby/',
@@ -88,9 +100,7 @@ export const locationApi = baseApi.injectEndpoints({
       }),
       transformResponse: (
         response: BackendPaginatedResponse<BackendLocation>
-      ): Location[] => {
-        return response.results.map(transformLocation)
-      },
+      ): Location[] => response.results.map(transformLocation),
       providesTags: ['Location']
     })
   })

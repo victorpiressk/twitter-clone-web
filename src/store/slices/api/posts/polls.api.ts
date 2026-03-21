@@ -1,12 +1,12 @@
-import { baseApi } from '../base.api'
 import { transformPoll } from '../../../../utils/transformers/entities'
 import { transformVotePollRequest } from '../../../../utils/transformers/requests'
-import type { Poll } from '../../../../types/domain/models'
+import { baseApi } from '../base.api'
 import type { BackendPoll } from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../../types/domain/responses'
-import type { VotePollRequest } from '../../../../types/domain/requests'
 import type { PaginationParams } from '../../../../types/contracts/shared'
+import type { Poll } from '../../../../types/domain/models'
+import type { VotePollRequest } from '../../../../types/domain/requests'
+import type { PaginatedResponse } from '../../../../types/domain/responses'
 
 // ============================================
 // API
@@ -15,7 +15,7 @@ import type { PaginationParams } from '../../../../types/contracts/shared'
 export const pollsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // POLLS
+    // GET POLLS
     // ============================================
 
     getPolls: builder.query<PaginatedResponse<Poll>, PaginationParams | void>({
@@ -34,12 +34,20 @@ export const pollsApi = baseApi.injectEndpoints({
       providesTags: ['Poll']
     }),
 
+    // ============================================
+    // GET POLL BY ID
+    // ============================================
+
     getPollById: builder.query<Poll, number>({
       query: (id) => `/api/polls/${id}/`,
       transformResponse: (response: BackendPoll): Poll =>
         transformPoll(response),
       providesTags: (_result, _error, id) => [{ type: 'Poll', id }]
     }),
+
+    // ============================================
+    // VOTE POLL
+    // ============================================
 
     votePoll: builder.mutation<Poll, { pollId: number; data: VotePollRequest }>(
       {
@@ -56,6 +64,10 @@ export const pollsApi = baseApi.injectEndpoints({
         ]
       }
     ),
+
+    // ============================================
+    // UNVOTE POLL
+    // ============================================
 
     unvotePoll: builder.mutation<Poll, number>({
       query: (pollId) => ({

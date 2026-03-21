@@ -1,11 +1,9 @@
-// src/components/common/SearchBar/components/SearchPopover/index.tsx
-
 import { Search, User, X, MessageCircle } from 'lucide-react'
-import BasePopover from '../../../Popovers/BasePopover'
-import Avatar from '../../../Avatar'
 import { formatDate } from '../../../../../utils/formatDate'
-import type { SearchPopoverProps } from './types'
+import Avatar from '../../../Avatar'
+import BasePopover from '../../../Popovers/BasePopover'
 import * as S from './styles'
+import type { SearchPopoverProps } from './types'
 
 const SearchPopover = ({
   isOpen,
@@ -212,7 +210,6 @@ const SearchPopover = ({
                             key={hashtag.id}
                             onClick={() => {
                               if (onHashtagClick) {
-                                // ✅ Navega para Explore com query
                                 onHashtagClick(hashtag.name)
                               }
                             }}

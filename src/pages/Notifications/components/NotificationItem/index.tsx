@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom'
 import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
 import { formatDate } from '../../../../utils/formatDate'
-import type { NotificationItemProps } from './types'
 import * as S from './styles'
+import type { NotificationItemProps } from './types'
 
 const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
   const navigate = useNavigate()

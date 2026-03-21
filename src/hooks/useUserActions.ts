@@ -1,39 +1,60 @@
 import { useCallback } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
-  selectUserById,
-  selectIsFollowing,
-  selectFollowId, // ✅ NOVO
-  toggleFollow,
-  setFollowId, // ✅ NOVO
-  removeFollowId // ✅ NOVO
-} from '../store/slices/users/usersSlice'
-import {
   useFollowUserMutation,
   useUnfollowUserMutation
 } from '../store/slices/api/users.api'
+import {
+  selectUserById,
+  selectIsFollowing,
+  selectFollowId,
+  toggleFollow,
+  setFollowId,
+  removeFollowId
+} from '../store/slices/users/usersSlice'
 import { useToast } from './useToast'
 
+// ============================================
+// HOOK
+// ============================================
+
 export const useUserActions = (userId: number) => {
+  // ============================================
+  // DEPENDENCIES
+  // ============================================
+
   const dispatch = useAppDispatch()
   const { showToast } = useToast()
+
+  // ============================================
+  // MUTATIONS
+  // ============================================
 
   const [followMutation, { isLoading: isFollowLoading }] =
     useFollowUserMutation()
   const [unfollowMutation, { isLoading: isUnfollowLoading }] =
     useUnfollowUserMutation()
 
+  // ============================================
+  // SELECTORS
+  // ============================================
+
   const user = useAppSelector((state) => selectUserById(state, userId))
   const isFollowingUser = useAppSelector((state) =>
     selectIsFollowing(state, userId)
   )
-  const followId = useAppSelector((state) => selectFollowId(state, userId)) // ✅ NOVO
+  const followId = useAppSelector((state) => selectFollowId(state, userId))
+
+  // ============================================
+  // COMPUTED
+  // ============================================
 
   const isLoading = isFollowLoading || isUnfollowLoading
 
   // ============================================
-  // FOLLOW
+  // HANDLERS
   // ============================================
+
   const followUser = useCallback(async () => {
     if (!user) {
       showToast('error', 'Usuário não encontrado')
@@ -44,15 +65,7 @@ export const useUserActions = (userId: number) => {
 
     try {
       const result = await followMutation({ following: userId }).unwrap()
-
-      // ✅ SALVA o followId retornado pelo backend
-      dispatch(
-        setFollowId({
-          userId,
-          followId: result.id // ← ID da relação retornado pela API
-        })
-      )
-
+      dispatch(setFollowId({ userId, followId: result.id }))
       showToast('success', `Você agora segue @${user.username}`)
     } catch (error) {
       dispatch(toggleFollow(userId))
@@ -61,9 +74,6 @@ export const useUserActions = (userId: number) => {
     }
   }, [userId, user, dispatch, followMutation, showToast])
 
-  // ============================================
-  // UNFOLLOW
-  // ============================================
   const unfollowUser = useCallback(async () => {
     if (!user) {
       showToast('error', 'Usuário não encontrado')
@@ -79,12 +89,8 @@ export const useUserActions = (userId: number) => {
     dispatch(toggleFollow(userId))
 
     try {
-      // ✅ USA o followId (não o userId!)
       await unfollowMutation(followId).unwrap()
-
-      // ✅ Remove o followId do Redux
       dispatch(removeFollowId(userId))
-
       showToast('info', `Você deixou de seguir @${user.username}`)
     } catch (error) {
       dispatch(toggleFollow(userId))
@@ -92,6 +98,10 @@ export const useUserActions = (userId: number) => {
       console.error('Unfollow error:', error)
     }
   }, [userId, user, followId, dispatch, unfollowMutation, showToast])
+
+  // ============================================
+  // RETURN
+  // ============================================
 
   return {
     user,

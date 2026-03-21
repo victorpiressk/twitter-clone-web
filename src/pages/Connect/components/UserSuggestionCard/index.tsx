@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
 import { useUserActions } from '../../../../hooks/useUserActions'
-import type { UserSuggestionCardProps } from './types'
 import * as S from './styles'
+import type { UserSuggestionCardProps } from './types'
 
 const UserSuggestionCard = ({
   user,
@@ -11,7 +11,6 @@ const UserSuggestionCard = ({
 }: UserSuggestionCardProps) => {
   const navigate = useNavigate()
 
-  // ✅ Hook centraliza TODA a lógica de follow
   const { isFollowing, isLoading, followUser, unfollowUser } = useUserActions(
     user.id
   )

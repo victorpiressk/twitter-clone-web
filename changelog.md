@@ -7,6 +7,135 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+# Changelog - Fase 0.3.0
+
+## [0.3.0] - 2026-03-09
+
+### Changed
+
+#### **Code Quality - Limpeza**
+- Removidos todos `console.log` do código
+  - Substituídos por `showToast` para feedback ao usuário
+  - Substituídos por `// TODO` para funcionalidades futuras
+  - Substituídos por comentários explicativos para lógica pendente
+  - Mantidos `console.error` e `console.warn` legítimos
+- Padrão de comentários limpo e consistente
+  - Removidos comentários de caminho (`// src/...`)
+  - Removidos emojis de comentários (`✅`, `⏸️`, etc)
+  - Removidos comentários redundantes
+  - Separadores `//===` mantidos apenas em arquivos > 100 linhas
+  - JSDoc mantido em utilitários e hooks complexos
+- Import `type` movido para topo do arquivo em `notification.ts`
+- ESLint sem warnings ou errors
+- Prettier aplicado em todos arquivos
+
+#### **Code Quality - Organização**
+- Imports organizados automaticamente via ESLint
+  - Plugin `eslint-plugin-import` instalado
+  - Regra `import/order` configurada
+  - 307 violações corrigidas via `eslint --fix`
+  - 5 casos corrigidos manualmente
+- Type safety melhorado
+  - `catch (error: any)` → `catch (error: unknown)` com type guard
+  - `transformResponse: (response: any)` desnecessário removido
+  - `(props: any)` mantido em styled-components (limitação legítima)
+- Barrel exports mantidos (risco de circular dependency avaliado)
+
+#### **Code Quality - Refactoring**
+- Duplicações de código eliminadas
+- Função `formatNumber` extraída para `utils/formatNumber.ts`
+  - Consolidação de 3 implementações idênticas
+  - Usado em `PostCardActions`, `MobileDrawer`, `ProfileStats`
+- Estilos de feed consolidados em `styles/feedStyles.ts`
+  - Componentes compartilhados: `EmptyState`, `LoadingMore`, `EndMessage`, etc
+  - 5 páginas migradas: Home, Profile, Explore, PostDetail, Messages
+  - `NoComments`/`NoCommentsText` substituídos por `EmptyState` padrão
+
+### Improved
+
+#### **Performance - Bundle Size**
+- Bundle inicial: 1.156 MB
+- Após lazy load: 1.011 MB (-12%)
+- Após code splitting v1 (vendors react/redux/styled/ui): 883 KB (-24%)
+- Após code splitting v2 (vendors emoji/datepicker/giphy/floating): 328 KB (-71%)
+- **Redução total do chunk principal: 1.156 MB → 328 KB**
+
+#### **Performance - Code Splitting**
+- Lazy load implementado em todas rotas
+  - `React.lazy` + `Suspense`
+  - Chunks separados por página
+- Manual chunks otimizados
+  - `vendor-react`: react, react-dom, react-router
+  - `vendor-redux`: @reduxjs/toolkit, react-redux
+  - `vendor-styled`: styled-components
+  - `vendor-ui`: lucide-react, react-infinite-scroll
+  - `vendor-emoji`: emoji-picker-react
+  - `vendor-datepicker`: react-datepicker, date-fns
+  - `vendor-giphy`: @giphy/js-fetch-api, @giphy/react-components
+  - `vendor-floating`: @floating-ui/react
+
+#### **Performance - Memoization**
+- `PostCard` otimizado com `React.memo`
+- Handlers memoizados com `useCallback`
+- `handleClickProfile` memoizado para evitar re-renders
+
+#### **Performance - Lighthouse**
+- Baseline (servidor aquecido):
+  - Performance: 79
+  - LCP: 2.9s
+  - FCP: 0.7s
+  - TBT: 0ms
+  - Speed Index: 1.6s
+- Resultado final:
+  - Performance: 79
+  - LCP: 3.3s
+  - FCP: 0.6s (↓ -0.1s)
+  - TBT: 0ms
+  - CLS: 0.015
+
+### Technical
+
+#### **ESLint Configuration**
+- Plugin `eslint-plugin-import` adicionado
+- Regra `import/order` com grupos:
+  1. Built-ins
+  2. External packages
+  3. Internal paths
+  4. Parent imports
+  5. Sibling imports
+  6. Index imports
+  7. Type imports
+- Alphabetização automática dentro de cada grupo
+
+#### **Vite Configuration**
+- `manualChunks` configurado para vendors
+- Separação por biblioteca (react, redux, styled, etc)
+- Chunks específicos para libs pesadas (emoji, giphy)
+
+#### **Utils Organization**
+- `formatNumber` centralizado em `utils/formatNumber.ts`
+- `feedStyles` centralizado em `styles/feedStyles.ts`
+- Reutilização em múltiplos componentes
+
+### Notes
+
+**Bundle Size:**
+- Redução de 71% no chunk principal
+- Impacto real em conexões lentas (não refletido no localhost)
+- First load otimizado com lazy load de rotas
+
+**Code Quality:**
+- Código limpo, organizado e consistente
+- Type safety melhorado (sem `any` desnecessários)
+- Comentários relevantes e úteis
+
+**Performance:**
+- Score Lighthouse estável (79)
+- Ganhos reais em bundle size
+- Memoization aplicada em componentes críticos
+
+---
+
 ## [0.2.0] - 2026-03-19
 
 ### Added

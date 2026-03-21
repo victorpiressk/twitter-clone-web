@@ -1,3 +1,6 @@
+import { transformLocation } from './location'
+import { transformPoll } from './poll'
+import { transformUserToCardWithStats } from './user'
 import type {
   BackendPost,
   BackendPostDetail,
@@ -10,9 +13,6 @@ import type {
   PostMedia,
   PostWithInteractions
 } from '../../../types/domain/models'
-import { transformPoll } from './poll'
-import { transformLocation } from './location'
-import { transformUserToCardWithStats } from './user'
 
 // ============================================
 // BACKEND → FRONTEND

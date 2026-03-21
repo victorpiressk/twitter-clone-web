@@ -1,20 +1,20 @@
-import { baseApi } from '../base.api'
 import {
   transformPost,
   transformPostWithInteractions
 } from '../../../../utils/transformers/entities'
-import type {
-  Post,
-  PostWithInteractions
-} from '../../../../types/domain/models'
+import { baseApi } from '../base.api'
 import type {
   BackendPost,
   BackendPostWithInteractions
 } from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../../types/domain/responses'
-import type { ReplyRequest } from '../../../../types/domain/requests'
 import type { PaginationParams } from '../../../../types/contracts/shared'
+import type {
+  Post,
+  PostWithInteractions
+} from '../../../../types/domain/models'
+import type { ReplyRequest } from '../../../../types/domain/requests'
+import type { PaginatedResponse } from '../../../../types/domain/responses'
 
 // ============================================
 // API
@@ -23,7 +23,7 @@ import type { PaginationParams } from '../../../../types/contracts/shared'
 export const repliesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // REPLIES
+    // GET POST REPLIES
     // ============================================
 
     getPostReplies: builder.query<
@@ -37,7 +37,7 @@ export const repliesApi = baseApi.injectEndpoints({
       transformResponse: (
         response: BackendPaginatedResponse<BackendPostWithInteractions>
       ): PaginatedResponse<PostWithInteractions> => {
-        // ✅ Se API retorna array direto
+        // API retorna array direto
         if (Array.isArray(response)) {
           return {
             count: response.length,
@@ -47,7 +47,7 @@ export const repliesApi = baseApi.injectEndpoints({
           }
         }
 
-        // ✅ Se API retorna objeto paginado
+        // API retorna objeto paginado
         if (response && Array.isArray(response.results)) {
           return {
             count: response.count || 0,
@@ -57,13 +57,8 @@ export const repliesApi = baseApi.injectEndpoints({
           }
         }
 
-        // ✅ Fallback: retorna vazio
-        return {
-          count: 0,
-          next: null,
-          previous: null,
-          results: []
-        }
+        // Fallback
+        return { count: 0, next: null, previous: null, results: [] }
       },
       providesTags: (_result, _error, { postId }) => [
         { type: 'Post', id: postId },
@@ -71,12 +66,16 @@ export const repliesApi = baseApi.injectEndpoints({
       ]
     }),
 
+    // ============================================
+    // REPLY TO POST
+    // ============================================
+
     replyToPost: builder.mutation<Post, { postId: number; data: ReplyRequest }>(
       {
         query: ({ postId, data }) => ({
           url: `/api/posts/${postId}/reply/`,
           method: 'POST',
-          body: data // { content: string }
+          body: data
         }),
         transformResponse: (response: BackendPost): Post =>
           transformPost(response),

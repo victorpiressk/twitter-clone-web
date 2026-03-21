@@ -1,5 +1,5 @@
-import type { Poll } from './Poll'
 import type { Location } from './Location'
+import type { Poll } from './Poll'
 import type { UserCardWithStats } from './User'
 
 export type PostMedia = {

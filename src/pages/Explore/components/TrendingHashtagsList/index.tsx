@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import type { TrendingHashtag } from '../../../../types/domain/models'
 import * as S from './styles'
+import type { TrendingHashtag } from '../../../../types/domain/models'
 
 type TrendingHashtagsListProps = {
   hashtags: TrendingHashtag[]

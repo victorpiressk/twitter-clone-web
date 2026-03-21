@@ -3,9 +3,30 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../styles/globalStyles'
 
+// ============================================
+// TYPES
+// ============================================
+
 type UseRenderHashtagsProps = {
   content: string
 }
+
+// ============================================
+// STYLED COMPONENT
+// ============================================
+
+const HashtagLink = styled.span`
+  color: ${colors.primary};
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`
+
+// ============================================
+// HOOK
+// ============================================
 
 export const useRenderHashtags = ({ content }: UseRenderHashtagsProps) => {
   const navigate = useNavigate()
@@ -16,16 +37,14 @@ export const useRenderHashtags = ({ content }: UseRenderHashtagsProps) => {
     let lastIndex = 0
     let match
 
-    // Encontrar todas as hashtags
+    // Encontra todas as hashtags e constrói as partes
     while ((match = hashtagRegex.exec(content)) !== null) {
-      // Adicionar texto antes da hashtag
       if (match.index > lastIndex) {
         parts.push(content.substring(lastIndex, match.index))
       }
 
-      // Adicionar hashtag como link
       const hashtag = match[0]
-      const hashtagName = hashtag.slice(1) // Remove #
+      const hashtagName = hashtag.slice(1) // Remove o #
 
       parts.push(
         <HashtagLink
@@ -44,30 +63,14 @@ export const useRenderHashtags = ({ content }: UseRenderHashtagsProps) => {
       lastIndex = match.index + hashtag.length
     }
 
-    // Adicionar texto restante
+    // Adiciona texto restante após a última hashtag
     if (lastIndex < content.length) {
       parts.push(content.substring(lastIndex))
     }
 
-    // Se não tem hashtags, retorna texto original
-    if (parts.length === 0) {
-      return content
-    }
+    // Sem hashtags — retorna o texto original
+    if (parts.length === 0) return content
 
-    // Retorna array de elementos
     return parts.map((part, i) => <Fragment key={i}>{part}</Fragment>)
   }, [content, navigate])
 }
-
-// ============================================
-// STYLED COMPONENT
-// ============================================
-
-const HashtagLink = styled.span`
-  color: ${colors.primary};
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`

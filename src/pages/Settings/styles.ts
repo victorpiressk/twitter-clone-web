@@ -4,15 +4,12 @@ import {
   colors,
   fontSizes,
   fontWeights,
+  pageContainer414,
   transitions
 } from '../../styles/globalStyles'
 
 export const SettingsContainer = styled.div<{ $hidden?: boolean }>`
-  border-right: 1px solid ${(props) => props.theme.colors.border.primary};
-  min-height: 100vh;
-  width: 100%;
-  max-width: 414px;
-  flex-shrink: 0;
+  ${pageContainer414}
 
   @media (max-width: ${breakpoints.desktop}) {
     max-width: 100%;

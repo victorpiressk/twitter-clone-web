@@ -1,16 +1,14 @@
-// src/hooks/useHashtags.ts
-
 import { useMemo } from 'react'
 import {
   useGetHashtagsQuery,
   useSearchHashtagsQuery,
   useGetTrendingHashtagsQuery
 } from '../store/slices/api/hashtags.api'
-import type { Hashtag, TrendingHashtag } from '../types/domain/models'
 import type {
   PaginationParams,
   PeriodLimitParams
 } from '../types/contracts/shared'
+import type { Hashtag, TrendingHashtag } from '../types/domain/models'
 
 // ============================================
 // TYPES
@@ -42,7 +40,7 @@ type UseHashtagsReturnSearch = {
 }
 
 // ============================================
-// HOOK OVERLOADS
+// OVERLOADS
 // ============================================
 
 export function useHashtags(config: {
@@ -61,12 +59,12 @@ export function useHashtags(config: {
 }): UseHashtagsReturnSearch
 
 // ============================================
-// HOOK IMPLEMENTATION
+// HOOK
 // ============================================
 
 export function useHashtags(config: UseHashtagsMode) {
   // ============================================
-  // MODE: ALL HASHTAGS (Lista paginada)
+  // QUERIES
   // ============================================
 
   const {
@@ -77,10 +75,6 @@ export function useHashtags(config: UseHashtagsMode) {
     config.mode === 'all' ? config.params || {} : undefined,
     { skip: config.mode !== 'all' }
   )
-
-  // ============================================
-  // MODE: TRENDING HASHTAGS (Top hashtags)
-  // ============================================
 
   const {
     data: trendingHashtagsData,
@@ -93,10 +87,6 @@ export function useHashtags(config: UseHashtagsMode) {
     { skip: config.mode !== 'trending' }
   )
 
-  // ============================================
-  // MODE: SEARCH (Buscar por nome)
-  // ============================================
-
   const {
     data: searchHashtagsData,
     isLoading: loadingSearch,
@@ -106,7 +96,7 @@ export function useHashtags(config: UseHashtagsMode) {
   })
 
   // ============================================
-  // COMPUTED VALUES
+  // COMPUTED
   // ============================================
 
   const hasMoreAll = useMemo(() => {
@@ -114,7 +104,7 @@ export function useHashtags(config: UseHashtagsMode) {
   }, [config.mode, allHashtagsData])
 
   // ============================================
-  // RETURN BASED ON MODE
+  // RETURN
   // ============================================
 
   if (config.mode === 'all') {
@@ -143,7 +133,7 @@ export function useHashtags(config: UseHashtagsMode) {
     }
   }
 
-  // Fallback (TypeScript garante que nunca chegará aqui)
+  // Fallback — TypeScript garante que nunca chegará aqui
   return {
     isLoading: false,
     isFetching: false

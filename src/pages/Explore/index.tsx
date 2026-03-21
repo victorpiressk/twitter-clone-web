@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { usePosts } from '../../hooks/usePosts'
-import { useHashtags } from '../../hooks/useHashtags'
-import { useHashtagPosts } from '../../hooks/useHashtagPosts'
-import { useMobileDrawer } from '../../hooks/useMobileDrawer'
-import InfoBar from '../../components/Layout/InfoBar'
-import PageHeader from '../../components/Layout/PageHeader'
+import { useSearchParams } from 'react-router-dom'
 import PostCard from '../../components/common/Posts/PostCard'
-import TrendingHashtagsList from './components/TrendingHashtagsList'
 import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
+import InfoBar from '../../components/layout/InfoBar'
+import PageHeader from '../../components/layout/PageHeader'
+import { useHashtagPosts } from '../../hooks/useHashtagPosts'
+import { useHashtags } from '../../hooks/useHashtags'
+import { useMobileDrawer } from '../../hooks/useMobileDrawer'
+import { usePosts } from '../../hooks/usePosts'
 import { ScrollToTop } from '../../hooks/useScrollToTop'
 import { ContentWrapper } from '../../styles/globalStyles'
+import TrendingHashtagsList from './components/TrendingHashtagsList'
 import * as S from './styles'
 
 const EXPLORE_TABS = [
@@ -67,8 +67,8 @@ const Explore = () => {
 
         return isEmpty ? (
           <S.EmptyState>
-            <h3>Nenhum post ainda</h3>
-            <p>Seja o primeiro a postar!</p>
+            <S.EmptyStateTitle>Nenhum post ainda</S.EmptyStateTitle>
+            <S.EmptyStateText>Seja o primeiro a postar!</S.EmptyStateText>
           </S.EmptyState>
         ) : (
           <InfiniteScroll
@@ -106,8 +106,10 @@ const Explore = () => {
 
           return isEmpty ? (
             <S.EmptyState>
-              <h3>Nenhum post encontrado</h3>
-              <p>Ainda não há posts com #{searchQuery}</p>
+              <S.EmptyStateTitle>Nenhum post encontrado</S.EmptyStateTitle>
+              <S.EmptyStateText>
+                Ainda não há posts com #{searchQuery}
+              </S.EmptyStateText>
             </S.EmptyState>
           ) : (
             <div>
@@ -124,8 +126,8 @@ const Explore = () => {
 
         return isEmpty ? (
           <S.EmptyState>
-            <h3>Nenhum trend no momento</h3>
-            <p>Volte mais tarde! 🔥</p>
+            <S.EmptyStateTitle>Nenhum trend no momento</S.EmptyStateTitle>
+            <S.EmptyStateText>Volte mais tarde!</S.EmptyStateText>
           </S.EmptyState>
         ) : (
           <TrendingHashtagsList hashtags={trendingHashtags} />
@@ -135,19 +137,19 @@ const Explore = () => {
       case 'news':
         return (
           <S.EmptyState>
-            <h3>Notícias em breve... 📰</h3>
+            <S.EmptyStateTitle>Notícias em breve... 📰</S.EmptyStateTitle>
           </S.EmptyState>
         )
       case 'sports':
         return (
           <S.EmptyState>
-            <h3>Esportes em breve... ⚽</h3>
+            <S.EmptyStateTitle>Esportes em breve... ⚽</S.EmptyStateTitle>
           </S.EmptyState>
         )
       case 'entertainment':
         return (
           <S.EmptyState>
-            <h3>Entretenimento em breve... 🎬</h3>
+            <S.EmptyStateTitle>Entretenimento em breve... 🎬</S.EmptyStateTitle>
           </S.EmptyState>
         )
       default:

@@ -1,19 +1,18 @@
 import { useState } from 'react'
+import { ptBR } from 'date-fns/locale/pt-BR'
 import { X } from 'lucide-react'
 import DatePicker, { registerLocale } from 'react-datepicker'
-import { ptBR } from 'date-fns/locale/pt-BR'
 import 'react-datepicker/dist/react-datepicker.css'
 import BasePopover from '../../../../../Popovers/BasePopover'
-import type { PostSchedulerProps } from './types'
 import * as S from './styles'
+import type { PostSchedulerProps } from './types'
 
-// Registra locale português
 registerLocale('pt-BR', ptBR)
 
 // ============================================
 // FEATURE FLAG
 // ============================================
-const FEATURE_ENABLED = false // ⏸️ Desabilitado temporariamente
+const FEATURE_ENABLED = false // Desabilitado temporariamente
 
 const PostSchedulerComponent = ({
   isOpen,

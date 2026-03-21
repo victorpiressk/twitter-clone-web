@@ -1,6 +1,6 @@
 import { Mail } from 'lucide-react'
+import PageHeader from '../../components/layout/PageHeader'
 import { useMobileDrawer } from '../../hooks/useMobileDrawer'
-import PageHeader from '../../components/Layout/PageHeader'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
@@ -12,15 +12,13 @@ const Messages = () => {
       <S.MessagesContainer>
         <PageHeader variant="messages" onAvatarClick={openDrawer} />
 
-        <S.PlaceholderContent>
-          <S.PlaceholderIcon>
-            <Mail size={80} strokeWidth={1.5} />
-          </S.PlaceholderIcon>
-          <S.PlaceholderTitle>Mensagens em breve!</S.PlaceholderTitle>
-          <S.PlaceholderText>
+        <S.EmptyState>
+          <Mail size={80} strokeWidth={1.5} />
+          <S.EmptyStateTitle>Mensagens em breve!</S.EmptyStateTitle>
+          <S.EmptyStateText>
             Esta funcionalidade será implementada em versões futuras do projeto.
-          </S.PlaceholderText>
-        </S.PlaceholderContent>
+          </S.EmptyStateText>
+        </S.EmptyState>
       </S.MessagesContainer>
     </ContentWrapper>
   )

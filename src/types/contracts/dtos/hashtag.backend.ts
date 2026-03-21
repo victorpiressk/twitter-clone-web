@@ -6,12 +6,12 @@ export type BackendHashtag = {
   created_at: string
 }
 
-// ✅ NOVO: Response específico de trending hashtags
+// Response específico de trending hashtags
 export type BackendTrendingHashtag = BackendHashtag & {
   recent_posts_count: number
 }
 
-// ✅ NOVO: Response do endpoint /trending/
+// Response do endpoint /trending/
 export type BackendTrendingHashtagsResponse = {
   meta: {
     period: 'today' | 'week' | 'month' | 'all'

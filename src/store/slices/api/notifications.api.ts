@@ -1,10 +1,10 @@
-import { baseApi } from './base.api'
 import { transformNotification } from '../../../utils/transformers/entities'
-import type { Notification } from '../../../types/domain/models'
+import { baseApi } from './base.api'
 import type { BackendNotification } from '../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../types/domain/responses'
 import type { PaginationParams } from '../../../types/contracts/shared'
+import type { Notification } from '../../../types/domain/models'
+import type { PaginatedResponse } from '../../../types/domain/responses'
 
 // ============================================
 // TYPES
@@ -21,7 +21,7 @@ type UnreadCountResponse = {
 export const notificationsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // NOTIFICAÇÕES
+    // GET NOTIFICATIONS
     // ============================================
 
     getNotifications: builder.query<
@@ -43,16 +43,23 @@ export const notificationsApi = baseApi.injectEndpoints({
       providesTags: ['Notification']
     }),
 
+    // ============================================
+    // GET UNREAD COUNT
+    // ============================================
+
     getUnreadCount: builder.query<UnreadCountResponse, void>({
       query: () => '/api/notifications/unread_count/',
       providesTags: ['Notification']
     }),
 
+    // ============================================
+    // MARK NOTIFICATION READ
+    // ============================================
+
     markNotificationRead: builder.mutation<Notification, number>({
       query: (id) => ({
         url: `/api/notifications/${id}/read/`,
         method: 'POST'
-        // Body vazio
       }),
       transformResponse: (response: BackendNotification): Notification =>
         transformNotification(response),

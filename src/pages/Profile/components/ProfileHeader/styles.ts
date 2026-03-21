@@ -1,6 +1,6 @@
 import styled from 'styled-components'
-import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
 import { ButtonContainer } from '../../../../components/common/Button/styles'
+import { fontSizes, fontWeights } from '../../../../styles/globalStyles'
 
 export const HeaderContainer = styled.div``
 

@@ -1,18 +1,16 @@
-// src/components/Layout/SideBar/index.tsx
-
 import { useState, useRef, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { Twitter, MoreHorizontal, Feather } from 'lucide-react'
-import Button from '../../common/Button'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useToast } from '../../../hooks/useToast'
+import { useAppSelector } from '../../../store/hooks'
+import { useLogoutMutation } from '../../../store/slices/api/auth.api'
+import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
 import Avatar from '../../common/Avatar'
+import Button from '../../common/Button'
 import Popover from '../../common/Popovers/BasePopover'
 import CreatePostModal from './components/CreatePostModal'
 import { NAV_ITEMS, MORE_ITEMS, PROFILE_MENU_ITEMS } from './constants'
-import { useToast } from '../../../hooks/useToast'
-import { useAppSelector } from '../../../store/hooks'
-import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
-import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
-import { useLogoutMutation } from '../../../store/slices/api/auth.api'
 import * as S from './styles'
 
 const SideBar = () => {
@@ -23,13 +21,8 @@ const SideBar = () => {
   const user = useAppSelector(selectCurrentUser)
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
 
-  // ✅ NOVO: Buscar count de notificações não lidas
   const { data: unreadData } = useGetUnreadCountQuery()
   const unreadCount = unreadData?.count || 0
-
-  console.log('🔔 Unread Data:', unreadData)
-  console.log('🔔 Unread Count:', unreadCount)
-  console.log('🔔 Should Show Badge:', unreadCount > 0)
 
   const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
@@ -64,7 +57,7 @@ const SideBar = () => {
   const handleProfileMenuClick = async (itemId: string) => {
     switch (itemId) {
       case 'add-account':
-        console.log('Adicionar conta')
+        showToast('info', 'Funcionalidade disponível em breve!')
         break
       case 'logout':
         try {
@@ -103,7 +96,6 @@ const SideBar = () => {
                     variant="ghost"
                     active={location.pathname === item.path}
                   >
-                    {/* Wrapper do ícone com badge */}
                     <S.IconWrapper>
                       <Icon size={26.25} />
                       {showBadge && (
@@ -118,7 +110,6 @@ const SideBar = () => {
               )
             })}
 
-            {/* Botão Mais — apenas em desktop */}
             <S.MoreButtonWrapper>
               <S.SideButton
                 ref={moreButtonRef}
@@ -131,7 +122,6 @@ const SideBar = () => {
               </S.SideButton>
             </S.MoreButtonWrapper>
 
-            {/* MORE_ITEMS diretos — apenas quando colapsado */}
             <S.CollapsedMoreItems>
               {MORE_ITEMS.map((item) => {
                 const Icon = item.icon
@@ -149,7 +139,6 @@ const SideBar = () => {
               })}
             </S.CollapsedMoreItems>
 
-            {/* Botão Postar */}
             <li>
               <S.SideButton
                 type="button"
@@ -164,7 +153,6 @@ const SideBar = () => {
             </li>
           </S.NavList>
 
-          {/* Botão Perfil */}
           <S.FooterButton
             ref={profileButtonRef}
             type="button"
@@ -190,7 +178,6 @@ const SideBar = () => {
         </S.Nav>
       </S.Aside>
 
-      {/* Popover "Mais" */}
       <Popover
         isOpen={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
@@ -214,7 +201,6 @@ const SideBar = () => {
         })}
       </Popover>
 
-      {/* Popover Perfil */}
       <Popover
         isOpen={isProfileMenuOpen}
         onClose={() => setIsProfileMenuOpen(false)}
@@ -239,7 +225,6 @@ const SideBar = () => {
         ))}
       </Popover>
 
-      {/* Modal Criar Post */}
       {user && (
         <CreatePostModal
           isOpen={isCreatePostModalOpen}

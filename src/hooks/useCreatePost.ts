@@ -11,15 +11,13 @@ import {
   adjustRetweets,
   setRetweeted
 } from '../store/slices/posts/postsSlice'
-import { useToast } from './useToast'
 import {
   revokeMediaPreviews,
   type PostMediaWithFile
 } from '../utils/mediaHelpers'
+import { useToast } from './useToast'
 
-/**
- * Hook para criação e edição de posts
- */
+//Hook para criação e edição de posts
 export const useCreatePost = () => {
   const dispatch = useAppDispatch()
   const { showToast } = useToast()
@@ -63,8 +61,6 @@ export const useCreatePost = () => {
       retweetOf?: number
       successMsg: string
     }) => {
-      console.log('🔍 submitPost args:', args)
-
       try {
         const files = extractFiles(args.medias)
         let result
@@ -94,8 +90,6 @@ export const useCreatePost = () => {
         // QUOTE RETWEET (com comentário)
         // ============================================
         else if (args.retweetOf && args.content.trim()) {
-          console.log('🔍 Quote Retweet detectado')
-
           result = await quoteRetweetMutation({
             postId: args.retweetOf,
             content: args.content,
@@ -136,12 +130,12 @@ export const useCreatePost = () => {
           )
         }
 
-        // ✅ Se for comentário, incrementa contador
+        // Se for comentário, incrementa contador
         if (args.inReplyTo) {
           dispatch(incrementComments(args.inReplyTo))
         }
 
-        // ✅ Limpa Blobs temporários
+        // Limpa Blobs temporários
         if (args.medias && !(args.medias[0] instanceof File)) {
           revokeMediaPreviews(args.medias as PostMediaWithFile[])
         }
@@ -189,8 +183,6 @@ export const useCreatePost = () => {
       content: string,
       medias?: PostMediaWithFile[] | File[]
     ) => {
-      console.log('🔍 quoteTweet chamado:', { originalPostId, content, medias })
-
       return submitPost({
         content,
         medias,
