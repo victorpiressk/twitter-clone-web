@@ -8,7 +8,8 @@ const Textarea = ({
   placeholder = '',
   rows = 1,
   maxLength,
-  disabled = false
+  disabled = false,
+  onKeyDown
 }: TextareaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -38,6 +39,7 @@ const Textarea = ({
         rows={rows}
         maxLength={maxLength}
         disabled={disabled}
+        onKeyDown={onKeyDown}
       />
     </S.TextareaContainer>
   )

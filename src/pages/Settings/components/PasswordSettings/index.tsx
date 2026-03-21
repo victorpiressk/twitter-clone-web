@@ -79,6 +79,7 @@ const PasswordSettings = () => {
         <S.Label>Senha atual</S.Label>
         <S.Input
           type="password"
+          autoFocus
           value={form.current_password}
           onChange={(e) => handleChange('current_password', e.target.value)}
           placeholder="••••••••"

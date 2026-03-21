@@ -12,4 +12,7 @@ export type InputProps = {
   maxLength?: number
   multiline?: boolean
   rows?: number
+  onKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void
 }

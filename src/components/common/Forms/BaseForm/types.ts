@@ -22,4 +22,5 @@ export type BaseFormProps = {
   mode?: FormModalType
   disabled?: boolean
   onRemoveMedia?: (id: string) => void
+  onSubmit?: () => void
 }

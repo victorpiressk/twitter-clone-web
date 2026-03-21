@@ -94,6 +94,7 @@ const AccountSettings = () => {
           <S.Label>Insira sua senha.</S.Label>
           <S.Input
             type="password"
+            autoFocus
             value={passwordInput}
             onChange={(e) => {
               setPasswordInput(e.target.value)
@@ -101,7 +102,6 @@ const AccountSettings = () => {
             }}
             onKeyDown={(e) => e.key === 'Enter' && handlePasswordContinue()}
             placeholder="••••••••"
-            autoFocus
           />
           {passwordError && <S.ErrorText>{passwordError}</S.ErrorText>}
         </S.FormGroup>
@@ -123,6 +123,7 @@ const AccountSettings = () => {
         <S.Label>Email</S.Label>
         <S.Input
           type="email"
+          autoFocus
           value={form.email}
           onChange={(e) => handleChange('email', e.target.value)}
           placeholder="seu@email.com"
@@ -148,6 +149,7 @@ const AccountSettings = () => {
           value={form.username}
           onChange={(e) => handleChange('username', e.target.value)}
           placeholder="ex: João Silva"
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
         />
         {errors.username && <S.ErrorText>{errors.username}</S.ErrorText>}
       </S.FormGroup>

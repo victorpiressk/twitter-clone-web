@@ -168,6 +168,12 @@ const PostForm = ({
           placeholder="O que está acontecendo?"
           maxLength={280}
           rows={1}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+              e.preventDefault()
+              handleSubmit()
+            }
+          }}
         />
 
         {/* Preview de mídias */}

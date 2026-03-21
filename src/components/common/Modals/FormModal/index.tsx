@@ -89,6 +89,7 @@ const FormModal = ({
             isModal
             disabled={formState.isSubmitting}
             mode={mode}
+            onSubmit={handleSubmitSuccess}
           />
         </S.FormContainer>
       </S.ModalContent>
