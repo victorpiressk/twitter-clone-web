@@ -1,5 +1,5 @@
 import { Mail } from 'lucide-react'
-import PageHeader from '../../components/Layout/PageHeader'
+import PageHeader from '../../components/layout/PageHeader'
 import { useMobileDrawer } from '../../hooks/useMobileDrawer'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'

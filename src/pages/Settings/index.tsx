@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { User, Lock, Palette } from 'lucide-react'
-import PageHeader from '../../components/Layout/PageHeader'
+import PageHeader from '../../components/layout/PageHeader'
 import { ContentWrapper } from '../../styles/globalStyles'
 import AccountSettings from './components/AccountSettings'
 import AppearanceSettings from './components/AppearanceSettings'

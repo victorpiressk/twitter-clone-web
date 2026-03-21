@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NotificationListSkeleton from '../../components/common/Skeleton/components/NotificationSkeleton/NotificationListSkeleton'
-import InfoBar from '../../components/Layout/InfoBar'
-import PageHeader from '../../components/Layout/PageHeader'
+import InfoBar from '../../components/layout/InfoBar'
+import PageHeader from '../../components/layout/PageHeader'
 import { useMobileDrawer } from '../../hooks/useMobileDrawer'
 import { ScrollToTop } from '../../hooks/useScrollToTop'
 import {

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from '../components/common/ProtectedRoute'
-import MainLayout from '../components/Layout/MainLayout'
+import MainLayout from '../components/layout/MainLayout'
 import { useAppSelector } from '../store/hooks'
 import { selectIsAuthenticated } from '../store/slices/auth/authSlice'
 

@@ -1,4 +1,4 @@
-import type { TabItem } from '../../Layout/PageHeader/types'
+import type { TabItem } from '../../layout/PageHeader/types'
 
 export type TabsProps = {
   tabs: TabItem[]
