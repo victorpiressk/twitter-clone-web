@@ -1,5 +1,5 @@
-import type { User } from '../../../../types/domain/models'
+import type { UserCardWithStats } from '../../../../types/domain/models'
 
 export type FollowUserCardProps = {
-  user: User
+  user: UserCardWithStats
 }

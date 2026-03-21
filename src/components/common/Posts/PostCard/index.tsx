@@ -2,6 +2,7 @@ import { memo, useState, useRef, useMemo, useCallback } from 'react'
 import { Repeat2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useToast, usePostActions } from '../../../../hooks'
+import { useUserActions } from '../../../../hooks/useUserActions'
 import { useAppSelector, useAppDispatch } from '../../../../store/hooks'
 import {
   useRetweetPostMutation,
@@ -55,6 +56,10 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
 
   const inReplyToPost = useAppSelector((state) =>
     post?.inReplyTo ? selectPostById(state, post.inReplyTo as number) : null
+  )
+
+  const { followUser, unfollowUser, isFollowing } = useUserActions(
+    post.author.id
   )
 
   const userRetweets = useMemo(() => {
@@ -112,6 +117,18 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const handleLike = useCallback(() => {
     likePost()
   }, [likePost])
+
+  const handleFollowToggle = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation()
+      if (isFollowing) {
+        unfollowUser()
+      } else {
+        followUser()
+      }
+    },
+    [isFollowing, followUser, unfollowUser]
+  )
 
   if (!post) return null
 
@@ -187,6 +204,7 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
                 onClick={handleClickProfile}
                 showProfilePopover={true}
                 userProfileData={post.author}
+                onFollowToggle={handleFollowToggle}
               />
 
               <PostCardContent post={displayPost} variant={variant} />

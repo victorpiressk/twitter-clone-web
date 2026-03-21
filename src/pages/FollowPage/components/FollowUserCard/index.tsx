@@ -16,8 +16,8 @@ const FollowUserCard = ({ user }: FollowUserCardProps) => {
     navigate(`/${user.username}`)
   }
 
-  const handleFollowClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleFollowClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
 
     if (isFollowing) {
       unfollowUser()
@@ -28,7 +28,14 @@ const FollowUserCard = ({ user }: FollowUserCardProps) => {
 
   return (
     <S.CardContainer onClick={handleCardClick}>
-      <Avatar src={user.avatar} alt={user.firstName} size="small" />
+      <Avatar
+        src={user.avatar}
+        alt={user.firstName}
+        size="small"
+        showProfilePopover={true}
+        userProfileData={user}
+        onFollowToggle={handleFollowClick}
+      />
 
       <S.UserInfo>
         <S.UserNames>
