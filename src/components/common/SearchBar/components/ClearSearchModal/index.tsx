@@ -1,5 +1,5 @@
-import Modal from '../../../Modals/BaseModal'
 import Button from '../../../Button'
+import Modal from '../../../Modals/BaseModal'
 import * as S from './styles'
 
 type ClearSearchModalProps = {

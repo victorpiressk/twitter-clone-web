@@ -1,11 +1,12 @@
-// src/utils/transformers/entities/notification.ts
-
-import type { BackendNotification } from '../../../types/contracts/dtos'
-import type { Notification } from '../../../types/domain/models'
 import { transformUser } from './user'
+import type { BackendNotification } from '../../../types/contracts/dtos'
+import type {
+  Notification,
+  NotificationGroup
+} from '../../../types/domain/models'
 
 // ============================================
-// BACKEND → FRONTEND
+// BACKEND -> FRONTEND
 // ============================================
 
 export const transformNotification = (
@@ -14,7 +15,7 @@ export const transformNotification = (
   id: backendNotification.id,
   type: backendNotification.notification_type,
   actor: transformUser(backendNotification.actor),
-  post: backendNotification.post, // ✅ Mantém o ID (ou null)
+  post: backendNotification.post,
   postPreview: backendNotification.post_preview
     ? {
         id: backendNotification.post_preview.id,
@@ -24,7 +25,7 @@ export const transformNotification = (
           username: backendNotification.post_preview.author.username
         }
       }
-    : null, // ✅ Pode ser null se tipo for 'follow'
+    : null, // Pode ser null se tipo for 'follow'
   isRead: backendNotification.is_read,
   createdAt: backendNotification.created_at
 })
@@ -32,8 +33,6 @@ export const transformNotification = (
 // ============================================
 // FRONTEND HELPERS (agrupamento)
 // ============================================
-
-import type { NotificationGroup } from '../../../types/domain/models'
 
 /**
  * Agrupa notificações por tipo e post
@@ -63,7 +62,7 @@ export const groupNotifications = (
       type: latest.type,
       actors: notifGroup.map((n) => n.actor),
       actorCount: notifGroup.length,
-      post: latest.postPreview, // ✅ Usa post_preview (não post ID)
+      post: latest.postPreview,
       latestCreatedAt: latest.createdAt,
       allRead: notifGroup.every((n) => n.isRead),
       notifications: notifGroup

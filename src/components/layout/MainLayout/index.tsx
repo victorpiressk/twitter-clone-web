@@ -1,18 +1,18 @@
 import { useState } from 'react'
+import { Outlet } from 'react-router-dom'
+import { useMobileDrawer } from '../../../hooks/useMobileDrawer'
+import { useAppSelector } from '../../../store/hooks'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
 import {
   HeaderSection,
   LayoutWrapper,
   MainSection
 } from '../../../styles/globalStyles'
-import { Outlet } from 'react-router-dom'
-import SideBar from '../SideBar'
-import MobileFooter from '../MobileFooter'
-import MobileFab from '../MobileFab'
 import MobileDrawer from '../MobileDrawer'
+import MobileFab from '../MobileFab'
+import MobileFooter from '../MobileFooter'
+import SideBar from '../SideBar'
 import CreatePostModal from '../SideBar/components/CreatePostModal'
-import { useAppSelector } from '../../../store/hooks'
-import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
-import { useMobileDrawer } from '../../../hooks/useMobileDrawer'
 
 const MainLayout = () => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false)

@@ -1,7 +1,8 @@
 import { MessageCircle, Repeat2, Heart, BarChart2 } from 'lucide-react'
-import type { PostCardActionsProps } from './types'
 import { colors } from '../../../../../../styles/globalStyles'
+import { formatNumber } from '../../../../../../utils/formatNumber'
 import * as S from './styles'
+import type { PostCardActionsProps } from './types'
 
 const PostCardActions = ({
   post,
@@ -11,28 +12,18 @@ const PostCardActions = ({
   onLike,
   retweetRef
 }: PostCardActionsProps) => {
-  // ✅ Safety check
   if (!post) return null
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-    return num.toString()
-  }
-
-  // ✅ Handler com stopPropagation
   const handleComment = (e: React.MouseEvent) => {
     e.stopPropagation()
     onComment(e)
   }
 
-  // ✅ Handler com stopPropagation
   const handleRetweet = (e: React.MouseEvent) => {
     e.stopPropagation()
     onRetweet(e)
   }
 
-  // ✅ Handler com stopPropagation
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation()
     onLike(e)

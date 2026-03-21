@@ -1,4 +1,3 @@
-// src/hooks/usePosts.ts
 import { useEffect, useCallback, useRef, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
@@ -41,7 +40,7 @@ type BackendPaginatedResponse = {
   count: number
   next: string | null
   previous: string | null
-  results: BackendPostWithInteractions[] // ✅ TYPE DO BACKEND
+  results: BackendPostWithInteractions[]
 }
 
 // ============================================
@@ -50,9 +49,17 @@ type BackendPaginatedResponse = {
 
 export const usePosts = (options: UsePostsOptions) => {
   const { type, postId } = options
+
+  // ============================================
+  // DEPENDENCIES
+  // ============================================
+
   const dispatch = useAppDispatch()
 
-  // ✅ Selectors do Redux
+  // ============================================
+  // SELECTORS
+  // ============================================
+
   const feedPosts = useAppSelector((state) => {
     if (type === 'replies') return selectRawFeedPosts(state)
     if (type === 'following') return selectFollowingFeedPosts(state)
@@ -63,12 +70,18 @@ export const usePosts = (options: UsePostsOptions) => {
   const cursor = useAppSelector(selectFeedCursor)
   const isLoadingRedux = useAppSelector(selectFeedLoading)
 
-  // ✅ Refs para controle
+  // ============================================
+  // REFS
+  // ============================================
+
   const isInitializedRef = useRef(false)
   const isFetchingRef = useRef(false)
   const activeTypeRef = useRef<string | undefined>(undefined)
 
-  // ✅ Queries condicionais
+  // ============================================
+  // QUERIES
+  // ============================================
+
   const {
     data: allPostsData,
     isLoading: isLoadingAll,
@@ -94,9 +107,7 @@ export const usePosts = (options: UsePostsOptions) => {
     refetch: refetchReplies
   } = useGetPostRepliesQuery(
     { postId: postId! },
-    {
-      skip: type !== 'replies' || !postId
-    }
+    { skip: type !== 'replies' || !postId }
   )
 
   const {
@@ -108,7 +119,10 @@ export const usePosts = (options: UsePostsOptions) => {
     skip: type !== 'profile'
   })
 
-  // ✅ Seleciona dados baseado no tipo
+  // ============================================
+  // COMPUTED
+  // ============================================
+
   const data =
     type === 'forYou'
       ? allPostsData
@@ -157,61 +171,45 @@ export const usePosts = (options: UsePostsOptions) => {
     }
   }, [type, refetchAll, refetchFollowing, refetchReplies, refetchProfile])
 
-  // ✅ Limpa feed ao trocar de tipo
-  useEffect(() => {
-    const key =
+  const activeKey = useMemo(
+    () =>
       type === 'replies'
         ? `replies-${postId}`
         : type === 'profile'
           ? `profile-${JSON.stringify(options.params)}`
-          : type
-    activeTypeRef.current = key
+          : type,
+    [type, postId, options.params]
+  )
+
+  // ============================================
+  // EFFECTS
+  // ============================================
+
+  // Limpa feed ao trocar de tipo
+  useEffect(() => {
+    activeTypeRef.current = activeKey
     dispatch(clearFeed())
     isInitializedRef.current = false
-  }, [type, postId, options.params, dispatch])
+  }, [activeKey, dispatch])
 
-  // ✅ Sincroniza com Redux
+  // Sincroniza posts com Redux
   useEffect(() => {
-    const key =
-      type === 'replies'
-        ? `replies-${postId}`
-        : type === 'profile'
-          ? `profile-${JSON.stringify(options.params)}`
-          : type
-
-    console.log('[usePosts] sync effect:', {
-      type,
-      key,
-      activeKey: activeTypeRef.current,
-      hasData: !!data,
-      resultsLength: data?.results?.length,
-      isInitialized: isInitializedRef.current,
-      isFetching,
-      isLoadingQuery,
-      keysMatch: activeTypeRef.current === key
-    })
-
     if (
       data &&
       !isInitializedRef.current &&
       !isFetching &&
       !isLoadingQuery &&
-      activeTypeRef.current === key // 👈 garante que o dado é do tipo atual
+      activeTypeRef.current === activeKey
     ) {
-      console.log(
-        '[usePosts] dispatching setFeedPosts com',
-        data.results.length,
-        'posts'
-      )
       const posts =
         type === 'replies' ? [...data.results].reverse() : data.results
       dispatch(setFeedPosts({ posts, cursor: data.next, hasMore: !!data.next }))
       isInitializedRef.current = true
     }
-  }, [data, type, postId, isFetching, isLoadingQuery, dispatch, options.params])
+  }, [data, activeKey, type, isFetching, isLoadingQuery, dispatch])
 
   // ============================================
-  // LOAD MORE - ✅ CORRIGIDO COM TRANSFORM
+  // HANDLERS
   // ============================================
 
   const loadMore = useCallback(async () => {
@@ -221,9 +219,8 @@ export const usePosts = (options: UsePostsOptions) => {
       isFetchingRef.current ||
       isFetching ||
       isLoadingRedux
-    ) {
+    )
       return
-    }
 
     isFetchingRef.current = true
 
@@ -231,18 +228,16 @@ export const usePosts = (options: UsePostsOptions) => {
       const response = await fetch(cursor)
       const backendData: BackendPaginatedResponse = await response.json()
 
-      // ✅ APLICAR TRANSFORMER ANTES DE DISPATCH
       const transformedPosts = backendData.results.map(
         transformPostWithInteractions
       )
 
-      // Para replies, inverte ordem
       const posts =
         type === 'replies' ? [...transformedPosts].reverse() : transformedPosts
 
       dispatch(
         appendFeedPosts({
-          posts, // ✅ camelCase agora
+          posts,
           cursor: backendData.next,
           hasMore: !!backendData.next
         })
@@ -254,19 +249,11 @@ export const usePosts = (options: UsePostsOptions) => {
     }
   }, [hasMore, cursor, isFetching, isLoadingRedux, type, dispatch])
 
-  // ============================================
-  // REFRESH
-  // ============================================
-
   const refresh = useCallback(async () => {
     dispatch(clearFeed())
     isInitializedRef.current = false
     await refetch()
   }, [dispatch, refetch])
-
-  // ============================================
-  // CLEAR
-  // ============================================
 
   const clear = useCallback(() => {
     dispatch(clearFeed())
@@ -278,18 +265,11 @@ export const usePosts = (options: UsePostsOptions) => {
   // ============================================
 
   return {
-    // Data
     posts: feedPosts,
-
-    // Loading states
     isLoading: isLoadingQuery,
     isFetching,
-
-    // Pagination
     hasMore,
     cursor,
-
-    // Actions
     loadMore,
     refresh,
     refetch,

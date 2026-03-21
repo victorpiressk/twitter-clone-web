@@ -1,7 +1,7 @@
-import Avatar from '../../Avatar'
 import { formatDate } from '../../../../utils/formatDate'
-import type { OriginalPostEmbedProps } from './types'
+import Avatar from '../../Avatar'
 import * as S from './styles'
+import type { OriginalPostEmbedProps } from './types'
 
 const OriginalPostEmbed = ({ post }: OriginalPostEmbedProps) => {
   return (

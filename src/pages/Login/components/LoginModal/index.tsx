@@ -1,19 +1,19 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Twitter } from 'lucide-react'
-import { setCredentials } from '../../../../store/slices/auth/authSlice'
-import { useAppDispatch } from '../../../../store/hooks'
-import { useToast } from '../../../../hooks/useToast'
-import { transformApiError } from '../../../../utils/transformers/error'
-import Modal from '../../../../components/common/Modals/BaseModal'
-import Button from '../../../../components/common/Button'
-import GoogleIcon from '../../../../assets/icons/google-original.svg'
+import { useNavigate } from 'react-router-dom'
 import AppleIcon from '../../../../assets/icons/apple-original.svg'
-import type { LoginModalProps, LoginStep } from './types'
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
-import type { SerializedError } from '@reduxjs/toolkit'
-import * as S from './styles'
+import GoogleIcon from '../../../../assets/icons/google-original.svg'
+import Button from '../../../../components/common/Button'
+import Modal from '../../../../components/common/Modals/BaseModal'
+import { useToast } from '../../../../hooks/useToast'
+import { useAppDispatch } from '../../../../store/hooks'
 import { useLoginMutation } from '../../../../store/slices/api/auth.api'
+import { setCredentials } from '../../../../store/slices/auth/authSlice'
+import { transformApiError } from '../../../../utils/transformers/error'
+import * as S from './styles'
+import type { LoginModalProps, LoginStep } from './types'
+import type { SerializedError } from '@reduxjs/toolkit'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 
 const LoginModal = ({
   isOpen,
@@ -21,11 +21,23 @@ const LoginModal = ({
   onLoginSuccess,
   onOpenRegister
 }: LoginModalProps) => {
+  // ============================================
+  // DEPENDENCIES
+  // ============================================
+
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { showToast } = useToast()
 
+  // ============================================
+  // MUTATIONS
+  // ============================================
+
   const [login, { isLoading: isSubmitting }] = useLoginMutation()
+
+  // ============================================
+  // STATE
+  // ============================================
 
   const [step, setStep] = useState<LoginStep>('identifier')
   const [formData, setFormData] = useState({
@@ -36,27 +48,23 @@ const LoginModal = ({
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
   // ============================================
-  // VALIDAÇÕES
+  // VALIDATION
   // ============================================
 
   const validateIdentifier = () => {
     const newErrors: Record<string, string> = {}
-
     if (!formData.identifier.trim()) {
       newErrors.identifier = 'Campo obrigatório'
     }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const validatePassword = () => {
     const newErrors: Record<string, string> = {}
-
     if (!formData.password) {
       newErrors.password = 'Senha é obrigatória'
     }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -65,28 +73,29 @@ const LoginModal = ({
   // HANDLERS
   // ============================================
 
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (step === 'identifier') {
-      if (validateIdentifier()) {
-        setStep('password')
-      }
+    if (step === 'identifier' && validateIdentifier()) {
+      setStep('password')
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!validatePassword()) return
 
     try {
-      // Detecta tipo de identificador (email, phone ou username)
       const identifier = formData.identifier.trim()
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)
       const isPhone = /^\d{10,11}$/.test(identifier.replace(/\D/g, ''))
 
-      // Monta payload baseado no tipo
       const payload = {
         password: formData.password,
         ...(isEmail && { email: identifier }),
@@ -94,43 +103,21 @@ const LoginModal = ({
         ...(!isEmail && !isPhone && { username: identifier })
       }
 
-      // Chama API via RTK Query
       const result = await login(payload).unwrap()
 
-      // Salva credenciais no Redux (já persiste no localStorage)
-      dispatch(
-        setCredentials({
-          user: result.user,
-          token: result.token
-        })
-      )
-
+      dispatch(setCredentials({ user: result.user, token: result.token }))
       showToast('success', 'Bem-vindo de volta!')
-
-      // Callbacks e limpeza
       onLoginSuccess?.()
       handleModalClose()
-
-      // Redireciona para home
       navigate('/home', { replace: true })
     } catch (err: unknown) {
-      // Usa o errorTransformers
       const { message, fields } = transformApiError(
         err as FetchBaseQueryError | SerializedError
       )
-
       showToast('error', message)
-
       if (Object.keys(fields).length > 0) {
         setErrors(fields)
       }
-    }
-  }
-
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
   }
 
@@ -150,9 +137,7 @@ const LoginModal = ({
     }, 300)
   }
 
-  const handleOpenSignup = () => {
-    setStep('signup')
-  }
+  const handleOpenSignup = () => setStep('signup')
 
   const handleOpenRegisterModal = () => {
     onClose()
@@ -160,7 +145,198 @@ const LoginModal = ({
   }
 
   // ============================================
-  // RENDER
+  // RENDER STEPS
+  // ============================================
+
+  const renderIdentifierStep = () => (
+    <>
+      <S.Header>
+        <S.Title>Entrar no Twitter Clone</S.Title>
+      </S.Header>
+
+      <S.Form onSubmit={handleNextStep}>
+        <S.SocialButtons>
+          <S.SocialButton
+            type="button"
+            $provider="google"
+            onClick={() => handleSocialLogin('google')}
+          >
+            <img src={GoogleIcon} alt="Google" />
+            Entrar com o Google
+          </S.SocialButton>
+
+          <S.SocialButton
+            type="button"
+            $provider="apple"
+            onClick={() => handleSocialLogin('apple')}
+          >
+            <img src={AppleIcon} alt="Apple" />
+            Entrar com a Apple
+          </S.SocialButton>
+        </S.SocialButtons>
+
+        <S.Divider>
+          <span>OU</span>
+        </S.Divider>
+
+        <S.FloatingInputContainer>
+          <S.FloatingLabel
+            $hasValue={!!formData.identifier}
+            $isFocused={focusedField === 'identifier'}
+          >
+            Telefone, e-mail ou nome de usuário
+          </S.FloatingLabel>
+          <S.FloatingInput
+            type="text"
+            value={formData.identifier}
+            onChange={(e) => handleChange('identifier', e.target.value)}
+            onFocus={() => setFocusedField('identifier')}
+            onBlur={() => setFocusedField(null)}
+            $hasValue={!!formData.identifier}
+            $isFocused={focusedField === 'identifier'}
+            $hasError={!!errors.identifier}
+          />
+          {errors.identifier && (
+            <S.InputError>{errors.identifier}</S.InputError>
+          )}
+        </S.FloatingInputContainer>
+
+        <Button type="submit" variant="secondary">
+          Avançar
+        </Button>
+
+        <Button type="button" variant="outline">
+          Esqueceu a senha?
+        </Button>
+
+        <S.SignupText>
+          <span>Não tem uma conta?</span>
+          <button type="button" onClick={handleOpenSignup}>
+            Inscreva-se
+          </button>
+        </S.SignupText>
+      </S.Form>
+    </>
+  )
+
+  const renderPasswordStep = () => (
+    <>
+      <S.Header>
+        <S.Title>Digite sua senha</S.Title>
+      </S.Header>
+
+      <S.Form onSubmit={handleSubmit}>
+        <S.FloatingInputContainer>
+          <S.FloatingLabel
+            $hasValue={!!formData.identifier}
+            $isFocused={false}
+            $disabled
+          >
+            Telefone, e-mail ou nome de usuário
+          </S.FloatingLabel>
+          <S.FloatingInput
+            type="text"
+            value={formData.identifier}
+            disabled
+            $hasValue={!!formData.identifier}
+            $isFocused={false}
+            $hasError={false}
+            $disabled
+          />
+        </S.FloatingInputContainer>
+
+        <S.FloatingInputContainer>
+          <S.FloatingLabel
+            $hasValue={!!formData.password}
+            $isFocused={focusedField === 'password'}
+          >
+            Senha
+          </S.FloatingLabel>
+          <S.FloatingInput
+            type="password"
+            value={formData.password}
+            onChange={(e) => handleChange('password', e.target.value)}
+            onFocus={() => setFocusedField('password')}
+            onBlur={() => setFocusedField(null)}
+            $hasValue={!!formData.password}
+            $isFocused={focusedField === 'password'}
+            $hasError={!!errors.password}
+          />
+          {errors.password && <S.InputError>{errors.password}</S.InputError>}
+        </S.FloatingInputContainer>
+
+        <S.ForgotPassword type="button">Esqueceu a senha?</S.ForgotPassword>
+      </S.Form>
+    </>
+  )
+
+  const renderSignupStep = () => (
+    <>
+      <S.Header>
+        <S.Title>Inscreva-se no Twitter Clone</S.Title>
+      </S.Header>
+
+      <S.Form>
+        <S.SocialButtons>
+          <S.SocialButton
+            type="button"
+            $provider="google"
+            onClick={() => handleSocialLogin('google')}
+          >
+            <img src={GoogleIcon} alt="Google" />
+            Inscrever-se com o Google
+          </S.SocialButton>
+
+          <S.SocialButton
+            type="button"
+            $provider="apple"
+            onClick={() => handleSocialLogin('apple')}
+          >
+            <img src={AppleIcon} alt="Apple" />
+            Inscrever-se com a Apple
+          </S.SocialButton>
+
+          <S.Divider>
+            <span>OU</span>
+          </S.Divider>
+
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleOpenRegisterModal}
+          >
+            Criar conta
+          </Button>
+        </S.SocialButtons>
+
+        <S.Terms>
+          Ao se inscrever, você concorda com os{' '}
+          <a href="#" target="_blank" rel="noopener noreferrer">
+            Termos de Serviço
+          </a>{' '}
+          e a{' '}
+          <a href="#" target="_blank" rel="noopener noreferrer">
+            Política de Privacidade
+          </a>
+          , incluindo o{' '}
+          <a href="#" target="_blank" rel="noopener noreferrer">
+            Uso de Cookies
+          </a>
+          .
+        </S.Terms>
+
+        <S.SignupText style={{ marginTop: '20px' }}>
+          <span style={{ fontWeight: 'bold' }}>Já tem uma conta?</span>
+          <button type="button" onClick={() => setStep('identifier')}>
+            Entrar
+          </button>
+        </S.SignupText>
+      </S.Form>
+    </>
+  )
+
+  // ============================================
+  // FOOTER
   // ============================================
 
   const footer = step === 'password' && (
@@ -183,6 +359,10 @@ const LoginModal = ({
     </S.Footer>
   )
 
+  // ============================================
+  // RENDER
+  // ============================================
+
   return (
     <Modal
       isOpen={isOpen}
@@ -195,212 +375,9 @@ const LoginModal = ({
       footer={footer}
     >
       <S.ModalContent $step={step}>
-        {/* ETAPA 1: Identificador */}
-        {step === 'identifier' && (
-          <>
-            <S.Header>
-              <S.Title>Entrar no Twitter Clone</S.Title>
-            </S.Header>
-
-            <S.Form onSubmit={handleNextStep}>
-              {/* Botões Sociais */}
-              <S.SocialButtons>
-                <S.SocialButton
-                  type="button"
-                  $provider="google"
-                  onClick={() => handleSocialLogin('google')}
-                >
-                  <img src={GoogleIcon} alt="Google" />
-                  Entrar com o Google
-                </S.SocialButton>
-
-                <S.SocialButton
-                  type="button"
-                  $provider="apple"
-                  onClick={() => handleSocialLogin('apple')}
-                >
-                  <img src={AppleIcon} alt="Apple" />
-                  Entrar com a Apple
-                </S.SocialButton>
-              </S.SocialButtons>
-
-              {/* Divider */}
-              <S.Divider>
-                <span>OU</span>
-              </S.Divider>
-
-              {/* Input Flutuante: Identificador */}
-              <S.FloatingInputContainer>
-                <S.FloatingLabel
-                  $hasValue={!!formData.identifier}
-                  $isFocused={focusedField === 'identifier'}
-                >
-                  Telefone, e-mail ou nome de usuário
-                </S.FloatingLabel>
-                <S.FloatingInput
-                  type="text"
-                  value={formData.identifier}
-                  onChange={(e) => handleChange('identifier', e.target.value)}
-                  onFocus={() => setFocusedField('identifier')}
-                  onBlur={() => setFocusedField(null)}
-                  $hasValue={!!formData.identifier}
-                  $isFocused={focusedField === 'identifier'}
-                  $hasError={!!errors.identifier}
-                />
-                {errors.identifier && (
-                  <S.InputError>{errors.identifier}</S.InputError>
-                )}
-              </S.FloatingInputContainer>
-
-              {/* Botão Avançar */}
-              <Button type="submit" variant="secondary">
-                Avançar
-              </Button>
-
-              {/* Esqueceu a senha */}
-              <Button type="button" variant="outline">
-                Esqueceu a senha?
-              </Button>
-
-              {/* Não tem uma conta? */}
-              <S.SignupText>
-                <span>Não tem uma conta?</span>
-                <button type="button" onClick={handleOpenSignup}>
-                  Inscreva-se
-                </button>
-              </S.SignupText>
-            </S.Form>
-          </>
-        )}
-
-        {/* ETAPA 2: Senha */}
-        {step === 'password' && (
-          <>
-            <S.Header>
-              <S.Title>Digite sua senha</S.Title>
-            </S.Header>
-
-            <S.Form onSubmit={handleSubmit}>
-              {/* Input Flutuante: Identificador (DESABILITADO) */}
-              <S.FloatingInputContainer>
-                <S.FloatingLabel
-                  $hasValue={!!formData.identifier}
-                  $isFocused={false}
-                  $disabled
-                >
-                  Telefone, e-mail ou nome de usuário
-                </S.FloatingLabel>
-                <S.FloatingInput
-                  type="text"
-                  value={formData.identifier}
-                  disabled
-                  $hasValue={!!formData.identifier}
-                  $isFocused={false}
-                  $hasError={false}
-                  $disabled
-                />
-              </S.FloatingInputContainer>
-
-              {/* Input Flutuante: Senha */}
-              <S.FloatingInputContainer>
-                <S.FloatingLabel
-                  $hasValue={!!formData.password}
-                  $isFocused={focusedField === 'password'}
-                >
-                  Senha
-                </S.FloatingLabel>
-                <S.FloatingInput
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleChange('password', e.target.value)}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField(null)}
-                  $hasValue={!!formData.password}
-                  $isFocused={focusedField === 'password'}
-                  $hasError={!!errors.password}
-                />
-                {errors.password && (
-                  <S.InputError>{errors.password}</S.InputError>
-                )}
-              </S.FloatingInputContainer>
-
-              {/* Esqueceu a senha */}
-              <S.ForgotPassword type="button">
-                Esqueceu a senha?
-              </S.ForgotPassword>
-            </S.Form>
-          </>
-        )}
-
-        {/* ETAPA 3: Signup */}
-        {step === 'signup' && (
-          <>
-            <S.Header>
-              <S.Title>Inscreva-se no Twitter Clone</S.Title>
-            </S.Header>
-
-            <S.Form>
-              {/* Botões Sociais */}
-              <S.SocialButtons>
-                <S.SocialButton
-                  type="button"
-                  $provider="google"
-                  onClick={() => handleSocialLogin('google')}
-                >
-                  <img src={GoogleIcon} alt="Google" />
-                  Inscrever-se com o Google
-                </S.SocialButton>
-
-                <S.SocialButton
-                  type="button"
-                  $provider="apple"
-                  onClick={() => handleSocialLogin('apple')}
-                >
-                  <img src={AppleIcon} alt="Apple" />
-                  Inscrever-se com a Apple
-                </S.SocialButton>
-
-                {/* Divider */}
-                <S.Divider>
-                  <span>OU</span>
-                </S.Divider>
-
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleOpenRegisterModal}
-                >
-                  Criar conta
-                </Button>
-              </S.SocialButtons>
-
-              {/* Termos */}
-              <S.Terms>
-                Ao se inscrever, você concorda com os{' '}
-                <a href="#" target="_blank" rel="noopener noreferrer">
-                  Termos de Serviço
-                </a>{' '}
-                e a{' '}
-                <a href="#" target="_blank" rel="noopener noreferrer">
-                  Política de Privacidade
-                </a>
-                , incluindo o{' '}
-                <a href="#" target="_blank" rel="noopener noreferrer">
-                  Uso de Cookies
-                </a>
-                .
-              </S.Terms>
-
-              {/* Já tem uma conta? */}
-              <S.SignupText style={{ marginTop: '20px' }}>
-                <span style={{ fontWeight: 'bold' }}>Já tem uma conta?</span>
-                <button type="button" onClick={() => setStep('identifier')}>
-                  Entrar
-                </button>
-              </S.SignupText>
-            </S.Form>
-          </>
-        )}
+        {step === 'identifier' && renderIdentifierStep()}
+        {step === 'password' && renderPasswordStep()}
+        {step === 'signup' && renderSignupStep()}
       </S.ModalContent>
     </Modal>
   )

@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
-import type { PostMedia } from '../../../../types/domain/models'
-import type { MediaPreviewProps } from './types'
 import * as S from './styles'
+import type { MediaPreviewProps } from './types'
+import type { PostMedia } from '../../../../types/domain/models'
 
 const MediaPreview = ({ medias, onRemove }: MediaPreviewProps) => {
   if (medias.length === 0) return null

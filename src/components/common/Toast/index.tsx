@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { X } from 'lucide-react'
-import type { ToastProps } from './types'
 import * as S from './styles'
+import type { ToastProps } from './types'
 
 const Toast = ({ toast, onClose }: ToastProps) => {
   const [isClosing, setIsClosing] = useState(false)

@@ -1,8 +1,8 @@
-import { X, Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import type { SchedulePreviewProps } from './types'
+import { X, Calendar, Clock } from 'lucide-react'
 import * as S from './styles'
+import type { SchedulePreviewProps } from './types'
 
 const SchedulePreview = ({
   scheduledDate,

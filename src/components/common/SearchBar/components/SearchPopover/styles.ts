@@ -233,10 +233,6 @@ export const UserResultBio = styled.p`
   overflow: hidden;
 `
 
-// ============================================
-// SECTION TITLE
-// ============================================
-
 export const SectionTitle = styled.div`
   padding: 12px 16px 8px;
   font-size: ${fontSizes.sm};
@@ -245,10 +241,6 @@ export const SectionTitle = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `
-
-// ============================================
-// POST RESULTS
-// ============================================
 
 export const PostResultItem = styled.button`
   width: 100%;
@@ -318,10 +310,6 @@ export const PostStats = styled.div`
     height: 14px;
   }
 `
-
-// ============================================
-// HASHTAG RESULTS
-// ============================================
 
 export const HashtagResultItem = styled.button`
   width: 100%;

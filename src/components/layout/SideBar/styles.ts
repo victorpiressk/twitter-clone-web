@@ -5,9 +5,9 @@ import {
   fontSizes,
   fontWeights
 } from '../../../styles/globalStyles'
+import { light } from '../../../styles/themes/light'
 import { ButtonLink, ButtonContainer } from '../../common/Button/styles'
 import type { ButtonVariant } from '../../common/Button/types'
-import { light } from '../../../styles/themes/light'
 
 // Definimos as variações de estilo
 const ITEM_VARIANTS = {
@@ -251,7 +251,6 @@ export const PopoverItem = styled.button<PopoverItemProps>`
   text-align: left;
   transition: background-color 0.2s;
 
-  /* Aplica a variante (se não passar nada, usa 'default') */
   ${({ $variant }) => ITEM_VARIANTS[$variant || 'default']}
 
   &:hover {
@@ -288,10 +287,8 @@ export const NotificationBadge = styled.span`
   align-items: center;
   justify-content: center;
 
-  /* Border branco para destacar do fundo */
   box-shadow: 0 0 0 2px ${(props) => props.theme.colors.background.primary};
 
-  /* Animação suave ao aparecer */
   animation: badgePulse 0.3s ease-in-out;
 
   @keyframes badgePulse {

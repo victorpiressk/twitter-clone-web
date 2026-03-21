@@ -1,21 +1,21 @@
-import { baseApi } from '../base.api'
 import {
   transformPostWithInteractions,
   transformLike
 } from '../../../../utils/transformers/entities'
 import { transformLikeRequest } from '../../../../utils/transformers/requests'
-import type {
-  PostWithInteractions,
-  Like
-} from '../../../../types/domain/models'
+import { baseApi } from '../base.api'
 import type {
   BackendPostWithInteractions,
   BackendLike
 } from '../../../../types/contracts/dtos'
-import type { PaginatedResponse } from '../../../../types/domain/responses'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
-import type { LikeRequest } from '../../../../types/domain/requests'
 import type { PaginationParams } from '../../../../types/contracts/shared'
+import type {
+  PostWithInteractions,
+  Like
+} from '../../../../types/domain/models'
+import type { LikeRequest } from '../../../../types/domain/requests'
+import type { PaginatedResponse } from '../../../../types/domain/responses'
 
 // ============================================
 // TYPES
@@ -32,7 +32,7 @@ type GetLikesParams = PaginationParams & {
 export const likesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // CURTIDAS
+    // GET LIKES
     // ============================================
 
     getLikes: builder.query<
@@ -54,6 +54,10 @@ export const likesApi = baseApi.injectEndpoints({
       providesTags: ['Post']
     }),
 
+    // ============================================
+    // LIKE POST
+    // ============================================
+
     likePost: builder.mutation<Like, LikeRequest>({
       query: (body) => ({
         url: '/api/likes/',
@@ -64,6 +68,10 @@ export const likesApi = baseApi.injectEndpoints({
         transformLike(response),
       invalidatesTags: ['Post']
     }),
+
+    // ============================================
+    // UNLIKE POST
+    // ============================================
 
     unlikePost: builder.mutation<void, number>({
       query: (id) => ({

@@ -1,7 +1,6 @@
-// src/pages/Settings/components/AppearanceSettings/index.tsx
 import { useTheme } from '../../../../hooks/useTheme'
-import type { ThemeName } from '../../../../contexts/ThemeContext'
 import * as S from '../../styles'
+import type { ThemeName } from '../../../../contexts/ThemeContext'
 
 const THEMES: { id: ThemeName; label: string; description: string }[] = [
   {

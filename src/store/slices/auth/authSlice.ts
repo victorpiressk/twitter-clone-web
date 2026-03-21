@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { User } from '../../../types/domain/models'
-import type { RootState } from '../..'
 import { authApi } from '../api/auth.api'
+import type { RootState } from '../..'
+import type { User } from '../../../types/domain/models'
 
 type AuthState = {
   user: User | null
@@ -63,10 +63,8 @@ const authSlice = createSlice({
     }
   },
 
-  // Extra Reducers
   extraReducers: (builder) => {
     builder
-      // Quando getCurrentUser retorna sucesso
       .addMatcher(
         authApi.endpoints.getCurrentUser.matchFulfilled,
         (state, action) => {

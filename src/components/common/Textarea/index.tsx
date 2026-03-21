@@ -1,6 +1,6 @@
 import { useRef, useEffect, type ChangeEvent } from 'react'
-import type { TextareaProps } from './types'
 import * as S from './styles'
+import type { TextareaProps } from './types'
 
 const Textarea = ({
   value,

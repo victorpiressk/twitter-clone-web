@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useGlobalSearchQuery } from '../../../store/slices/api/search.api'
-import SearchPopover from './components/SearchPopover'
 import ClearSearchModal from './components/ClearSearchModal'
+import SearchPopover from './components/SearchPopover'
+import * as S from './styles'
 import type {
   SearchPopoverState,
   SearchHistoryItem
 } from './components/SearchPopover/types'
 import type { SearchBarProps } from './types'
-import * as S from './styles'
 
 const SearchBar = ({
   variant = 'large',
@@ -25,7 +25,6 @@ const SearchBar = ({
   const [isClearModalOpen, setIsClearModalOpen] = useState(false)
   const searchFormRef = useRef<HTMLFormElement>(null)
 
-  // ✅ NOVO: Debounce (500ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchValue.trim())
@@ -38,16 +37,16 @@ const SearchBar = ({
     setSearchValue(externalValue)
   }, [externalValue])
 
-  // busca com múltiplas palavras:
-  const queries = debouncedQuery.trim().split(/\s+/) // Split por espaços
-  const mainQuery = queries[0] // Primeira palavra
+  // Busca por múltiplas palavras
+  const queries = debouncedQuery.trim().split(/\s+/)
+  const mainQuery = queries[0]
 
   const { data: searchData, isLoading } = useGlobalSearchQuery(
-    { q: mainQuery, limit: 10 }, // ← Busca só primeira palavra, mais resultados
+    { q: mainQuery, limit: 10 },
     { skip: !mainQuery || mainQuery.length < 2 }
   )
 
-  // ✅ FILTRAR no frontend (se tiver múltiplas palavras):
+  // FILTRA no frontend (se tiver múltiplas palavras):
   const filteredResults = useMemo(() => {
     if (!searchData || queries.length === 1) return searchData
 
@@ -58,7 +57,6 @@ const SearchBar = ({
         const fullName = `${user.firstName} ${user.lastName}`.toLowerCase()
         const username = user.username.toLowerCase()
 
-        // Todas as palavras devem estar no nome OU username
         return searchTerms.every(
           (term) => fullName.includes(term) || username.includes(term)
         )
@@ -67,11 +65,11 @@ const SearchBar = ({
         const content = post.content.toLowerCase()
         return searchTerms.every((term) => content.includes(term))
       }),
-      hashtags: searchData.hashtags // Hashtags não precisam filtrar
+      hashtags: searchData.hashtags
     }
   }, [searchData, queries])
 
-  // ✅ NOVO: Histórico no localStorage
+  // Histórico no localStorage
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>(
     () => {
       const saved = localStorage.getItem('searchHistory')
@@ -79,7 +77,7 @@ const SearchBar = ({
     }
   )
 
-  // ✅ Salvar no localStorage quando mudar
+  // Salvar no localStorage quando mudar
   useEffect(() => {
     localStorage.setItem('searchHistory', JSON.stringify(searchHistory))
   }, [searchHistory])
@@ -126,12 +124,10 @@ const SearchBar = ({
     username?: string
   }) => {
     setSearchHistory((prev) => {
-      // Remove duplicados
       const filtered = prev.filter(
         (h) => h.type === item.type && h.text !== item.text
       )
 
-      // Adiciona no topo, máximo 10 itens
       return [{ id: Date.now().toString(), ...item }, ...filtered].slice(0, 10)
     })
   }
@@ -150,14 +146,12 @@ const SearchBar = ({
   }
 
   const handleUserClick = (username: string, displayName: string) => {
-    // Adicionar ao histórico
     addToHistory({
       type: 'user',
       text: displayName,
       username
     })
 
-    // Navegar para perfil
     navigate(`/${username}`)
     setIsPopoverOpen(false)
     setSearchValue('')
@@ -175,9 +169,7 @@ const SearchBar = ({
     setSearchValue('')
   }
 
-  // ✅ NOVO: Handler para hashtags
   const handleHashtagClick = (hashtagName: string) => {
-    // Navega para Explore com query
     navigate(`/explore?q=${encodeURIComponent(hashtagName)}&tab=trending`)
     setIsPopoverOpen(false)
     setSearchValue('')

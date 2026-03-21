@@ -1,24 +1,24 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { useNavigate, useParams } from 'react-router-dom'
+import PostCard from '../../components/common/Posts/PostCard'
+import PostList from '../../components/common/Posts/PostList'
+import PostDetailSkeleton from '../../components/common/Skeleton/components/PostDetailSkeleton'
+import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
+import InfoBar from '../../components/Layout/InfoBar'
+import PageHeader from '../../components/Layout/PageHeader'
+import { ScrollToTop } from '../../hooks/'
+import { usePosts } from '../../hooks/usePosts'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import {
   useGetPostByIdQuery,
   useGetPostRepliesQuery
 } from '../../store/slices/api/posts'
-import { usePosts } from '../../hooks/usePosts'
 import {
   setPostDetail,
   selectPostDetail,
   upsertPost
 } from '../../store/slices/posts/postsSlice'
-import PostCard from '../../components/common/Posts/PostCard'
-import PostList from '../../components/common/Posts/PostList'
-import InfoBar from '../../components/Layout/InfoBar'
-import PageHeader from '../../components/Layout/PageHeader'
-import PostDetailSkeleton from '../../components/common/Skeleton/components/PostDetailSkeleton'
-import PostListSkeleton from '../../components/common/Skeleton/components/PostSkeleton/PostListSkeleton'
-import { ScrollToTop } from '../../hooks/'
 import { ContentWrapper } from '../../styles/globalStyles'
 import * as S from './styles'
 
@@ -173,11 +173,11 @@ const PostDetail = () => {
               {replies.length > 0 ? (
                 <PostList posts={replies} variant="default" />
               ) : (
-                <S.NoComments>
-                  <S.NoCommentsText>
+                <S.EmptyState>
+                  <S.EmptyStateText>
                     Nenhum comentário ainda. Seja o primeiro a comentar!
-                  </S.NoCommentsText>
-                </S.NoComments>
+                  </S.EmptyStateText>
+                </S.EmptyState>
               )}
             </InfiniteScroll>
           </S.CommentsSection>

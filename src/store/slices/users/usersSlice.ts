@@ -3,47 +3,38 @@ import {
   type PayloadAction,
   createSelector
 } from '@reduxjs/toolkit'
+import { logout } from '../auth/authSlice'
+import type { RootState } from '../..'
 import type {
   User,
   UserCard,
   UserWithFollowState
 } from '../../../types/domain/models'
-import type { RootState } from '../..'
-import { logout } from '../auth/authSlice'
 
 // ============================================
-// STATE TYPE (Normalizado - Cache de Usuários)
+// TYPES
 // ============================================
+
 type UsersState = {
-  // Cache normalizado
   byId: Record<number, User>
-  byUsername: Record<string, number> // username → id
-
-  // Follow state (separado para otimização)
-  followState: Record<number, boolean> // userId → isFollowing
-
-  // Armazena o ID da relação de follow
-  followIds: Record<number, number> // userId → followId
-
-  // Suggestions
+  byUsername: Record<string, number>
+  followState: Record<number, boolean>
+  followIds: Record<number, number>
   suggestions: {
     ids: number[]
     loading: boolean
   }
-
-  // Profile sendo visualizado
   viewing: {
     userId: number | null
     loading: boolean
   }
-
-  // UI state
   error: string | null
 }
 
 // ============================================
 // INITIAL STATE
 // ============================================
+
 const initialState: UsersState = {
   byId: {},
   byUsername: {},
@@ -63,18 +54,25 @@ const initialState: UsersState = {
 // ============================================
 // SLICE
 // ============================================
+
 const usersSlice = createSlice({
   name: 'users',
   initialState,
   reducers: {
-    // ✅ Adiciona/atualiza um usuário
+    // ============================================
+    // UPSERT USER
+    // ============================================
+
     upsertUser: (state, action: PayloadAction<User>) => {
       const user = action.payload
       state.byId[user.id] = user
       state.byUsername[user.username] = user.id
     },
 
-    // ✅ Adiciona múltiplos usuários
+    // ============================================
+    // UPSERT USERS
+    // ============================================
+
     upsertUsers: (state, action: PayloadAction<User[]>) => {
       action.payload.forEach((user) => {
         state.byId[user.id] = user
@@ -82,7 +80,10 @@ const usersSlice = createSlice({
       })
     },
 
-    // ✅ Atualiza follow state
+    // ============================================
+    // SET FOLLOW STATE
+    // ============================================
+
     setFollowState: (
       state,
       action: PayloadAction<{ userId: number; isFollowing: boolean }>
@@ -90,27 +91,31 @@ const usersSlice = createSlice({
       const { userId, isFollowing } = action.payload
       state.followState[userId] = isFollowing
 
-      // Atualiza stats do usuário se existir no cache
       const user = state.byId[userId]
       if (user) {
         user.stats.followers += isFollowing ? 1 : -1
       }
     },
 
-    // ✅ Toggle follow
+    // ============================================
+    // TOGGLE FOLLOW
+    // ============================================
+
     toggleFollow: (state, action: PayloadAction<number>) => {
       const userId = action.payload
       const currentState = state.followState[userId] || false
       state.followState[userId] = !currentState
 
-      // Atualiza stats
       const user = state.byId[userId]
       if (user) {
         user.stats.followers += !currentState ? 1 : -1
       }
     },
 
-    // ✅ Salva followId ao seguir
+    // ============================================
+    // SET FOLLOW ID
+    // ============================================
+
     setFollowId: (
       state,
       action: PayloadAction<{ userId: number; followId: number }>
@@ -119,35 +124,48 @@ const usersSlice = createSlice({
       state.followIds[userId] = followId
     },
 
-    // ✅ Remove followId ao deixar de seguir
+    // ============================================
+    // REMOVE FOLLOW ID
+    // ============================================
+
     removeFollowId: (state, action: PayloadAction<number>) => {
-      const userId = action.payload
-      delete state.followIds[userId]
+      delete state.followIds[action.payload]
     },
 
-    // Limpa todos os follows ao fazer logout
+    // ============================================
+    // CLEAR FOLLOWS
+    // ============================================
+
     clearFollows: (state) => {
       state.followState = {}
       state.followIds = {}
     },
 
-    // ✅ Define sugestões
+    // ============================================
+    // SET SUGGESTIONS
+    // ============================================
+
     setSuggestions: (state, action: PayloadAction<User[]>) => {
       action.payload.forEach((user) => {
         state.byId[user.id] = user
         state.byUsername[user.username] = user.id
       })
-
       state.suggestions.ids = action.payload.map((u) => u.id)
       state.suggestions.loading = false
     },
 
-    // ✅ Define loading de sugestões
+    // ============================================
+    // SET SUGGESTIONS LOADING
+    // ============================================
+
     setSuggestionsLoading: (state, action: PayloadAction<boolean>) => {
       state.suggestions.loading = action.payload
     },
 
-    // ✅ Define perfil sendo visualizado
+    // ============================================
+    // SET VIEWING USER
+    // ============================================
+
     setViewingUser: (state, action: PayloadAction<User>) => {
       const user = action.payload
       state.byId[user.id] = user
@@ -156,37 +174,48 @@ const usersSlice = createSlice({
       state.viewing.loading = false
     },
 
-    // ✅ Define loading do perfil
+    // ============================================
+    // SET VIEWING LOADING
+    // ============================================
+
     setViewingLoading: (state, action: PayloadAction<boolean>) => {
       state.viewing.loading = action.payload
     },
 
-    // ✅ Limpa perfil visualizado
+    // ============================================
+    // CLEAR VIEWING
+    // ============================================
+
     clearViewing: (state) => {
       state.viewing.userId = null
       state.viewing.loading = false
     },
 
-    // ✅ Define erro
+    // ============================================
+    // SET ERROR
+    // ============================================
+
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload
     },
+
+    // ============================================
+    // RESET
+    // ============================================
 
     resetUsersState: () => initialState
   },
 
   extraReducers: (builder) => {
-    // Reset automático quando faz logout
-    builder.addCase(logout, () => {
-      console.log('🧹 Auto-reset users state (logout detectado)')
-      return initialState
-    })
+    // Reset automático ao fazer logout
+    builder.addCase(logout, () => initialState)
   }
 })
 
 // ============================================
 // ACTIONS
 // ============================================
+
 export const {
   upsertUser,
   upsertUsers,
@@ -220,13 +249,16 @@ export const selectUserByUsername = (state: RootState, username: string) => {
   return userId ? state.users.byId[userId] : undefined
 }
 
-// Follow state
+// Follow selectors
 export const selectFollowState = (state: RootState) => state.users.followState
 
 export const selectIsFollowing = (state: RootState, userId: number) =>
   state.users.followState[userId] || false
 
-// Selector: User com follow state
+export const selectFollowId = (state: RootState, userId: number) =>
+  state.users.followIds[userId]
+
+// Memoized selector: user com follow state
 export const selectUserWithFollowState = createSelector(
   [
     (state: RootState) => state.users.byId,
@@ -244,17 +276,13 @@ export const selectUserWithFollowState = createSelector(
   }
 )
 
-// ✅ Pega followId
-export const selectFollowId = (state: RootState, userId: number) =>
-  state.users.followIds[userId]
-
-// Suggestions
+// Suggestions selectors
 export const selectSuggestionIds = (state: RootState) =>
   state.users.suggestions.ids
 export const selectSuggestionsLoading = (state: RootState) =>
   state.users.suggestions.loading
 
-// Selector memoizado: sugestões com dados completos
+// Memoized selector: sugestões com dados completos
 export const selectSuggestions = createSelector(
   [selectAllUsers, selectFollowState, selectSuggestionIds],
   (usersById, followState, suggestionIds) =>
@@ -280,13 +308,13 @@ export const selectSuggestions = createSelector(
       .filter(Boolean)
 )
 
-// Viewing
+// Viewing selectors
 export const selectViewingUserId = (state: RootState) =>
   state.users.viewing.userId
 export const selectViewingLoading = (state: RootState) =>
   state.users.viewing.loading
 
-// Selector memoizado: usuário sendo visualizado
+// Memoized selector: usuário sendo visualizado
 export const selectViewingUser = createSelector(
   [selectAllUsers, selectFollowState, selectViewingUserId],
   (usersById, followState, viewingId) => {
@@ -302,10 +330,11 @@ export const selectViewingUser = createSelector(
   }
 )
 
-// Error
+// Error selector
 export const selectUsersError = (state: RootState) => state.users.error
 
 // ============================================
 // REDUCER
 // ============================================
+
 export default usersSlice.reducer

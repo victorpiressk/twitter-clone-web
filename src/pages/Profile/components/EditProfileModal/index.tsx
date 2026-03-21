@@ -1,20 +1,16 @@
-// src/pages/Profile/components/EditProfileModal/index.tsx
-
-import { useState, useRef, useMemo } from 'react' // ✅ Adicionar useMemo
+import { useState, useRef, useMemo } from 'react'
 import { Camera, ChevronRight, Trash2 } from 'lucide-react'
-import Modal from '../../../../components/common/Modals/BaseModal'
 import Button from '../../../../components/common/Button'
 import Input from '../../../../components/common/Input'
-import BirthDateModal from './components/BirthDateModal'
+import Modal from '../../../../components/common/Modals/BaseModal'
 import { useToast } from '../../../../hooks/useToast'
+import { formatDate } from '../../../../utils/formatDate'
+import BirthDateModal from './components/BirthDateModal'
+import * as S from './styles'
 import type { EditProfileModalProps } from './types'
 import type { User } from '../../../../types/domain/models'
-import * as S from './styles'
-import { formatDate } from '../../../../utils/formatDate'
 
-/**
- * Garante que a URL tenha protocolo
- */
+// Garante que a URL tenha protocolo
 const ensureProtocol = (url: string): string => {
   if (!url) return ''
   if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -23,9 +19,7 @@ const ensureProtocol = (url: string): string => {
   return `https://${url}`
 }
 
-/**
- * Divide nome completo em firstName e lastName
- */
+// Divide nome completo em firstName e lastName
 const splitFullName = (
   fullName: string
 ): { firstName: string; lastName: string } => {
@@ -48,9 +42,7 @@ const splitFullName = (
   return { firstName, lastName }
 }
 
-/**
- * Combina firstName e lastName em nome completo
- */
+// Combina firstName e lastName em nome completo
 const getFullName = (firstName: string, lastName: string): string => {
   return [firstName, lastName].filter(Boolean).join(' ')
 }
@@ -66,7 +58,6 @@ const EditProfileModal = ({
 
   const [formData, setFormData] = useState<User>(currentData)
 
-  // ✅ NOVO: displayName para o input
   const [displayName, setDisplayName] = useState(
     getFullName(currentData.firstName, currentData.lastName)
   )
@@ -88,7 +79,7 @@ const EditProfileModal = ({
   const profileImageInputRef = useRef<HTMLInputElement>(null)
   const bannerImageInputRef = useRef<HTMLInputElement>(null)
 
-  // ✅ NOVO: Atualiza formData quando displayName muda
+  // Atualiza formData quando displayName muda
   const handleDisplayNameChange = (value: string) => {
     setDisplayName(value)
 
@@ -103,7 +94,7 @@ const EditProfileModal = ({
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setProfileImageFile(file) // ✅ Salva File separado
+      setProfileImageFile(file)
       setProfileImagePreview(URL.createObjectURL(file))
     }
   }
@@ -111,7 +102,7 @@ const EditProfileModal = ({
   const handleBannerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setBannerImageFile(file) // ✅ Salva File separado
+      setBannerImageFile(file)
       setRemoveBanner(false)
       setBannerImagePreview(URL.createObjectURL(file))
     }
@@ -119,7 +110,7 @@ const EditProfileModal = ({
 
   const handleRemoveBanner = () => {
     setBannerImageFile(null)
-    setRemoveBanner(true) // ✅ Flag para remover
+    setRemoveBanner(true)
     setBannerImagePreview(null)
   }
 
@@ -149,7 +140,7 @@ const EditProfileModal = ({
     }
   }
 
-  // ✅ CORRIGIDO: Verifica mudanças com displayName
+  // Verifica mudanças com displayName
   const hasChanges = useMemo(() => {
     const currentFullName = getFullName(
       currentData.firstName,
@@ -230,7 +221,7 @@ const EditProfileModal = ({
 
           {/* Form Fields */}
           <S.FormFields>
-            {/* ✅ CORRIGIDO: displayName com split automático */}
+            {/* displayName com split automático */}
             <Input
               name="displayName"
               label="Nome"

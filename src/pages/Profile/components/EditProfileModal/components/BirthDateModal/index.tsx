@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import Modal from '../../../../../../components/common/Modals/BaseModal'
 import Button from '../../../../../../components/common/Button'
 import Input from '../../../../../../components/common/Input'
+import Modal from '../../../../../../components/common/Modals/BaseModal'
 import { useToast } from '../../../../../../hooks/useToast'
-import type { BirthDateModalProps } from './types'
 import * as S from './styles'
+import type { BirthDateModalProps } from './types'
 
 const BirthDateModal = ({
   isOpen,
@@ -54,7 +54,7 @@ const BirthDateModal = ({
   }
 
   const handleCancel = () => {
-    setBirthDate(currentBirthDate) // Reseta
+    setBirthDate(currentBirthDate)
     setIsEditing(false)
     onClose()
   }

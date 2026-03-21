@@ -1,3 +1,4 @@
+import { transformUser } from './entities'
 import type {
   BackendAuthResponse,
   BackendPaginatedResponse
@@ -6,7 +7,6 @@ import type {
   AuthResponse,
   PaginatedResponse
 } from '../../types/domain/responses'
-import { transformUser } from './entities'
 
 // ============================================
 // AUTH RESPONSE (Backend → Frontend)

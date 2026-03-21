@@ -1,5 +1,3 @@
-// src/components/common/Skeleton/components/ProfileSkeleton/ProfileHeaderSkeleton/styles.ts
-
 import styled from 'styled-components'
 
 export const HeaderContainer = styled.div`
@@ -19,7 +17,7 @@ export const AvatarSection = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: -88px; /* ✅ Mesmo valor do original */
+  margin-top: -88px;
   margin-bottom: 8px;
 `
 
@@ -29,7 +27,7 @@ export const AvatarWrapper = styled.div`
 `
 
 export const ActionButton = styled.div`
-  margin-bottom: 22px; /* ✅ Mesmo valor do original */
+  margin-bottom: 22px;
 `
 
 export const UserNames = styled.div`
@@ -53,6 +51,4 @@ export const Metadata = styled.div`
   margin: 12px 0;
 `
 
-export const StatsSection = styled.div`
-  /* Stats já tem seu próprio componente, não precisa de margem extra */
-`
+export const StatsSection = styled.div``

@@ -1,5 +1,5 @@
-import FormModal from '../FormModal'
 import OriginalPostPreview from '../../Posts/OriginalPostPreview'
+import FormModal from '../FormModal'
 import type { CommentModalProps } from './types'
 
 const CommentModal = ({

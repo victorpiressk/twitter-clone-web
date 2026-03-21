@@ -2,14 +2,11 @@ import { useState } from 'react'
 import { X, Plus } from 'lucide-react'
 import BasePopover from '../../../../../Popovers/BasePopover'
 import { POLL_DURATIONS } from './constants/durations'
-import type { PollCreatorProps } from './types'
 import * as S from './styles'
+import type { PollCreatorProps } from './types'
 import type { Poll, PollOption } from '../../../../../../../types/domain/models'
 
-// ============================================
-// FEATURE FLAG
-// ============================================
-const FEATURE_ENABLED = false // ⏸️ Desabilitado temporariamente
+const FEATURE_ENABLED = false // Desabilitado temporariamente
 
 const PollCreatorComponent = ({
   isOpen,
@@ -68,7 +65,6 @@ const PollCreatorComponent = ({
 
     onPollCreate(poll)
 
-    // Reset
     setQuestion('')
     setOptionTexts(['', ''])
     setDurationHours(24)

@@ -1,5 +1,5 @@
-import type { SkeletonProps } from './types'
 import * as S from './styles'
+import type { SkeletonProps } from './types'
 
 const Skeleton = ({
   variant = 'text',

@@ -57,27 +57,27 @@ export const FormContainer = styled.div`
 `
 
 export const Title = styled.h1`
-  font-size: ${fontSizes['5xl']}; // ← Usa globalStyles (64px)
+  font-size: ${fontSizes['5xl']};
   font-weight: ${fontWeights.heavy};
   color: ${(props) => props.theme.colors.text.primary};
   margin: 48px 0;
   line-height: 1.2;
 
   @media (max-width: ${breakpoints.desktop}) {
-    font-size: ${fontSizes['4xl']}; // 40px
+    font-size: ${fontSizes['4xl']};
     margin-bottom: 32px;
   }
 `
 
 export const Subtitle = styled.h2`
-  font-size: ${fontSizes['4xl']}; // ← Usa globalStyles (32px)
+  font-size: ${fontSizes['4xl']};
   font-weight: ${fontWeights.heavy};
   color: ${(props) => props.theme.colors.text.primary};
   margin: 0 0 32px 0;
   line-height: 1.2;
 
   @media (max-width: ${breakpoints.desktop}) {
-    font-size: ${fontSizes['2xl']}; // 24px
+    font-size: ${fontSizes['2xl']};
   }
 `
 
@@ -106,11 +106,10 @@ export const SocialButton = styled.button<{ $provider: 'google' | 'apple' }>`
   cursor: pointer;
   transition: background-color 0.2s;
 
-  /* Sizing dos ícones */
   img {
     width: 20px;
     height: 20px;
-    object-fit: contain; /* Garante que o logo não distorça */
+    object-fit: contain;
   }
 
   &:hover {

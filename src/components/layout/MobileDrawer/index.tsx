@@ -1,12 +1,13 @@
-import { useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
-import Avatar from '../../common/Avatar'
-import { useAppSelector } from '../../../store/hooks'
-import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
-import { useLogoutMutation } from '../../../store/slices/api/auth.api'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../../hooks/useToast'
-import { NAV_ITEMS } from '../SideBar/constants/navItems'
+import { useAppSelector } from '../../../store/hooks'
+import { useLogoutMutation } from '../../../store/slices/api/auth.api'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
+import { formatNumber } from '../../../utils/formatNumber'
+import Avatar from '../../common/Avatar'
 import { MORE_ITEMS } from '../SideBar/constants/moreItems'
+import { NAV_ITEMS } from '../SideBar/constants/navItems'
 import * as S from './styles'
 
 const DRAWER_NAV_ITEMS = NAV_ITEMS.filter(
@@ -61,12 +62,6 @@ const MobileDrawer = ({ isOpen, onClose }: MobileDrawerProps) => {
       showToast('info', 'Você foi desconectado')
     }
     onClose()
-  }
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-    return num.toString()
   }
 
   const renderNavItems = () =>

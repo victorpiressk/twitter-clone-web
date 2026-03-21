@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import AvatarProfilePopover from './components/AvatarProfilePopover'
-import type { AvatarProps } from './types'
 import * as S from './styles'
+import type { AvatarProps } from './types'
 
 const Avatar = ({
   src,
@@ -15,11 +15,11 @@ const Avatar = ({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const avatarRef = useRef<HTMLDivElement>(null)
 
-  // 1. Tipagem Robusta: ReturnType<typeof setTimeout>
+  // ReturnType<typeof setTimeout> garante compatibilidade entre browser e Node
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // 2. Limpeza no Unmount (Essencial para evitar bugs de memória)
+  // Limpa timeouts pendentes ao desmontar para evitar atualizações em componente desmontado
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
@@ -37,7 +37,6 @@ const Avatar = ({
       closeTimeoutRef.current = null
     }
 
-    // Usar window.setTimeout deixa explícito para o TS que estamos no browser
     hoverTimeoutRef.current = window.setTimeout(() => {
       setIsPopoverOpen(true)
     }, 500)
@@ -57,7 +56,6 @@ const Avatar = ({
   }
 
   const handlePopoverMouseEnter = () => {
-    // Se o usuário entrou no popover, ele desistiu de sair. Cancela o fechamento.
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
@@ -65,7 +63,6 @@ const Avatar = ({
   }
 
   const handlePopoverMouseLeave = () => {
-    // Se ele saiu do popover, começamos a contagem regressiva para fechar de novo.
     closeTimeoutRef.current = window.setTimeout(() => {
       setIsPopoverOpen(false)
     }, 300)
@@ -76,7 +73,7 @@ const Avatar = ({
       <S.AvatarContainer
         ref={avatarRef}
         size={size}
-        onClick={onClick} // Simplificado: passe diretamente se não houver lógica extra
+        onClick={onClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

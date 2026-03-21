@@ -1,5 +1,3 @@
-// src/components/Layout/InfoBar/components/TrendsWidget/index.tsx
-
 import { useNavigate } from 'react-router-dom'
 import { useGetTrendingHashtagsQuery } from '../../../../../store/slices/api/hashtags.api'
 import Button from '../../../../common/Button'
@@ -8,7 +6,7 @@ import * as S from './styles'
 const TrendsWidget = () => {
   const navigate = useNavigate()
 
-  // ✅ Buscar top 3 trending hashtags
+  // Busca top 3 trending hashtags
   const { data: trendingHashtags, isLoading } = useGetTrendingHashtagsQuery({
     period: 'week',
     limit: 3
@@ -18,7 +16,6 @@ const TrendsWidget = () => {
     navigate(`/explore?q=${encodeURIComponent(hashtagName)}&tab=trending`)
   }
 
-  // Loading state
   if (isLoading) {
     return (
       <S.Widget>
@@ -30,14 +27,15 @@ const TrendsWidget = () => {
     )
   }
 
-  // Empty state
   if (!trendingHashtags || trendingHashtags.length === 0) {
     return (
       <S.Widget>
         <S.WidgetHeader>
           <S.WidgetTitle>O que está acontecendo</S.WidgetTitle>
         </S.WidgetHeader>
-        <S.EmptyState>Nenhum trend no momento</S.EmptyState>
+        <S.EmptyState>
+          <S.EmptyStateText>Nenhum trend no momento</S.EmptyStateText>
+        </S.EmptyState>
       </S.Widget>
     )
   }

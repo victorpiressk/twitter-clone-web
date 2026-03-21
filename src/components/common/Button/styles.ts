@@ -1,5 +1,5 @@
-import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
+import styled, { css } from 'styled-components'
 import {
   colors,
   fontSizes,
@@ -14,7 +14,6 @@ type StyledButtonProps = {
   $loading?: boolean
 }
 
-// Estilos base compartilhados
 const baseStyles = css<StyledButtonProps>`
   display: inline-flex;
   align-items: center;
@@ -43,7 +42,6 @@ const baseStyles = css<StyledButtonProps>`
     `}
 `
 
-// Variantes
 const variants = {
   primary: css`
     background-color: ${colors.primary};
@@ -151,13 +149,11 @@ const variants = {
   `
 }
 
-// Button (type="button" ou "submit")
 export const ButtonContainer = styled.button<StyledButtonProps>`
   ${baseStyles}
   ${({ $variant }) => variants[$variant]}
 `
 
-// Link (type="link")
 export const ButtonLink = styled(Link)<StyledButtonProps>`
   ${baseStyles}
   ${({ $variant }) => variants[$variant]}

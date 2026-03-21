@@ -1,6 +1,6 @@
 import Spinner from '../Spinner'
-import type { ButtonProps } from './types'
 import * as S from './styles'
+import type { ButtonProps } from './types'
 
 const Button = ({
   children,
@@ -17,7 +17,6 @@ const Button = ({
     onClick?.(e)
   }
 
-  // Renderiza Spinner ou Children
   const content = loading ? <Spinner size="small" /> : <>{children}</>
 
   if (type === 'submit' || type === 'button') {

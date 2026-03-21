@@ -1,10 +1,10 @@
-import { baseApi } from '../base.api'
 import { transformPost } from '../../../../utils/transformers/entities'
-import type { Post } from '../../../../types/domain/models'
+import { baseApi } from '../base.api'
 import type { BackendPost } from '../../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../../types/domain/responses'
 import type { PeriodLimitParams } from '../../../../types/contracts/shared'
+import type { Post } from '../../../../types/domain/models'
+import type { PaginatedResponse } from '../../../../types/domain/responses'
 
 // ============================================
 // API
@@ -13,7 +13,7 @@ import type { PeriodLimitParams } from '../../../../types/contracts/shared'
 export const trendingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // TRENDING
+    // GET TRENDING POSTS
     // ============================================
 
     getTrendingPosts: builder.query<
@@ -35,15 +35,15 @@ export const trendingApi = baseApi.injectEndpoints({
       providesTags: ['Post']
     }),
 
+    // ============================================
+    // INCREMENT VIEWS
+    // ============================================
+
     incrementViews: builder.mutation<void, number>({
       query: (postId) => ({
         url: `/api/posts/${postId}/increment-views/`,
         method: 'POST'
-        // Body vazio
       })
-      // ⚠️ SEM invalidatesTags (otimista - não força refetch)
-      // Views incrementam no backend mas UI não re-renderiza automaticamente
-      // Isso evita requisições desnecessárias a cada visualização
     })
   })
 })

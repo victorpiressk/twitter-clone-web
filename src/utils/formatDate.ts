@@ -9,11 +9,11 @@ export const formatDate = (
   const date = new Date(dateString)
   const now = new Date()
 
-  // ✅ CORRIGIDO: Sempre usar safeDate para evitar problemas de timezone
+  // Sempre usar safeDate para evitar problemas de timezone
   // Para datas no formato YYYY-MM-DD, cria Date em UTC e converte para local
   const safeDate = dateString.includes('T')
     ? date
-    : new Date(dateString + 'T00:00:00') // ✅ Força UTC, não local
+    : new Date(dateString + 'T00:00:00') // Força UTC, não local
 
   switch (variant) {
     case 'feed': {
@@ -49,9 +49,9 @@ export const formatDate = (
     case 'joined': {
       const month = safeDate.toLocaleDateString('pt-BR', {
         month: 'long',
-        timeZone: 'UTC' // ✅ Força UTC
+        timeZone: 'UTC'
       })
-      const year = safeDate.getUTCFullYear() // ✅ Usa UTC
+      const year = safeDate.getUTCFullYear()
       return `${month.charAt(0).toUpperCase() + month.slice(1)} de ${year}`
     }
 
@@ -60,7 +60,7 @@ export const formatDate = (
         day: '2-digit',
         month: 'long',
         year: 'numeric',
-        timeZone: 'UTC' // ✅ Força UTC
+        timeZone: 'UTC'
       })
     }
 

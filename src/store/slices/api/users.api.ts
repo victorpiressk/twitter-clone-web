@@ -1,6 +1,3 @@
-// src/store/slices/api/users.api.ts
-
-import { baseApi } from './base.api'
 import {
   transformFollow,
   transformUser
@@ -9,15 +6,44 @@ import {
   transformFollowRequest,
   transformUpdateUserRequest
 } from '../../../utils/transformers/requests'
-import type { Follow, User } from '../../../types/domain/models'
+import { baseApi } from './base.api'
 import type { BackendFollow, BackendUser } from '../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../types/contracts/responses.backend'
-import type { PaginatedResponse } from '../../../types/domain/responses'
+import type { PaginationParams } from '../../../types/contracts/shared'
+import type { Follow, User } from '../../../types/domain/models'
 import type {
   FollowRequest,
   UpdateUserRequest
 } from '../../../types/domain/requests'
-import type { PaginationParams } from '../../../types/contracts/shared'
+import type { PaginatedResponse } from '../../../types/domain/responses'
+
+// ============================================
+// HELPERS
+// ============================================
+
+const transformPaginatedUsers = (
+  response: BackendPaginatedResponse<BackendUser>
+): PaginatedResponse<User> => {
+  if (Array.isArray(response)) {
+    return {
+      count: response.length,
+      next: null,
+      previous: null,
+      results: response.map(transformUser)
+    }
+  }
+
+  if (!response || !response.results) {
+    return { count: 0, next: null, previous: null, results: [] }
+  }
+
+  return {
+    count: response.count,
+    next: response.next,
+    previous: response.previous,
+    results: response.results.map(transformUser)
+  }
+}
 
 // ============================================
 // API
@@ -26,7 +52,7 @@ import type { PaginationParams } from '../../../types/contracts/shared'
 export const usersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // USUÁRIOS
+    // GET USERS
     // ============================================
 
     getUsers: builder.query<PaginatedResponse<User>, PaginationParams | void>({
@@ -45,6 +71,10 @@ export const usersApi = baseApi.injectEndpoints({
       providesTags: ['User']
     }),
 
+    // ============================================
+    // GET USER BY ID
+    // ============================================
+
     getUserById: builder.query<User, number>({
       query: (id) => `/api/users/${id}/`,
       transformResponse: (response: BackendUser): User =>
@@ -52,31 +82,34 @@ export const usersApi = baseApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: 'User', id }]
     }),
 
+    // ============================================
+    // UPDATE USER
+    // ============================================
+
     updateUser: builder.mutation<
       User,
-      { id: number; data: UpdateUserRequest | FormData } // ✅ Aceita ambos
+      { id: number; data: UpdateUserRequest | FormData }
     >({
       query: ({ id, data }) => {
-        // ✅ Se for FormData, usa direto
-        // ✅ Se for UpdateUserRequest, transforma
         const body =
           data instanceof FormData ? data : transformUpdateUserRequest(data)
-
         return {
           url: `/api/users/${id}/`,
           method: 'PATCH',
           body
-          // ⚠️ NÃO adicionar headers: { 'Content-Type': 'multipart/form-data' }
-          // O fetch detecta automaticamente quando é FormData
         }
       },
       transformResponse: (response: BackendUser): User =>
         transformUser(response),
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'User', id },
-        'User' // Invalida lista também
+        'User'
       ]
     }),
+
+    // ============================================
+    // GET USER FOLLOWERS
+    // ============================================
 
     getUserFollowers: builder.query<
       PaginatedResponse<User>,
@@ -86,36 +119,13 @@ export const usersApi = baseApi.injectEndpoints({
         url: `/api/users/${userId}/followers/`,
         params: params || {}
       }),
-      transformResponse: (
-        response: BackendPaginatedResponse<BackendUser>
-      ): PaginatedResponse<User> => {
-        if (Array.isArray(response)) {
-          return {
-            count: response.length,
-            next: null,
-            previous: null,
-            results: response.map(transformUser)
-          }
-        }
-
-        if (!response || !response.results) {
-          return {
-            count: 0,
-            next: null,
-            previous: null,
-            results: []
-          }
-        }
-
-        return {
-          count: response.count,
-          next: response.next,
-          previous: response.previous,
-          results: response.results.map(transformUser)
-        }
-      },
+      transformResponse: transformPaginatedUsers,
       providesTags: ['User']
     }),
+
+    // ============================================
+    // GET USER FOLLOWING
+    // ============================================
 
     getUserFollowing: builder.query<
       PaginatedResponse<User>,
@@ -125,57 +135,27 @@ export const usersApi = baseApi.injectEndpoints({
         url: `/api/users/${userId}/following/`,
         params: params || {}
       }),
-      transformResponse: (
-        response: BackendPaginatedResponse<BackendUser>
-      ): PaginatedResponse<User> => {
-        if (Array.isArray(response)) {
-          return {
-            count: response.length,
-            next: null,
-            previous: null,
-            results: response.map(transformUser)
-          }
-        }
-
-        if (!response || !response.results) {
-          return {
-            count: 0,
-            next: null,
-            previous: null,
-            results: []
-          }
-        }
-
-        return {
-          count: response.count,
-          next: response.next,
-          previous: response.previous,
-          results: response.results.map(transformUser)
-        }
-      },
+      transformResponse: transformPaginatedUsers,
       providesTags: ['User']
     }),
 
     // ============================================
     // GET MY FOLLOWS
     // ============================================
+
     getMyFollows: builder.query<Follow[], void>({
       query: () => '/api/follows/',
       transformResponse: (
         response: BackendPaginatedResponse<BackendFollow>
       ): Follow[] => {
-        // ✅ Backend retorna objeto paginado
-        if (!response || !response.results) {
-          return []
-        }
-
+        if (!response || !response.results) return []
         return response.results.map(transformFollow)
       },
       providesTags: ['Follow']
     }),
 
     // ============================================
-    // SEGUIDORES
+    // GET FOLLOWS
     // ============================================
 
     getFollows: builder.query<PaginatedResponse<User>, PaginationParams | void>(
@@ -196,6 +176,10 @@ export const usersApi = baseApi.injectEndpoints({
       }
     ),
 
+    // ============================================
+    // FOLLOW USER
+    // ============================================
+
     followUser: builder.mutation<Follow, FollowRequest>({
       query: (body) => ({
         url: '/api/follows/',
@@ -207,6 +191,10 @@ export const usersApi = baseApi.injectEndpoints({
       invalidatesTags: ['Follow', 'User']
     }),
 
+    // ============================================
+    // UNFOLLOW USER
+    // ============================================
+
     unfollowUser: builder.mutation<void, number>({
       query: (followId) => ({
         url: `/api/follows/${followId}/`,
@@ -214,6 +202,10 @@ export const usersApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Follow', 'User']
     }),
+
+    // ============================================
+    // UPDATE ACCOUNT
+    // ============================================
 
     updateAccount: builder.mutation<
       User,
@@ -239,6 +231,10 @@ export const usersApi = baseApi.injectEndpoints({
         'User'
       ]
     }),
+
+    // ============================================
+    // CHANGE PASSWORD
+    // ============================================
 
     changePassword: builder.mutation<
       void,

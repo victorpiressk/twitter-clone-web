@@ -1,5 +1,3 @@
-// src/hooks/useHashtagPosts.ts - CORREÇÃO FINAL
-
 import { useEffect, useCallback, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
@@ -26,34 +24,36 @@ type UseHashtagPostsOptions = {
 
 export const useHashtagPosts = (options: UseHashtagPostsOptions) => {
   const { hashtagName } = options
-  const dispatch = useAppDispatch()
 
+  // ============================================
+  // DEPENDENCIES
+  // ============================================
+
+  const dispatch = useAppDispatch()
   const feedPosts = useAppSelector(selectHashtagFeedPosts)
+
+  // ============================================
+  // REFS
+  // ============================================
 
   const isInitializedRef = useRef(false)
   const activeHashtagRef = useRef<string | undefined>(undefined)
 
-  // ✅ Limpa feed IMEDIATAMENTE ao trocar de hashtag
-  useEffect(() => {
-    if (activeHashtagRef.current !== hashtagName) {
-      dispatch(clearHashtagFeed())
-      isInitializedRef.current = false
-      activeHashtagRef.current = hashtagName
-    }
-  }, [hashtagName, dispatch])
+  // ============================================
+  // QUERIES
+  // ============================================
 
-  // PASSO 1: Buscar hashtag por NOME
+  // Passo 1: Busca hashtag por nome
   const { data: searchResults, isLoading: loadingSearch } =
     useSearchHashtagsQuery(hashtagName, { skip: !hashtagName })
 
-  // ✅ Buscar hashtag EXATA (case-insensitive)
+  // Busca hashtag exata (case-insensitive)
   const hashtag = searchResults?.find(
     (h) => h.name.toLowerCase() === hashtagName.toLowerCase()
   )
-
   const hashtagId = hashtag?.id
 
-  // PASSO 2: Buscar posts
+  // Passo 2: Busca posts da hashtag
   const {
     data,
     isLoading: isLoadingQuery,
@@ -64,7 +64,20 @@ export const useHashtagPosts = (options: UseHashtagPostsOptions) => {
     { skip: !hashtagId }
   )
 
-  // ✅ Sincroniza APENAS se for a hashtag ativa
+  // ============================================
+  // EFFECTS
+  // ============================================
+
+  // Limpa o feed imediatamente ao trocar de hashtag
+  useEffect(() => {
+    if (activeHashtagRef.current !== hashtagName) {
+      dispatch(clearHashtagFeed())
+      isInitializedRef.current = false
+      activeHashtagRef.current = hashtagName
+    }
+  }, [hashtagName, dispatch])
+
+  // Sincroniza posts apenas se for a hashtag ativa
   useEffect(() => {
     if (
       data &&
@@ -84,9 +97,12 @@ export const useHashtagPosts = (options: UseHashtagPostsOptions) => {
     }
   }, [data, hashtagName, isFetching, isLoadingQuery, dispatch])
 
-  const loadMore = useCallback(() => {
-    console.log('Endpoint /hashtags/:id/posts/ não suporta paginação')
-  }, [])
+  // ============================================
+  // HANDLERS
+  // ============================================
+
+  // Paginação não suportada pelo endpoint /hashtags/:id/posts/
+  const loadMore = useCallback(() => {}, [])
 
   const refresh = useCallback(async () => {
     dispatch(clearHashtagFeed())
@@ -98,6 +114,10 @@ export const useHashtagPosts = (options: UseHashtagPostsOptions) => {
     dispatch(clearHashtagFeed())
     isInitializedRef.current = false
   }, [dispatch])
+
+  // ============================================
+  // RETURN
+  // ============================================
 
   return {
     posts: feedPosts,

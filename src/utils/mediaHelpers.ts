@@ -2,10 +2,7 @@ import type { PostMedia } from '../types/domain/models'
 
 export type PostMediaWithFile = PostMedia & { _file?: File }
 
-/**
- * Cria objeto de mídia a partir de arquivo
- * (sem validação - backend valida)
- */
+// Cria objeto de mídia a partir de arquivo
 export const createMediaFile = (file: File): PostMediaWithFile => {
   const id = Math.random().toString(36).substring(7)
   const preview = URL.createObjectURL(file)
@@ -26,11 +23,6 @@ export const createMediaFile = (file: File): PostMediaWithFile => {
   }
 }
 
-/**
- * Mock de validação (sempre válido - backend valida)
- * Mantém assinatura para compatibilidade com código existente
- */
-
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const validateMedia = (
   _file: File,
@@ -38,9 +30,7 @@ export const validateMedia = (
 ): { valid: true } => {
   return { valid: true }
 }
-/**
- * Cleanup de previews
- */
+// Cleanup de previews
 export const revokeMediaPreviews = (medias: PostMedia[]): void => {
   medias.forEach((media) => {
     if (media.url.startsWith('blob:')) {
@@ -49,9 +39,7 @@ export const revokeMediaPreviews = (medias: PostMedia[]): void => {
   })
 }
 
-/**
- * Formata tamanho de arquivo (para UI)
- */
+// Formata tamanho de arquivo (para UI)
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
 

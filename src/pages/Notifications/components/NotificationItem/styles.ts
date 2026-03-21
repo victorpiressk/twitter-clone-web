@@ -29,13 +29,7 @@ export const IconWrapper = styled.div<{ $color: string }>`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: ${(props) =>
-    props.$color}; /* ← Usar color ao invés de fill direto no svg */
-
-  svg {
-    /* Lucide controla tamanho via prop size */
-    /* Cor vem do parent via currentColor */
-  }
+  color: ${(props) => props.$color};
 `
 
 export const NotificationContent = styled.div`

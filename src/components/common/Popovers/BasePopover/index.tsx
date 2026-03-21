@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import {
   useFloating,
   autoUpdate,
@@ -9,8 +8,9 @@ import {
   size,
   type Placement
 } from '@floating-ui/react'
-import type { ExtendedPopoverProps } from './types'
+import { createPortal } from 'react-dom'
 import * as S from './styles'
+import type { ExtendedPopoverProps } from './types'
 
 const BasePopover = ({
   isOpen,

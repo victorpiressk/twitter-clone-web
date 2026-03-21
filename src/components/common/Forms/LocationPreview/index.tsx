@@ -1,6 +1,6 @@
 import { X, MapPin } from 'lucide-react'
-import type { LocationPreviewProps } from './types'
 import * as S from './styles'
+import type { LocationPreviewProps } from './types'
 
 const LocationPreview = ({
   locationName,

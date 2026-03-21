@@ -1,9 +1,7 @@
-// src/store/slices/api/posts/retweets.api.ts
-
-import type { BackendPost } from '../../../../types/contracts/dtos'
-import type { Post } from '../../../../types/domain/models'
 import { transformPost } from '../../../../utils/transformers/entities'
 import { baseApi } from '../base.api'
+import type { BackendPost } from '../../../../types/contracts/dtos'
+import type { Post } from '../../../../types/domain/models'
 
 // ============================================
 // TYPES

@@ -82,8 +82,6 @@ export const transformUpdateUserRequest = (
 export const transformCreatePostRequest = (
   postRequest: CreatePostRequest
 ): BackendCreatePostRequest => {
-  console.log('🔍 transformCreatePostRequest INPUT:', postRequest)
-
   const result = {
     content: postRequest.content,
     media_files: postRequest.mediaFiles,
@@ -105,8 +103,6 @@ export const transformCreatePostRequest = (
     in_reply_to: postRequest.inReplyTo,
     retweet_of: postRequest.retweetOf
   }
-
-  console.log('🔍 transformCreatePostRequest OUTPUT:', result)
 
   return result
 }

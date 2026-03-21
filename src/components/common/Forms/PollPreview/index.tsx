@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
-import type { PollPreviewProps } from './types'
 import * as S from './styles'
+import type { PollPreviewProps } from './types'
 
 const PollPreview = ({
   question,

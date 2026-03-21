@@ -1,17 +1,17 @@
-import { baseApi } from './base.api'
-import type { User } from '../../../types/domain/models'
 import { transformUser } from '../../../utils/transformers/entities'
 import {
   transformRegisterRequest,
   transformLoginRequest
 } from '../../../utils/transformers/requests'
-import type { AuthResponse } from '../../../types/domain/responses'
+import { baseApi } from './base.api'
+import type { BackendUser } from '../../../types/contracts/dtos'
+import type { BackendAuthResponse } from '../../../types/contracts/responses.backend'
+import type { User } from '../../../types/domain/models'
 import type {
   LoginRequest,
   RegisterRequest
 } from '../../../types/domain/requests'
-import type { BackendAuthResponse } from '../../../types/contracts/responses.backend'
-import type { BackendUser } from '../../../types/contracts/dtos'
+import type { AuthResponse } from '../../../types/domain/responses'
 
 // ============================================
 // API
@@ -20,7 +20,7 @@ import type { BackendUser } from '../../../types/contracts/dtos'
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================================
-    // AUTENTICAÇÃO
+    // REGISTER
     // ============================================
 
     register: builder.mutation<AuthResponse, RegisterRequest>({
@@ -36,6 +36,10 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ['User']
     }),
 
+    // ============================================
+    // LOGIN
+    // ============================================
+
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (body) => ({
         url: '/api/auth/login/',
@@ -49,6 +53,10 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ['User']
     }),
 
+    // ============================================
+    // LOGOUT
+    // ============================================
+
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/api/auth/logout/',
@@ -56,6 +64,10 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User']
     }),
+
+    // ============================================
+    // GET CURRENT USER
+    // ============================================
 
     getCurrentUser: builder.query<User, void>({
       query: () => '/api/users/me/',

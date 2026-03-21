@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
-import type { ModalHeaderProps } from './types'
 import * as S from './styles'
+import type { ModalHeaderProps } from './types'
 
 const ModalHeader = ({
   title,

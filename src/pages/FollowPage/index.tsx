@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useAppSelector } from '../../store/hooks'
-import { selectCurrentUser } from '../../store/slices/auth/authSlice'
+import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
+import InfoBar from '../../components/Layout/InfoBar'
+import PageHeader from '../../components/Layout/PageHeader'
+import { ScrollToTop } from '../../hooks/useScrollToTop'
 import { useViewingUser } from '../../hooks/useViewingUser'
+import { useAppSelector } from '../../store/hooks'
 import {
   useGetUserFollowersQuery,
   useGetUserFollowingQuery
 } from '../../store/slices/api/users.api'
-import PageHeader from '../../components/Layout/PageHeader'
-import FollowUserCard from './components/FollowUserCard'
-import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
+import { selectCurrentUser } from '../../store/slices/auth/authSlice'
 import { ContentWrapper } from '../../styles/globalStyles'
-import InfoBar from '../../components/Layout/InfoBar'
-import { ScrollToTop } from '../../hooks/useScrollToTop'
+import FollowUserCard from './components/FollowUserCard'
 import * as S from './styles'
 
 const FOLLOW_TABS = [

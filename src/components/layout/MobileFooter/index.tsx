@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, Search, Bell, Mail } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useGetUnreadCountQuery } from '../../../store/slices/api/notifications.api'
 import * as S from './styles'
 

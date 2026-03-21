@@ -1,14 +1,14 @@
-import { useNavigate } from 'react-router-dom'
 import { Twitter } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import useScrollDirection from '../../../hooks/useScrollDirection'
+import { useAppSelector } from '../../../store/hooks'
+import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
 import Avatar from '../../common/Avatar'
 import BackButton from '../../common/BackButton'
 import SearchBar from '../../common/SearchBar'
 import Tabs from '../../common/Tabs'
-import { useAppSelector } from '../../../store/hooks'
-import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
-import useScrollDirection from '../../../hooks/useScrollDirection'
-import type { PageHeaderProps } from './types'
 import * as S from './styles'
+import type { PageHeaderProps } from './types'
 
 const MAIN_VARIANTS = ['home', 'explore', 'notifications', 'messages']
 

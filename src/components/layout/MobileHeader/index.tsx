@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Twitter } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import Avatar from '../../common/Avatar'
 import { useAppSelector } from '../../../store/hooks'
 import { selectCurrentUser } from '../../../store/slices/auth/authSlice'
+import Avatar from '../../common/Avatar'
 import MobileDrawer from '../MobileDrawer'
 import * as S from './styles'
 

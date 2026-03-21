@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
 import BasePopover from '../../../../../Popovers/BasePopover'
-import type { LocationPickerProps } from './types'
 import * as S from './styles'
+import type { LocationPickerProps } from './types'
 
 const LocationPickerComponent = ({
   isOpen,

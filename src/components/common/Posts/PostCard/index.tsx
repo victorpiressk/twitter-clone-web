@@ -1,25 +1,12 @@
-// src/components/common/Posts/PostCard/PostCard.tsx
-
-import { useState, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { memo, useState, useRef, useMemo, useCallback } from 'react'
 import { Repeat2 } from 'lucide-react'
-import Avatar from '../../Avatar'
-import RetweetPopover from '../../Popovers/RetweetPopover'
-import RetweetModal from '../../Modals/RetweetModal'
-import CommentModal from '../../Modals/CommentModal'
-import PostCardContent from './components/PostCardContent'
-import PostCardActions from './components/PostCardActions'
-import PostCardMenu from './components/PostCardMenu'
-import EditPostModal from './components/EditPostModal'
-import OriginalPostPreview from '../OriginalPostPreview'
+import { useNavigate } from 'react-router-dom'
 import { useToast, usePostActions } from '../../../../hooks'
+import { useAppSelector, useAppDispatch } from '../../../../store/hooks'
 import {
   useRetweetPostMutation,
   useUnretweetPostMutation
 } from '../../../../store/slices/api/posts'
-import type { PostCardProps } from './types'
-import { formatDate } from '../../../../utils/formatDate'
-import { useAppSelector, useAppDispatch } from '../../../../store/hooks'
 import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
 import {
   adjustRetweets,
@@ -29,7 +16,18 @@ import {
   upsertPost
 } from '../../../../store/slices/posts/postsSlice'
 import { colors } from '../../../../styles/globalStyles'
+import { formatDate } from '../../../../utils/formatDate'
+import Avatar from '../../Avatar'
+import CommentModal from '../../Modals/CommentModal'
+import RetweetModal from '../../Modals/RetweetModal'
+import RetweetPopover from '../../Popovers/RetweetPopover'
+import OriginalPostPreview from '../OriginalPostPreview'
+import EditPostModal from './components/EditPostModal'
+import PostCardActions from './components/PostCardActions'
+import PostCardContent from './components/PostCardContent'
+import PostCardMenu from './components/PostCardMenu'
 import * as S from './styles'
+import type { PostCardProps } from './types'
 
 const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const navigate = useNavigate()
@@ -48,7 +46,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
 
   const currentUser = useAppSelector(selectCurrentUser)
 
-  // ✅ Busca TODOS os posts do byId (selector simples)
   const allPosts = useAppSelector((state) => state.posts.byId)
 
   // Busca post original — serve tanto para retweet simples quanto para reply no detailed
@@ -60,7 +57,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
     post?.inReplyTo ? selectPostById(state, post.inReplyTo as number) : null
   )
 
-  // ✅ MEMOIZADO: Só recalcula quando allPosts, currentUser ou postId mudam
   const userRetweets = useMemo(() => {
     if (!currentUser) return []
 
@@ -69,7 +65,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
     )
   }, [allPosts, currentUser, postId])
 
-  // ✅ Separação também memoizada
   const userSimpleRetweet = useMemo(
     () => userRetweets.find((rt) => !rt.content),
     [userRetweets]
@@ -83,9 +78,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const userMadeQuoteRetweet = userQuoteRetweets.length > 0
   const userMadeSimpleRetweet = !!userSimpleRetweet
 
-  // ✅ Safety check
-  if (!post) return null
-
   const isSimpleRetweet = !!post.retweetOf && !post.content.trim()
 
   const originalPost = isSimpleRetweet ? retweetOfPost : inReplyToPost
@@ -95,28 +87,34 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const updateTime = new Date(post.updatedAt).getTime()
   const isEdited = post.updatedAt && updateTime - createTime > 1000
 
-  // --- HANDLERS ---
+  const handleClickProfile = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      navigate(`/${post.author.username}`)
+    },
+    [post?.author.username, navigate]
+  )
 
-  const handleClickPost = () => {
+  const handleClickPost = useCallback(() => {
     if (variant === 'default') {
       navigate(`/${post.author.username}/status/${post.id}`)
     }
-  }
+  }, [variant, post?.author.username, post?.id, navigate])
 
-  const handleClickProfile = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigate(`/${post.author.username}`)
-  }
-
-  const handleComment = () => {
+  const handleComment = useCallback(() => {
     setIsCommentModalOpen(true)
-  }
+  }, [])
 
-  const handleRetweet = () => {
+  const handleRetweet = useCallback(() => {
     setIsRetweetPopoverOpen(true)
-  }
+  }, [])
 
-  // ✅ Simple Retweet ou Unretweet
+  const handleLike = useCallback(() => {
+    likePost()
+  }, [likePost])
+
+  if (!post) return null
+
   const handleRetweetSimple = async () => {
     try {
       if (userMadeSimpleRetweet && userSimpleRetweet) {
@@ -140,8 +138,7 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
         )
         showToast('success', 'Retweetado!')
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       dispatch(
         setRetweeted({
           postId,
@@ -151,14 +148,11 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
       dispatch(
         adjustRetweets({ postId, delta: userMadeSimpleRetweet ? 1 : -1 })
       )
-      showToast('error', error?.data?.detail || 'Erro ao processar retweet')
+      const message = (error as { data?: { detail?: string } })?.data?.detail
+      showToast('error', message || 'Erro ao processar retweet')
     } finally {
       setIsRetweetPopoverOpen(false)
     }
-  }
-
-  const handleLike = () => {
-    likePost()
   }
 
   return (
@@ -259,7 +253,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
         )}
       </S.PostCardContainer>
 
-      {/* Modais */}
       <CommentModal
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
@@ -276,7 +269,7 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
           setIsRetweetPopoverOpen(false)
           setIsRetweetModalOpen(true)
         }}
-        isRetweeted={userMadeSimpleRetweet} // ✅ USA userMadeSimpleRetweet
+        isRetweeted={userMadeSimpleRetweet}
         isQuoteRetweet={userMadeQuoteRetweet}
         triggerRef={retweetButtonRef}
       />
@@ -300,4 +293,4 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   )
 }
 
-export default PostCard
+export default memo(PostCard)

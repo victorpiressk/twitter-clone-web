@@ -1,20 +1,19 @@
-// src/components/common/Forms/PostForm/PostForm.tsx
 import { useRef, useState, useCallback } from 'react'
-import { useCreatePost } from '../../../../hooks'
 import Avatar from '../../../../components/common/Avatar'
-import Textarea from '../../../../components/common/Textarea'
-import MediaPreview from '../../../../components/common/Forms/MediaPreview'
+import PostFormActions from '../../../../components/common/Forms/FormActions'
 import LocationPreview from '../../../../components/common/Forms/LocationPreview'
+import MediaPreview from '../../../../components/common/Forms/MediaPreview'
 import PollPreview from '../../../../components/common/Forms/PollPreview'
 import SchedulePreview from '../../../../components/common/Forms/SchedulePreview'
-import PostFormActions from '../../../../components/common/Forms/FormActions'
+import Textarea from '../../../../components/common/Textarea'
+import { useCreatePost } from '../../../../hooks'
 import { useAppSelector } from '../../../../store/hooks'
 import { selectCurrentUser } from '../../../../store/slices/auth/authSlice'
 import { createMediaFile } from '../../../../utils/mediaHelpers'
+import * as S from './styles'
+import type { PostFormProps } from './types'
 import type { Poll, Location } from '../../../../types/domain/models'
 import type { PostMediaWithFile } from '../../../../utils/mediaHelpers'
-import type { PostFormProps } from './types'
-import * as S from './styles'
 
 const PostForm = ({
   // Props controladas (FormModal usa via useFormModal)
@@ -26,10 +25,8 @@ const PostForm = ({
   isModal = false,
   showActions = true
 }: PostFormProps) => {
-  // Usar usuário do Redux
   const user = useAppSelector(selectCurrentUser)
 
-  // ✅ Usa useCreatePost
   const { createPost, isCreating } = useCreatePost()
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -46,7 +43,6 @@ const PostForm = ({
   const content = isControlled ? controlledContent! : internalContent
   const medias = isControlled ? controlledMedias! : internalMedias
 
-  // Handler: Mudança de conteúdo
   const handleContentChange = (value: string) => {
     if (isControlled) {
       onContentChange?.(value)
@@ -55,10 +51,8 @@ const PostForm = ({
     }
   }
 
-  // ✅ Handler: Upload de mídias CORRIGIDO
   const handleMediaUpload = useCallback(
     (newFiles: File[]) => {
-      // ✅ Usa createMediaFile do mediaHelpers
       const validMedias: PostMediaWithFile[] = newFiles.map((file) =>
         createMediaFile(file)
       )
@@ -74,7 +68,6 @@ const PostForm = ({
     [medias, isControlled, onMediasChange]
   )
 
-  // Handler: Remover mídia
   const handleRemoveMedia = (id: string) => {
     const updated = medias.filter((m) => m.id !== id)
     const removed = medias.find((m) => m.id === id)
@@ -90,7 +83,6 @@ const PostForm = ({
     }
   }
 
-  // Handler: Selecionar Emoji
   const handleEmojiSelect = (emoji: string) => {
     handleContentChange(content + emoji)
     setTimeout(() => {
@@ -98,17 +90,14 @@ const PostForm = ({
     }, 0)
   }
 
-  // Handler: Selecionar Location
   const handleLocationSelect = (loc: Location) => {
     setLocation(loc)
   }
 
-  // Handler: Remover location
   const handleRemoveLocation = () => {
     setLocation(null)
   }
 
-  // Handler: Criar enquete
   const handlePollCreate = (pollData: Poll) => {
     setPoll(pollData)
 
@@ -127,27 +116,22 @@ const PostForm = ({
     }
   }
 
-  // Handler: Remover enquete
   const handleRemovePoll = () => {
     setPoll(null)
   }
 
-  // Handler: Criar agendamento
   const handleSchedule = (scheduledDate: Date) => {
     setScheduledFor(scheduledDate)
   }
 
-  // Handler: Remover agendamento
   const handleRemoveSchedule = () => {
     setScheduledFor(null)
   }
 
-  // ✅ Handler: Submit (usando useCreatePost)
   const handleSubmit = async () => {
     if (!content.trim() && medias.length === 0) return
 
     try {
-      // ✅ Chama createPost do useCreatePost
       await createPost(content.trim(), medias.length > 0 ? medias : undefined)
 
       // Cleanup (apenas no modo não-controlado)

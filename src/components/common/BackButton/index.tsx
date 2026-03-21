@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import type { BackButtonProps } from './types'
 import * as S from './styles'
+import type { BackButtonProps } from './types'
 
 const BackButton = ({ onClick }: BackButtonProps) => {
   const navigate = useNavigate()

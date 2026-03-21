@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { authMiddleware } from './middleware/authMiddleware'
+import { baseApi } from './slices/api/base.api'
 import authReducer from './slices/auth/authSlice'
 import postsReducer from './slices/posts/postsSlice'
 import usersReducer from './slices/users/usersSlice'
-import { baseApi } from './slices/api/base.api'
-import { authMiddleware } from './middleware/authMiddleware'
 
 export const store = configureStore({
   reducer: {

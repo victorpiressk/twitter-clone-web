@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { PopoverProvider } from '../../../contexts/PopoverContext'
 import SearchBar from '../../common/SearchBar'
+import Footer from './components/Footer'
 import TrendsWidget from './components/TrendsWidget'
 import WhoToFollowWidget from './components/WhoToFollowWidget'
-import Footer from './components/Footer'
-import { PopoverProvider } from '../../../contexts/PopoverContext'
-import type { InfoBarProps } from './types'
 import * as S from './styles'
+import type { InfoBarProps } from './types'
 
 const InfoBar = ({ variant = 'default' }: InfoBarProps) => {
   const sidebarRef = useRef<HTMLElement>(null)

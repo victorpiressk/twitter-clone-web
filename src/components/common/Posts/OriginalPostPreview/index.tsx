@@ -1,6 +1,6 @@
 import Avatar from '../../Avatar'
-import type { OriginalPostPreviewProps } from './types'
 import * as S from './styles'
+import type { OriginalPostPreviewProps } from './types'
 
 const OriginalPostPreview = ({
   post,

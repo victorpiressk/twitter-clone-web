@@ -1,5 +1,3 @@
-// src/components/common/Skeleton/components/ProfileSkeleton/ProfileHeaderSkeleton/index.tsx
-
 import Skeleton from '../../index'
 import * as S from './styles'
 
