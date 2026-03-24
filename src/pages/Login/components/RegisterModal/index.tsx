@@ -146,8 +146,8 @@ const RegisterModal = ({
 
       const payload = {
         username: formData.username,
-        email: contactType === 'email' ? formData.contact : '',
-        phone: contactType === 'phone' ? formData.contact : '',
+        email: contactType === 'email' ? formData.contact : null,
+        phone: contactType === 'phone' ? formData.contact : null,
         password: formData.password,
         passwordConfirm: formData.passwordConfirm,
         firstName,
