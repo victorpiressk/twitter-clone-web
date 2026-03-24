@@ -33,7 +33,8 @@ const PostCardMenu = ({ post, onEditClick }: PostCardMenuProps) => {
     setIsDeleteModalOpen(true)
   }
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
     deletePost()
     if (!post.id) {
       setIsDeleteModalOpen(false)
