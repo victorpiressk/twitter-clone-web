@@ -58,10 +58,6 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
     post?.inReplyTo ? selectPostById(state, post.inReplyTo as number) : null
   )
 
-  const { followUser, unfollowUser, isFollowing } = useUserActions(
-    post.author.id
-  )
-
   const userRetweets = useMemo(() => {
     if (!currentUser) return []
 
@@ -83,10 +79,20 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const userMadeQuoteRetweet = userQuoteRetweets.length > 0
   const userMadeSimpleRetweet = !!userSimpleRetweet
 
-  const isSimpleRetweet = !!post.retweetOf && !post.content.trim()
-
+  const isSimpleRetweet = !!post?.retweetOf && !post?.content.trim()
   const originalPost = isSimpleRetweet ? retweetOfPost : inReplyToPost
   const displayPost = isSimpleRetweet && originalPost ? originalPost : post
+  const realAuthorId = displayPost?.author.id ?? post?.author.id
+
+  const { followUser, unfollowUser, isFollowing } = useUserActions(realAuthorId)
+
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...displayPost.author,
+      isFollowing
+    }),
+    [displayPost.author, isFollowing]
+  )
 
   const createTime = new Date(post.createdAt).getTime()
   const updateTime = new Date(post.updatedAt).getTime()
@@ -95,9 +101,9 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
   const handleClickProfile = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
-      navigate(`/${post.author.username}`)
+      navigate(`/${displayPost.author.username}`)
     },
-    [post?.author.username, navigate]
+    [displayPost?.author.username, navigate]
   )
 
   const handleClickPost = useCallback(() => {
@@ -198,12 +204,12 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
           <>
             <S.PostMainContent>
               <Avatar
-                src={post.author.avatar}
-                alt={post.author.username}
+                src={displayPost.author.avatar}
+                alt={displayPost.author.username}
                 size="small"
                 onClick={handleClickProfile}
                 showProfilePopover={true}
-                userProfileData={post.author}
+                userProfileData={userWithFollowStatus}
                 onFollowToggle={handleFollowToggle}
               />
 
@@ -232,22 +238,22 @@ const PostCard = ({ postId, variant = 'default' }: PostCardProps) => {
 
             <S.PostHeaderStacked>
               <Avatar
-                src={post.author.avatar}
-                alt={post.author.username}
+                src={displayPost.author.avatar}
+                alt={displayPost.author.username}
                 size="small"
                 onClick={handleClickProfile}
               />
               <div>
                 <S.DisplayName onClick={handleClickProfile}>
-                  {post.author.firstName} {post.author.lastName}
+                  {displayPost.author.firstName} {displayPost.author.lastName}
                 </S.DisplayName>
                 <S.Username onClick={handleClickProfile}>
-                  @{post.author.username}
+                  @{displayPost.author.username}
                 </S.Username>
               </div>
             </S.PostHeaderStacked>
 
-            <PostCardContent post={post} variant={variant} />
+            <PostCardContent post={displayPost} variant={variant} />
 
             <S.PostDateDetailed>
               {formatDate(isEdited ? post.updatedAt : post.createdAt, 'detail')}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserActions } from '../../../../../hooks/useUserActions'
 import { useAppDispatch, useAppSelector } from '../../../../../store/hooks'
@@ -98,6 +98,14 @@ const SuggestionItem = ({ user, onUserClick }: SuggestionItemProps) => {
     user.id
   )
 
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...user,
+      isFollowing
+    }),
+    [user, isFollowing]
+  )
+
   const handleFollowClick = (e?: React.MouseEvent) => {
     e?.stopPropagation()
 
@@ -115,7 +123,7 @@ const SuggestionItem = ({ user, onUserClick }: SuggestionItemProps) => {
         alt={user.firstName}
         size="small"
         showProfilePopover={true}
-        userProfileData={user}
+        userProfileData={userWithFollowStatus}
         onFollowToggle={handleFollowClick}
       />
 

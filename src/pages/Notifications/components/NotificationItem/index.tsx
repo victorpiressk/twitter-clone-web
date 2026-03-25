@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
@@ -11,6 +12,14 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
 
   const { isFollowing, followUser, unfollowUser } = useUserActions(
     notification.actor.id
+  )
+
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...notification.actor,
+      isFollowing
+    }),
+    [notification.actor, isFollowing]
   )
 
   const getNotificationIcon = () => {
@@ -91,7 +100,7 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
               size="small"
               onClick={handleClickProfile}
               showProfilePopover={true}
-              userProfileData={notification.actor}
+              userProfileData={userWithFollowStatus}
               onFollowToggle={handleFollowToggle}
             />
           </S.AvatarWrapper>
