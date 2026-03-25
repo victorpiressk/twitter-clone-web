@@ -41,8 +41,8 @@ export const transformRegisterRequest = (
   registerRequest: RegisterRequest
 ): BackendRegisterRequest => ({
   username: registerRequest.username,
-  email: registerRequest.email,
-  phone: registerRequest.phone,
+  email: registerRequest.email || undefined,
+  phone: registerRequest.phone || undefined,
   password: registerRequest.password,
   password_confirm: registerRequest.passwordConfirm,
   first_name: registerRequest.firstName,

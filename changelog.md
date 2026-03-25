@@ -7,9 +7,117 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-# Changelog - Fase 0.3.0
+## [1.0.0] - 2026-03-25
 
-## [0.3.0] - 2026-03-09
+### Added
+
+#### **Documentação Completa do Projeto**
+- **README.md** com visão geral completa
+  - Badges de deploy, tecnologias e status
+  - Screenshots desktop e mobile (12 imagens)
+  - Lista completa de funcionalidades implementadas
+  - Stack tecnológica detalhada
+  - Estrutura do projeto documentada
+  - Instruções de instalação e fork
+  - Scripts disponíveis
+  - Guia de deploy em produção (Vercel)
+  - Estatísticas do projeto (70+ componentes, 15+ hooks, 49 endpoints)
+  - Roadmap de features futuras
+  - Links para repositórios e documentação externa
+
+#### **API Guide**
+- Configuração base do RTK Query documentada
+- Autenticação com prepareHeaders explicada
+- Auto-logout em 401 via authMiddleware
+- Tratamento de erros com transformApiError
+- Organização dos endpoints por domínio
+- Tabelas de referência para todos os 49 endpoints
+  - Autenticação (4 endpoints)
+  - Usuários e Follows (10 endpoints)
+  - Posts CRUD e Feed (6 endpoints)
+  - Replies, Retweets, Likes (6 endpoints)
+  - Hashtags (5 endpoints)
+  - Notificações (3 endpoints)
+  - Busca Global (1 endpoint)
+  - Trending, Polls, Locations (9+ endpoints)
+- Padrões de consumo via hooks documentados
+- Filtros dinâmicos de posts explicados
+- Sistema de paginação com cursor
+
+#### **Architecture Guide**
+- 10 decisões arquiteturais documentadas com contexto e justificativa
+  - Redux Toolkit + RTK Query (vs Context API)
+  - Normalized State Pattern
+  - Transformers Pattern
+  - Optimistic Updates com Rollback
+  - Feature Flags para funcionalidades incompletas
+  - Code Splitting com manualChunks
+  - PageHeader Unificado
+  - Backend como Source of Truth
+  - Context Pattern com Separação de Hook
+  - React.StrictMode Desabilitado
+- Trade-offs conscientes explicados
+- Padrões recomendados pela documentação oficial do Redux
+
+#### **Components Guide**
+- Documentação de 15+ componentes reutilizáveis
+  - Avatar com ProfilePopover
+  - Button com variantes e loading
+  - Tabs genéricas com scroll horizontal
+  - PageHeader unificado com variantes
+  - SearchBar com popover e histórico
+  - PostCard com modos default e detailed
+  - Modais (BaseModal, CommentModal, RetweetModal)
+  - Popovers (BasePopover, RetweetPopover)
+  - Skeleton loading por contexto
+  - Toast system
+  - BackButton, ImageUpload
+- Tabelas de props completas para cada componente
+- Exemplos de uso com código
+- Variantes visuais documentadas
+
+#### **State Management Guide**
+- Visão geral dos 3 slices do Redux
+  - authSlice (autenticação e persistência)
+  - postsSlice (cache normalizado, feeds, paginação)
+  - usersSlice (cache, follow state, sugestões)
+- Actions principais de cada slice documentadas
+- Selectors disponíveis com exemplos
+- Padrões de consumo recomendados
+  - Quando usar hooks vs selectors diretos
+  - Reset de estado no logout
+  - Optimistic updates pattern
+  - Selectors memoizados
+- Hooks tipados (useAppDispatch, useAppSelector)
+- Normalized State explicado em detalhes
+
+### Technical
+
+#### **Documentação**
+- Markdown com formatação consistente
+- Code snippets com syntax highlighting
+- Tabelas de referência
+- Links internos entre documentos
+- Exemplos práticos de uso
+- Estrutura hierárquica clara
+
+#### **Screenshots**
+- 12 capturas de tela organizadas
+  - 6 desktop (Home, Explore, Profile, PostDetail, Notifications, Settings)
+  - 6 mobile (Login, Home, Explore, Profile, Notifications, Settings)
+- Placeholders estruturados em `docs/screenshots/`
+
+### Notes
+
+**Documentação Completa:**
+- Projeto totalmente documentado para facilitar onboarding
+- Decisões arquiteturais registradas para futura manutenção
+- API e componentes documentados como referência rápida
+- State management explicado para novos desenvolvedores
+
+---
+
+## [0.3.0] - 2026-03-21
 
 ### Changed
 

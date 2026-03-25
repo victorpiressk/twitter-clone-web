@@ -1,4 +1,4 @@
-import type { User } from './User'
+import type { UserCardWithStats } from './User'
 
 export type NotificationType =
   | 'like'
@@ -19,7 +19,7 @@ export type PostPreview = {
 export type Notification = {
   id: number
   type: NotificationType
-  actor: User
+  actor: UserCardWithStats
   post: number | null
   postPreview: PostPreview | null
   isRead: boolean
@@ -33,7 +33,7 @@ export type Notification = {
 // Para agrupamento na UI (calculado no frontend)
 export type NotificationGroup = {
   type: NotificationType
-  actors: User[]
+  actors: UserCardWithStats[]
   actorCount: number
   post?: PostPreview | null
   latestCreatedAt: string

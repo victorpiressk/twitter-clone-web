@@ -1,16 +1,25 @@
 import {
   transformFollow,
-  transformUser
+  transformUser,
+  transformUserWithFollowState
 } from '../../../utils/transformers/entities'
 import {
   transformFollowRequest,
   transformUpdateUserRequest
 } from '../../../utils/transformers/requests'
 import { baseApi } from './base.api'
-import type { BackendFollow, BackendUser } from '../../../types/contracts/dtos'
+import type {
+  BackendFollow,
+  BackendUser,
+  BackendUserWithFollowState
+} from '../../../types/contracts/dtos'
 import type { BackendPaginatedResponse } from '../../../types/contracts/responses.backend'
 import type { PaginationParams } from '../../../types/contracts/shared'
-import type { Follow, User } from '../../../types/domain/models'
+import type {
+  Follow,
+  User,
+  UserWithFollowState
+} from '../../../types/domain/models'
 import type {
   FollowRequest,
   UpdateUserRequest
@@ -22,14 +31,14 @@ import type { PaginatedResponse } from '../../../types/domain/responses'
 // ============================================
 
 const transformPaginatedUsers = (
-  response: BackendPaginatedResponse<BackendUser>
-): PaginatedResponse<User> => {
+  response: BackendPaginatedResponse<BackendUserWithFollowState>
+): PaginatedResponse<UserWithFollowState> => {
   if (Array.isArray(response)) {
     return {
       count: response.length,
       next: null,
       previous: null,
-      results: response.map(transformUser)
+      results: response.map(transformUserWithFollowState)
     }
   }
 
@@ -41,7 +50,7 @@ const transformPaginatedUsers = (
     count: response.count,
     next: response.next,
     previous: response.previous,
-    results: response.results.map(transformUser)
+    results: response.results.map(transformUserWithFollowState)
   }
 }
 
@@ -112,7 +121,7 @@ export const usersApi = baseApi.injectEndpoints({
     // ============================================
 
     getUserFollowers: builder.query<
-      PaginatedResponse<User>,
+      PaginatedResponse<UserWithFollowState>,
       { userId: number; params?: PaginationParams }
     >({
       query: ({ userId, params }) => ({
@@ -128,7 +137,7 @@ export const usersApi = baseApi.injectEndpoints({
     // ============================================
 
     getUserFollowing: builder.query<
-      PaginatedResponse<User>,
+      PaginatedResponse<UserWithFollowState>,
       { userId: number; params?: PaginationParams }
     >({
       query: ({ userId, params }) => ({

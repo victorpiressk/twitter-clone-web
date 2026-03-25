@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import UserCardListSkeleton from '../../components/common/Skeleton/components/UserCardSkeleton/UserCardListSkeleton'
 import InfoBar from '../../components/layout/InfoBar'
 import PageHeader from '../../components/layout/PageHeader'
@@ -22,7 +22,11 @@ const FOLLOW_TABS = [
 
 const FollowPage = () => {
   const { username } = useParams<{ username: string }>()
-  const [activeTab, setActiveTab] = useState('followers')
+  const location = useLocation()
+
+  const [activeTab, setActiveTab] = useState(() =>
+    location.pathname.endsWith('/following') ? 'following' : 'followers'
+  )
 
   const currentUser = useAppSelector(selectCurrentUser)
   const { viewingUser, isLoading: isLoadingUser } = useViewingUser(username)

@@ -27,7 +27,8 @@ const BaseForm = ({
   extraContent,
   isModal = false,
   mode = 'comment',
-  disabled = false
+  disabled = false,
+  onSubmit
 }: BaseFormProps) => {
   const handleRemoveMedia = (id: string) => {
     if (onRemoveMedia) {
@@ -61,6 +62,17 @@ const BaseForm = ({
             maxLength={maxLength}
             rows={1}
             disabled={disabled}
+            onKeyDown={(e) => {
+              if (
+                e.key === 'Enter' &&
+                !e.shiftKey &&
+                !e.ctrlKey &&
+                !e.metaKey
+              ) {
+                e.preventDefault()
+                onSubmit?.()
+              }
+            }}
           />
 
           {medias.length > 0 && (

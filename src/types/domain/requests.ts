@@ -4,8 +4,8 @@
 
 export type RegisterRequest = {
   username: string
-  email?: string
-  phone?: string
+  email?: string | null
+  phone?: string | null
   password: string
   passwordConfirm: string
   firstName: string

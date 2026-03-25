@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
@@ -12,12 +13,20 @@ const FollowUserCard = ({ user }: FollowUserCardProps) => {
     user.id
   )
 
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...user,
+      isFollowing
+    }),
+    [user, isFollowing]
+  )
+
   const handleCardClick = () => {
     navigate(`/${user.username}`)
   }
 
-  const handleFollowClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleFollowClick = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
 
     if (isFollowing) {
       unfollowUser()
@@ -28,7 +37,14 @@ const FollowUserCard = ({ user }: FollowUserCardProps) => {
 
   return (
     <S.CardContainer onClick={handleCardClick}>
-      <Avatar src={user.avatar} alt={user.firstName} size="small" />
+      <Avatar
+        src={user.avatar}
+        alt={user.firstName}
+        size="small"
+        showProfilePopover={true}
+        userProfileData={userWithFollowStatus}
+        onFollowToggle={handleFollowClick}
+      />
 
       <S.UserInfo>
         <S.UserNames>

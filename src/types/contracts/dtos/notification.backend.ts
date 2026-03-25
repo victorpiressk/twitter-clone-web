@@ -1,4 +1,4 @@
-import type { BackendUser } from './user.backend'
+import type { BackendUserCardWithStats } from './user.backend'
 
 export type BackendNotificationType =
   | 'like'
@@ -20,7 +20,7 @@ export type BackendNotification = {
   id: number
   notification_type: BackendNotificationType
   notification_type_display: string
-  actor: BackendUser
+  actor: BackendUserCardWithStats
   post: number | null
   post_preview: BackendPostPreview | null
   is_read: boolean

@@ -5,4 +5,5 @@ export type TextareaProps = {
   rows?: number
   maxLength?: number
   disabled?: boolean
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
 }

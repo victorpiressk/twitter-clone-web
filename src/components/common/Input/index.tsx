@@ -15,7 +15,8 @@ const Input = ({
   autoFocus = false,
   maxLength,
   multiline = false,
-  rows = 3
+  rows = 3,
+  onKeyDown
 }: InputProps) => {
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,6 +47,7 @@ const Input = ({
             maxLength={maxLength}
             rows={rows}
             $hasError={!!error}
+            onKeyDown={onKeyDown}
           />
         ) : (
           <S.StyledInput
@@ -60,6 +62,7 @@ const Input = ({
             autoFocus={autoFocus}
             maxLength={maxLength}
             $hasError={!!error}
+            onKeyDown={onKeyDown}
           />
         )}
       </S.InputWrapper>

@@ -1,12 +1,26 @@
+import { useMemo } from 'react'
 import { Heart, Repeat2, UserPlus, AtSign, MessageCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
+import { useUserActions } from '../../../../hooks/useUserActions'
 import { formatDate } from '../../../../utils/formatDate'
 import * as S from './styles'
 import type { NotificationItemProps } from './types'
 
 const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
   const navigate = useNavigate()
+
+  const { isFollowing, followUser, unfollowUser } = useUserActions(
+    notification.actor.id
+  )
+
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...notification.actor,
+      isFollowing
+    }),
+    [notification.actor, isFollowing]
+  )
 
   const getNotificationIcon = () => {
     switch (notification.type) {
@@ -64,6 +78,15 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
     navigate(`/${notification.actor.username}`)
   }
 
+  const handleFollowToggle = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    if (isFollowing) {
+      unfollowUser()
+    } else {
+      followUser()
+    }
+  }
+
   return (
     <S.NotificationContainer onClick={onClick} $isRead={notification.isRead}>
       <S.IconWrapper $color={iconData.color}>{iconData.icon}</S.IconWrapper>
@@ -76,6 +99,9 @@ const NotificationItem = ({ notification, onClick }: NotificationItemProps) => {
               alt={notification.actor.username}
               size="small"
               onClick={handleClickProfile}
+              showProfilePopover={true}
+              userProfileData={userWithFollowStatus}
+              onFollowToggle={handleFollowToggle}
             />
           </S.AvatarWrapper>
 

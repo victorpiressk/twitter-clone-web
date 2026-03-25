@@ -188,6 +188,7 @@ const LoginModal = ({
           </S.FloatingLabel>
           <S.FloatingInput
             type="text"
+            autoFocus
             value={formData.identifier}
             onChange={(e) => handleChange('identifier', e.target.value)}
             onFocus={() => setFocusedField('identifier')}
@@ -254,10 +255,12 @@ const LoginModal = ({
           </S.FloatingLabel>
           <S.FloatingInput
             type="password"
+            autoFocus
             value={formData.password}
             onChange={(e) => handleChange('password', e.target.value)}
             onFocus={() => setFocusedField('password')}
             onBlur={() => setFocusedField(null)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
             $hasValue={!!formData.password}
             $isFocused={focusedField === 'password'}
             $hasError={!!errors.password}

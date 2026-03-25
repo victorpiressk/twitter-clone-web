@@ -1,4 +1,4 @@
-import { transformUser } from './user'
+import { transformUserToCardWithStats } from './user'
 import type { BackendNotification } from '../../../types/contracts/dtos'
 import type {
   Notification,
@@ -14,7 +14,7 @@ export const transformNotification = (
 ): Notification => ({
   id: backendNotification.id,
   type: backendNotification.notification_type,
-  actor: transformUser(backendNotification.actor),
+  actor: transformUserToCardWithStats(backendNotification.actor),
   post: backendNotification.post,
   postPreview: backendNotification.post_preview
     ? {

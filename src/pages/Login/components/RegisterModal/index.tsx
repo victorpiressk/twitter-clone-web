@@ -146,8 +146,8 @@ const RegisterModal = ({
 
       const payload = {
         username: formData.username,
-        email: contactType === 'email' ? formData.contact : '',
-        phone: contactType === 'phone' ? formData.contact : '',
+        email: contactType === 'email' ? formData.contact : null,
+        phone: contactType === 'phone' ? formData.contact : null,
         password: formData.password,
         passwordConfirm: formData.passwordConfirm,
         firstName,
@@ -205,6 +205,7 @@ const RegisterModal = ({
         </S.FloatingLabel>
         <S.FloatingInput
           type="text"
+          autoFocus
           value={formData.name}
           onChange={(e) => handleChange('name', e.target.value)}
           onFocus={() => setFocusedField('name')}
@@ -255,6 +256,7 @@ const RegisterModal = ({
           $hasValue={!!formData.birthDate}
           $isFocused={focusedField === 'birthDate'}
           $hasError={!!errors.birthDate}
+          onKeyDown={(e) => e.key === 'Enter' && handleNextStep(e)}
         />
         {errors.birthDate && <S.InputError>{errors.birthDate}</S.InputError>}
       </S.FloatingInputContainer>
@@ -272,6 +274,7 @@ const RegisterModal = ({
         </S.FloatingLabel>
         <S.FloatingInput
           type="text"
+          autoFocus
           value={formData.username}
           onChange={(e) => handleChange('username', e.target.value)}
           onFocus={() => setFocusedField('username')}
@@ -320,6 +323,7 @@ const RegisterModal = ({
           $hasValue={!!formData.passwordConfirm}
           $isFocused={focusedField === 'passwordConfirm'}
           $hasError={!!errors.passwordConfirm}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
         />
         {errors.passwordConfirm && (
           <S.InputError>{errors.passwordConfirm}</S.InputError>

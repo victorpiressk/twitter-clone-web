@@ -224,6 +224,7 @@ const EditProfileModal = ({
             {/* displayName com split automático */}
             <Input
               name="displayName"
+              autoFocus
               label="Nome"
               value={displayName}
               onChange={handleDisplayNameChange}
@@ -263,6 +264,7 @@ const EditProfileModal = ({
               }
               maxLength={100}
               placeholder="exemplo.com"
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
             />
 
             {/* Campo Data de Nascimento */}

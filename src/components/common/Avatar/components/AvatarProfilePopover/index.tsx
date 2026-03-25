@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePopoverStrategy } from '../../../../../hooks/usePopoverStrategy'
+import { useAppSelector } from '../../../../../store/hooks'
+import { selectCurrentUser } from '../../../../../store/slices/auth/authSlice'
 import Button from '../../../Button'
 import BasePopover from '../../../Popovers/BasePopover'
 import Avatar from '../../index'
@@ -19,6 +21,9 @@ const AvatarProfilePopover = ({
   const navigate = useNavigate()
   const { strategy } = usePopoverStrategy()
   const popoverRef = useRef<HTMLDivElement>(null)
+
+  const currentUser = useAppSelector(selectCurrentUser)
+  const isOwnProfile = currentUser?.id === userData.id
 
   const handleProfileClick = () => {
     navigate(`/${userData.username}`)
@@ -62,13 +67,16 @@ const AvatarProfilePopover = ({
               showProfilePopover={false}
             />
           </div>
-          <Button
-            type="button"
-            variant={userData.isFollowing ? 'outline' : 'secondary'}
-            onClick={handleFollowClick}
-          >
-            {userData.isFollowing ? 'Seguindo' : 'Seguir'}
-          </Button>
+
+          {!isOwnProfile && (
+            <Button
+              type="button"
+              variant={userData.isFollowing ? 'outline' : 'secondary'}
+              onClick={handleFollowClick}
+            >
+              {userData.isFollowing ? 'Seguindo' : 'Seguir'}
+            </Button>
+          )}
         </S.TopRow>
 
         <S.UserInfo onClick={handleProfileClick} style={{ cursor: 'pointer' }}>

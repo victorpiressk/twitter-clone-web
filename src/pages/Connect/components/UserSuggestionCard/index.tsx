@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Avatar from '../../../../components/common/Avatar'
 import Button from '../../../../components/common/Button'
@@ -13,6 +14,14 @@ const UserSuggestionCard = ({
 
   const { isFollowing, isLoading, followUser, unfollowUser } = useUserActions(
     user.id
+  )
+
+  const userWithFollowStatus = useMemo(
+    () => ({
+      ...user,
+      isFollowing
+    }),
+    [user, isFollowing]
   )
 
   const handleUserClick = () => {
@@ -45,7 +54,7 @@ const UserSuggestionCard = ({
           alt={user.firstName}
           size="small"
           showProfilePopover={true}
-          userProfileData={user}
+          userProfileData={userWithFollowStatus}
           onFollowToggle={handleFollowClick}
         />
       </S.AvatarWrapper>
